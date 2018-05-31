@@ -8,7 +8,7 @@ ALWAYS_COMPLY = True
 
 '''
 
-class Node:
+class Node(object):
     '''Bla bla
     
     '''
@@ -36,7 +36,7 @@ class Node:
         self.node_type = None
         self.engine = None
 
-class EdgeProperty:
+class EdgeProperty(object):
     '''Bla bla
     
     '''
@@ -45,7 +45,7 @@ class EdgeProperty:
         self.weight = None
         self.direction = None
 
-class Graph:
+class Graph(object):
     '''Bla bla
 
     '''
