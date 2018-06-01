@@ -5,15 +5,38 @@ class State(object):
     '''Bla bla
 
     '''
+    def append(self, key, value):
+        '''Bla bla
+
+        '''
+
     def set_vector(self, vector):
         '''Bla bla
 
         '''
         self.state_vector = vector
 
+    def __setitem__(self, key, value):
+        '''Bla bla
+
+        '''
+        self.state_vector[key] = value
+
+    def __getitem__(self, key):
+        '''Bla bla
+
+        '''
+        return self.state_vector[key]
+
+    def __iter__(self):
+        '''Bla bla
+
+        '''
+        return self.state_vector.items()
+
     def __init__(self):
 
-        self.state_vector = None
+        self.state_vector = {} 
 
 ALWAYS_COMPLY = True
 

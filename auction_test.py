@@ -2,17 +2,23 @@
 
 '''
 import sys
-from core.graph import Graph, Node
-from core.agent import Agent
+from auction.setup import BuyerAgent, SellerAgent
 
 def main(args):
 
-    person1 = Agent()
-    person1.set_state({'A' : 50, 'B' : 30, 'C' : 10, 'D' : 10})
-    person2 = Agent()
-    person2.set_state({'A' : 40, 'B' : 30, 'C' : 10, 'D' : 20})
-    person3 = Agent()
-    person3.set_state({'A' : 20, 'B' : 0, 'C' : 40, 'D' : 40})
+    person1 = BuyerAgent('Sture')
+    person2 = BuyerAgent('Sverker')
+    person3 = BuyerAgent('Skurt')
+    person4 = SellerAgent('Bjorn')
+    person5 = SellerAgent('Borje')
+
+    person1.product_value({'Ferrari':100.0, 'Volkswagen':40.0})
+    person2.product_value({'Ferrari':102.0, 'Volkswagen':30.0})
+    person3.product_value({'Ferrari':107.0, 'Volkswagen':41.0})
+    person4.product_value({'Ferrari':101.0})
+    person5.product_value({'Volkswagen':22.0})
+
+    auction = Auction(
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
