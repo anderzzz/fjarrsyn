@@ -7,31 +7,17 @@ class BuyerAgent(Agent):
     '''Bla bla
 
     '''
-    def _request_make_a_bid(self):
+    def _request_make_honest_bid(self, item):
         '''Bla bla
 
         '''
-        return True
-
-    def product_value_set(self, product_name, value):
-        '''Bla bla
-
-        '''
-        self.internal_state[product_name] = value
-
-    def product_value(self, pv_map, pv_map_randomize=None):
-        '''Bla bla
-
-        '''
-        for product, value in pv_map.items():
-            # ADD RANDOMIZATION
-            self.product_value_set(product, value)
+        return self.internal_state[item]
 
     def __init__(self, name):
 
         super().__init__(name)
 
-        self.set_request_services('make_bid', self._request_make_a_bid)
+        self.set_request_services('make_honest_bid', self._request_make_honest_bid)
             
 
 class SellerAgent(Agent):
@@ -49,20 +35,6 @@ class SellerAgent(Agent):
 
         '''
         return set(self.internal_state.__iter__())
-
-    def product_value_set(self, product_name, value):
-        '''Bla bla
-
-        '''
-        self.internal_state[product_name] = value
-
-    def product_value(self, pv_map, pv_map_randomize=None):
-        '''Bla bla
-
-        '''
-        for product, value in pv_map.items():
-            # ADD RANDOMIZATION
-            self.product_value_set(product, value)
 
     def __init__(self, name):
     
@@ -87,6 +59,11 @@ class Auction(object):
 
         print (items_to_sell)
 
+        for item in items_to_sell:
+            for agent in self.agents_of_auction:
+                (honest_bid, yesno) = agent.request('make_honest_bid', {'item':item})
+                print (item, agent.name, honest_bid)
+
         raise RuntimeError('FOOBAR')
 
     def __call__(self):
@@ -104,6 +81,7 @@ class Auction(object):
         self.n_rounds = n_rounds
         self.agents_of_auction = agents
 
+        
         if self.auction_type == 'vickrey':
             self.run_auction = self._execute_vickrey
         else:

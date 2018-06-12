@@ -72,31 +72,28 @@ class Agent(object):
     '''Bla bla
 
     '''
-    def set_request_services(self, service_label, service_method,
-                             service_method_kwargs={}, overwrite=False):
+    def set_request_services(self, service_label, service_method, overwrite=False):
         '''Bla bla
 
         '''
         if service_label in self.request_services:
             if overwrite:
-                self.request_services[service_label] = \
-                    (service_method, service_method_kwargs)
+                self.request_services[service_label] = service_method
             else:
                 raise RuntimeError('Agent request method overwrite of %s ' + \
                                    'not authorized' %(service_label))
         else:
-            self.request_services[service_label] = \
-                (service_method, service_method_kwargs)
+            self.request_services[service_label] = service_method
 
     @Capriciousness()
-    def request(self, request_type):
+    def request(self, request_type, kwargs={}):
         '''Bla bla
 
         '''
         if not request_type in self.request_services:
             return NULL_RETURN
 
-        (func, kwargs) = self.request_services[request_type]
+        func = self.request_services[request_type]
         outcome = func(**kwargs)
 
         return (outcome, True)
