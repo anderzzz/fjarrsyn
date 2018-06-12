@@ -86,6 +86,7 @@ class Auction(object):
                 items_to_sell |= sales_items
 
         print (items_to_sell)
+
         raise RuntimeError('FOOBAR')
 
     def __call__(self):

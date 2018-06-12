@@ -5,17 +5,6 @@ class State(object):
     '''Bla bla
 
     '''
-    def append(self, key, value):
-        '''Bla bla
-
-        '''
-
-    def set_vector(self, vector):
-        '''Bla bla
-
-        '''
-        self.state_vector = vector
-
     def __setitem__(self, key, value):
         '''Bla bla
 
@@ -45,24 +34,44 @@ class State(object):
 
         self.state_vector = {} 
 
-ALWAYS_COMPLY = True
+NULL_RETURN = (None, False) 
+
+class Capriciousness(object):
+    '''Bla bla
+
+    '''
+    def always_comply(self):
+        '''Bla bla
+
+        '''
+        return True 
+
+    def never_comply(self):
+        '''Bla bla
+
+        '''
+        return False 
+
+    def __call__(self, f):
+        '''Decorator caller
+
+        '''
+        def wrapped_f(*args):
+            if self.style_func():
+                return f(*args)
+            else:
+                return NULL_RETURN
+        return wrapped_f
+
+    def __init__(self, style_type='always_comply'):
+
+        self.style_type = style_type
+        self.style_func = getattr(self, self.style_type)
 
 class Agent(object):
     '''Bla bla
 
     '''
-    def set_internal_state(self, state_vector):
-        '''Bla bla
-
-        '''
-        self.internal_state.set_vector(state_vector)
-
-    def set_signaled_state(self, state_vector):
-        '''Bla bla
-
-        '''
-        self.signaled_state.set_vector(state_vector)
-
     def set_request_services(self, service_label, service_method,
                              service_method_kwargs={}, overwrite=False):
         '''Bla bla
@@ -79,22 +88,13 @@ class Agent(object):
             self.request_services[service_label] = \
                 (service_method, service_method_kwargs)
 
-    def request_comply(self):
-        '''Bla bla
-
-        '''
-        return ALWAYS_COMPLY
-            
-    # REQUEST HANDLING SHOULD BE A DECORATOR
+    @Capriciousness()
     def request(self, request_type):
         '''Bla bla
 
         '''
         if not request_type in self.request_services:
-            return (None, False)
-
-        if not self.request_comply():
-            return (None, False)
+            return NULL_RETURN
 
         (func, kwargs) = self.request_services[request_type]
         outcome = func(**kwargs)
