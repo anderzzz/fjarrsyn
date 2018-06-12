@@ -3,7 +3,7 @@
 '''
 from core.agent import Agent
 
-class BuyerAgent(object):
+class BuyerAgent(Agent):
     '''Bla bla
 
     '''
@@ -17,7 +17,7 @@ class BuyerAgent(object):
         '''Bla bla
 
         '''
-        self.buyer.internal_state[product_name] = value
+        self.internal_state[product_name] = value
 
     def product_value(self, pv_map, pv_map_randomize=None):
         '''Bla bla
@@ -29,11 +29,12 @@ class BuyerAgent(object):
 
     def __init__(self, name):
 
-        self.buyer = Agent(name)
-        self.buyer.set_request_services('make_bid', self._request_make_a_bid)
+        super().__init__(name)
+
+        self.set_request_services('make_bid', self._request_make_a_bid)
             
 
-class SellerAgent(object):
+class SellerAgent(Agent):
     '''Bla bla
 
     '''
@@ -43,11 +44,17 @@ class SellerAgent(object):
         '''
         return True
 
+    def _request_what_on_sale(self):
+        '''Bla bla
+
+        '''
+        return set(self.internal_state.__iter__())
+
     def product_value_set(self, product_name, value):
         '''Bla bla
 
         '''
-        self.seller.internal_state[product_name] = value
+        self.internal_state[product_name] = value
 
     def product_value(self, pv_map, pv_map_randomize=None):
         '''Bla bla
@@ -59,8 +66,10 @@ class SellerAgent(object):
 
     def __init__(self, name):
     
-        seller = Agent(name)
-        seller.set_request_services('accept_offer', self._request_accept_an_offer)
+        super().__init__(name)
+
+        self.set_request_services('accept_offer', self._request_accept_an_offer)
+        self.set_request_services('what_on_sale', self._request_what_on_sale)
 
 class Auction(object):
     '''Bla bla
@@ -70,18 +79,32 @@ class Auction(object):
         '''Bla bla
 
         '''
-        pass
+        items_to_sell = set([])
+        for agent in self.agents_of_auction:
+            (sales_items, yesno) = agent.request('what_on_sale')
+            if yesno:
+                items_to_sell |= sales_items
+
+        print (items_to_sell)
+        raise RuntimeError('FOOBAR')
 
     def __call__(self):
         '''Bla bla
 
         '''
-        if self.auction_type == 'vickrey':
-            self._execute_vickrey()
-        else:
-            raise RuntimeError('Unknown auction type: %s' %(self.auction_type))
+        for k_round in range(0, self.n_rounds):
+            self.run_auction()
+            #for agent in agents:
+            #    agent.refresh()
 
-    def __init__(self, buyers, sellers, auction_type='vickrey', n_rounds=1):
+    def __init__(self, agents, auction_type='vickrey', n_rounds=1):
 
         self.auction_type = auction_type
+        self.n_rounds = n_rounds
+        self.agents_of_auction = agents
+
+        if self.auction_type == 'vickrey':
+            self.run_auction = self._execute_vickrey
+        else:
+            raise RuntimeError('Unknown auction type: %s' %(self.auction_type))
 

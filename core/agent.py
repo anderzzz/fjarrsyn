@@ -32,7 +32,14 @@ class State(object):
         '''Bla bla
 
         '''
-        return self.state_vector.items()
+        return self.state_vector.keys()
+
+    def __contains__(self, item):
+        '''Bla bla
+
+        '''
+        ret_bool = item in self.state_vector.keys()
+        return ret_bool
 
     def __init__(self):
 
@@ -44,32 +51,32 @@ class Agent(object):
     '''Bla bla
 
     '''
-    def set_internal_state(self, state_vector)
+    def set_internal_state(self, state_vector):
         '''Bla bla
 
         '''
         self.internal_state.set_vector(state_vector)
 
-    def set_signaled_state(self, state_vector)
+    def set_signaled_state(self, state_vector):
         '''Bla bla
 
         '''
         self.signaled_state.set_vector(state_vector)
 
     def set_request_services(self, service_label, service_method,
-                             service_method_kwargs=None, overwrite=False):
+                             service_method_kwargs={}, overwrite=False):
         '''Bla bla
 
         '''
         if service_label in self.request_services:
             if overwrite:
-                self.request_services[service_label] = 
+                self.request_services[service_label] = \
                     (service_method, service_method_kwargs)
             else:
                 raise RuntimeError('Agent request method overwrite of %s ' + \
                                    'not authorized' %(service_label))
         else:
-            self.request_services[service_label] = 
+            self.request_services[service_label] = \
                 (service_method, service_method_kwargs)
 
     def request_comply(self):

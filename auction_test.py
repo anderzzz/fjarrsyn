@@ -2,7 +2,7 @@
 
 '''
 import sys
-from auction.setup import BuyerAgent, SellerAgent
+from auction.setup import Auction, BuyerAgent, SellerAgent
 
 def main(args):
 
@@ -18,7 +18,10 @@ def main(args):
     person4.product_value({'Ferrari':101.0})
     person5.product_value({'Volkswagen':22.0})
 
-    auction = Auction(
+    agents = [person1, person2, person3, person4, person5]
+
+    auction = Auction(agents)
+    auction()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
