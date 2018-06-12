@@ -1,6 +1,9 @@
 '''Agent 
 
 '''
+import numpy as np
+import numpy.random
+
 class State(object):
     '''Bla bla
 
@@ -52,6 +55,16 @@ class Capriciousness(object):
         '''
         return False 
 
+    def fault_bernoulli(self):
+        '''Bla bla
+
+        '''
+        s = np.random.binomial(1, self.p_fault)
+        if not s > 0:
+            return True
+        else:
+            return False
+
     def __call__(self, f):
         '''Decorator caller
 
@@ -63,9 +76,10 @@ class Capriciousness(object):
                 return NULL_RETURN
         return wrapped_f
 
-    def __init__(self, style_type='always_comply'):
+    def __init__(self, style_type='always_comply', p_fault=0.0):
 
         self.style_type = style_type
+        self.p_fault = p_fault
         self.style_func = getattr(self, self.style_type)
 
 class Agent(object):
@@ -85,8 +99,7 @@ class Agent(object):
         else:
             self.request_services[service_label] = service_method
 
-    @Capriciousness()
-    def request(self, request_type, kwargs={}):
+    def _request(self, request_type, kwargs={}):
         '''Bla bla
 
         '''
@@ -98,10 +111,17 @@ class Agent(object):
 
         return (outcome, True)
 
+    def request(self, request_type, kwargs={}):
+        '''Bla bla
+
+        '''
+        request_runner = self.capricious_decorator(self._request)
+        return request_runner(request_type, kwargs)
 
     def __init__(self, name):
 
         self.name = name
+        self.capricious_decorator = Capriciousness(style_type='always_comply')
 
         self.internal_state = State()
         self.signaled_state = State()

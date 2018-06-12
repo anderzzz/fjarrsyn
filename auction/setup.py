@@ -59,6 +59,7 @@ class Auction(object):
 
         print (items_to_sell)
 
+        # CONTINUE BUILD LOGIC
         for item in items_to_sell:
             for agent in self.agents_of_auction:
                 (honest_bid, yesno) = agent.request('make_honest_bid', {'item':item})
