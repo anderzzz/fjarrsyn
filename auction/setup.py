@@ -47,7 +47,7 @@ class Auction(object):
     '''Bla bla
 
     '''
-    def _execute_vickrey(self):
+    def _retrieve_items_on_sale(self):
         '''Bla bla
 
         '''
@@ -57,7 +57,13 @@ class Auction(object):
             if yesno:
                 items_to_sell |= sales_items
 
-        print (items_to_sell)
+        return items_to_sell
+
+    def _execute_vickrey(self):
+        '''Bla bla
+
+        '''
+        items_to_sell = self._retrieve_items_on_sale()
 
         # CONTINUE BUILD LOGIC
         for item in items_to_sell:

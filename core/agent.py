@@ -4,6 +4,8 @@
 import numpy as np
 import numpy.random
 
+from collections import namedtuple
+
 class State(object):
     '''Bla bla
 
@@ -86,24 +88,17 @@ class Agent(object):
     '''Bla bla
 
     '''
-    def set_request_services(self, service_label, service_method, overwrite=False):
+    def _request_feature_labels(self):
         '''Bla bla
 
         '''
-        if service_label in self.request_services:
-            if overwrite:
-                self.request_services[service_label] = service_method
-            else:
-                raise RuntimeError('Agent request method overwrite of %s ' + \
-                                   'not authorized' %(service_label))
-        else:
-            self.request_services[service_label] = service_method
+        return self.features.keys() 
 
-    def _request(self, request_type, kwargs={}):
+    def _request_general(self, request_type, kwargs={}):
         '''Bla bla
 
         '''
-        if not request_type in self.request_services:
+        if not request_type in self._request_feature_labels():
             return NULL_RETURN
 
         func = self.request_services[request_type]
@@ -111,12 +106,25 @@ class Agent(object):
 
         return (outcome, True)
 
-    def request(self, request_type, kwargs={}):
+    def request_feature(self, request_type, kwargs={}):
         '''Bla bla
 
         '''
-        request_runner = self.capricious_decorator(self._request)
+        request_runner = self.capricious_decorator(self._request_general)
         return request_runner(request_type, kwargs)
+
+    def set_feature(self, feature_label, feature_method, overwrite=False):
+        '''Bla bla
+
+        '''
+        if feature_label in self._request_feature_labels():
+            if overwrite:
+                self.features[feature_label] = feature_method
+            else:
+                raise RuntimeError('Agent request method overwrite of %s ' + \
+                                   'not authorized' %(service_label))
+        else:
+            self.features[feature_label] = feature_method
 
     def __init__(self, name):
 
@@ -126,10 +134,9 @@ class Agent(object):
         self.internal_state = State()
         self.signaled_state = State()
 
-        self.external_view = None
-
-        self.utility_engine = None
-        self.action_selector = None
-        
-        self.request_services = {}
+        self.belief = None
+        self.plan = None
+        self.sensors = None
+        self.actuators = None
+        self.features = {'list_my_features': self._request_feature_labels}
 
