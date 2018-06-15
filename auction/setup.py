@@ -2,48 +2,58 @@
 
 '''
 from core.agent import Agent
+from core.agent_ms import AgentManagementSystem
 
-class BuyerAgent(Agent):
+class AuctionParticipant(Agent):
     '''Bla bla
 
     '''
-    def _request_make_honest_bid(self, item):
+    def _request_what_selling(self):
         '''Bla bla
 
         '''
-        return self.internal_state[item]
+        return self.database.keys()
 
-    def __init__(self, name):
-
-        super().__init__(name)
-
-        self.set_request_services('make_honest_bid', self._request_make_honest_bid)
-            
-
-class SellerAgent(Agent):
-    '''Bla bla
-
-    '''
-    def _request_accept_an_offer(self):
+    def _request_make_honest_bid(self, item_name):
         '''Bla bla
 
         '''
-        return True
+        belief_label = 'buy_' + item_name
+        if belief_label in self.belief:
+            bid = self.belief[belief_label]
+        else:
+            bid = None
 
-    def _request_what_on_sale(self):
+        return bid
+
+    def _request_accept_to_sell(self, item_name, price_offer):
         '''Bla bla
 
         '''
-        return set(self.internal_state.__iter__())
+        belief_label = 'sell_' + item_name
+        if belief_label in self.belief:
+            valuation = self.belief[belief_label]
+            threshold_accept = valuation <= price_offer
+        else:
+            threshold_accept = None
 
-    def __init__(self, name):
-    
-        super().__init__(name)
+        return threshold_accept
 
-        self.set_request_services('accept_offer', self._request_accept_an_offer)
-        self.set_request_services('what_on_sale', self._request_what_on_sale)
+    def __init__(self, unique_id, name, items_on_hand={}, true_valuation={}):
 
-class Auction(object):
+        super().__init__(unique_id, name)
+
+        for thing, number_in_stock in items_on_hand.items():
+            self.update_database(thing, new_value=number_in_stock)
+
+        for thing, valuation in true_valuation.items():
+            self.update_belief(thing, new_belief=valuation)
+
+        self.set_service('request_what_selling', self._request_what_selling)
+        self.set_service('request_make_honest_bid', self._request_make_honest_bid)
+        self.set_service('request_accept_to_sell', self._request_accept_to_sell)
+
+class Auction(AgentManagementSystem):
     '''Bla bla
 
     '''

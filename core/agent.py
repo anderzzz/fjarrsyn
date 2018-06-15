@@ -126,9 +126,44 @@ class Agent(object):
         else:
             self.services[service_label] = service_method
 
-    def __init__(self, name):
+    def _update_dict(self, dict_name, entry, new_v=None, v_diff=None):
+        '''Bla bla
+
+        '''
+        ddd = getattr(self, dict_name)
+
+        if not (v_diff is None):
+            if not entry in ddd.keys():
+                raise KeyError('Unable to find %s for agent %s' %(entry, self.name))
+
+            else:
+                x_old = ddd[entry] 
+                x_new = x_old + value_diff
+                ddd[entry] = x_new
+
+        elif not (new_value is None):
+            ddd[entry] = new_value
+
+        else:
+            raise RuntimeError('Update of agent %s attempted without value')
+
+    def update_database(self, entry, new_value=None, value_diff=None):
+        '''Bla bla
+
+        '''
+        self._update_dict('database', entry, new_value, value_diff)
+
+    def update_belief(self, about_what, new_belief=None, belief_diff=None):
+        '''Bla bla
+
+        '''
+        self._update_dict('belief', about_what, new_belief, belief_diff)
+
+    def __init__(self, unique_id, name):
 
         self.name = name
+        self.unique_id = unique_id
+
         self.capricious_decorator = Capriciousness(style_type='always_comply')
 
         self.internal_state = State()
