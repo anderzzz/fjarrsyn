@@ -49,9 +49,9 @@ class AuctionParticipant(Agent):
         for thing, valuation in true_valuation.items():
             self.update_belief(thing, new_belief=valuation)
 
-        self.set_service('request_what_selling', self._request_what_selling)
-        self.set_service('request_make_honest_bid', self._request_make_honest_bid)
-        self.set_service('request_accept_to_sell', self._request_accept_to_sell)
+        self.set_service('what_is_sold', self._request_what_selling)
+        self.set_service('make_honest_bid', self._request_make_honest_bid)
+        self.set_service('accept_to_sell', self._request_accept_to_sell)
 
 class Auction(AgentManagementSystem):
     '''Bla bla
@@ -62,8 +62,8 @@ class Auction(AgentManagementSystem):
 
         '''
         items_to_sell = set([])
-        for agent in self.agents_of_auction:
-            (sales_items, yesno) = agent.request('what_on_sale')
+        for agent in self.agents_iter():
+            (sales_items, yesno) = agent.request_service('what_is_sold')
             if yesno:
                 items_to_sell |= sales_items
 
@@ -77,8 +77,8 @@ class Auction(AgentManagementSystem):
 
         # CONTINUE BUILD LOGIC
         for item in items_to_sell:
-            for agent in self.agents_of_auction:
-                (honest_bid, yesno) = agent.request('make_honest_bid', {'item':item})
+            for agent in self.agents_iter():
+                (honest_bid, yesno) = agent.request_service('make_honest_bid', {'item':item})
                 print (item, agent.name, honest_bid)
 
         raise RuntimeError('FOOBAR')
@@ -94,10 +94,10 @@ class Auction(AgentManagementSystem):
 
     def __init__(self, agents, auction_type='vickrey', n_rounds=1):
 
+        super().__init__(name, agents)
+
         self.auction_type = auction_type
         self.n_rounds = n_rounds
-        self.agents_of_auction = agents
-
         
         if self.auction_type == 'vickrey':
             self.run_auction = self._execute_vickrey

@@ -6,6 +6,7 @@ from auction.setup import Auction, BuyerAgent, SellerAgent
 
 def main(args):
 
+    #REWRITE THIS STUFF
     person1 = BuyerAgent('Sture')
     person2 = BuyerAgent('Sverker')
     person3 = BuyerAgent('Skurt')

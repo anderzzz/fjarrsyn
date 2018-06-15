@@ -159,10 +159,10 @@ class Agent(object):
         '''
         self._update_dict('belief', about_what, new_belief, belief_diff)
 
-    def __init__(self, unique_id, name):
+    def __init__(self, name):
 
         self.name = name
-        self.unique_id = unique_id
+        self.agent_id_system = None
 
         self.capricious_decorator = Capriciousness(style_type='always_comply')
 
