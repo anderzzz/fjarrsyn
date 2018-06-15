@@ -88,17 +88,17 @@ class Agent(object):
     '''Bla bla
 
     '''
-    def _request_feature_labels(self):
+    def _request_service_labels(self):
         '''Bla bla
 
         '''
-        return self.features.keys() 
+        return self.services.keys() 
 
     def _request_general(self, request_type, kwargs={}):
         '''Bla bla
 
         '''
-        if not request_type in self._request_feature_labels():
+        if not request_type in self._request_service_labels():
             return NULL_RETURN
 
         func = self.request_services[request_type]
@@ -106,25 +106,25 @@ class Agent(object):
 
         return (outcome, True)
 
-    def request_feature(self, request_type, kwargs={}):
+    def request_service(self, request_type, kwargs={}):
         '''Bla bla
 
         '''
         request_runner = self.capricious_decorator(self._request_general)
         return request_runner(request_type, kwargs)
 
-    def set_feature(self, feature_label, feature_method, overwrite=False):
+    def set_service(self, service_label, service_method, overwrite=False):
         '''Bla bla
 
         '''
-        if feature_label in self._request_feature_labels():
+        if service_label in self._request_service_labels():
             if overwrite:
-                self.features[feature_label] = feature_method
+                self.services[service_label] = service_method
             else:
                 raise RuntimeError('Agent request method overwrite of %s ' + \
                                    'not authorized' %(service_label))
         else:
-            self.features[feature_label] = feature_method
+            self.services[service_label] = service_method
 
     def __init__(self, name):
 
@@ -135,8 +135,10 @@ class Agent(object):
         self.signaled_state = State()
 
         self.belief = None
+        self.goal = None
         self.plan = None
         self.sensors = None
         self.actuators = None
-        self.features = {'list_my_features': self._request_feature_labels}
+        self.services = {'list_my_services': self._request_service_labels}
+        self.database = None
 
