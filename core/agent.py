@@ -101,7 +101,7 @@ class Agent(object):
         if not request_type in self._request_service_labels():
             return NULL_RETURN
 
-        func = self.request_services[request_type]
+        func = self.services[request_type]
         outcome = func(**kwargs)
 
         return (outcome, True)
@@ -141,8 +141,8 @@ class Agent(object):
                 x_new = x_old + value_diff
                 ddd[entry] = x_new
 
-        elif not (new_value is None):
-            ddd[entry] = new_value
+        elif not (new_v is None):
+            ddd[entry] = new_v
 
         else:
             raise RuntimeError('Update of agent %s attempted without value')
@@ -169,11 +169,11 @@ class Agent(object):
         self.internal_state = State()
         self.signaled_state = State()
 
-        self.belief = None
+        self.belief = {} 
         self.goal = None
         self.plan = None
         self.sensors = None
         self.actuators = None
         self.services = {'list_my_services': self._request_service_labels}
-        self.database = None
+        self.database = {} 
 

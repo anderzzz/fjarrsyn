@@ -39,9 +39,9 @@ class AuctionParticipant(Agent):
 
         return threshold_accept
 
-    def __init__(self, unique_id, name, items_on_hand={}, true_valuation={}):
+    def __init__(self, name, items_on_hand={}, true_valuation={}):
 
-        super().__init__(unique_id, name)
+        super().__init__(name)
 
         for thing, number_in_stock in items_on_hand.items():
             self.update_database(thing, new_value=number_in_stock)
@@ -78,7 +78,7 @@ class Auction(AgentManagementSystem):
         # CONTINUE BUILD LOGIC
         for item in items_to_sell:
             for agent in self.agents_iter():
-                (honest_bid, yesno) = agent.request_service('make_honest_bid', {'item':item})
+                (honest_bid, yesno) = agent.request_service('make_honest_bid', {'item_name':item})
                 print (item, agent.name, honest_bid)
 
         raise RuntimeError('FOOBAR')
@@ -92,7 +92,7 @@ class Auction(AgentManagementSystem):
             #for agent in agents:
             #    agent.refresh()
 
-    def __init__(self, agents, auction_type='vickrey', n_rounds=1):
+    def __init__(self, name, agents, auction_type='vickrey', n_rounds=1):
 
         super().__init__(name, agents)
 

@@ -20,4 +20,4 @@ class AgentManagementSystem(object):
         self.agents_in_scope = {}
         for agent in agents:
             agent.agent_id_system = str(uuid4())
-            self.agents_in_scope[agent_id_system] = agent
+            self.agents_in_scope[agent.agent_id_system] = agent
