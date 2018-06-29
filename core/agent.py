@@ -159,6 +159,12 @@ class Agent(object):
         '''
         self._update_dict('belief', about_what, new_belief, belief_diff)
 
+    def update_sensor(self, precept, sensor_function):
+        '''Bla bla
+
+        '''
+        self._update_dict('sensors', precept, sensor_function)
+
     def __init__(self, name):
 
         self.name = name
