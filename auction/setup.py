@@ -75,13 +75,13 @@ class Auction(AgentManagementSystem):
         '''
         items_to_sell = self._retrieve_items_on_sale()
 
-        # CONTINUE BUILD LOGIC
+        raise RuntimeError('Not implemented beyond this point')
+
         for item in items_to_sell:
             for agent in self.agents_iter():
                 (honest_bid, yesno) = agent.request_service('make_honest_bid', {'item_name':item})
                 print (item, agent.name, honest_bid)
 
-        raise RuntimeError('FOOBAR')
 
     def __call__(self):
         '''Bla bla

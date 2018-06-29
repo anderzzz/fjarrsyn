@@ -6,7 +6,8 @@ from auction.setup import Auction, AuctionParticipant
 
 def main(args):
 
-    #REWRITE THIS STUFF
+    # Next challenge is to create VCG where number of item preferences can be
+    # expressed in sales or purchase 
     person1 = AuctionParticipant('Steve',
                   items_on_hand={'Ferrari':10}, 
                   true_valuation={'buy_Ferrari':101.0, 'sell_Ferrari':111.0})
