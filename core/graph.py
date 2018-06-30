@@ -3,38 +3,14 @@
 '''
 import pandas as pd
 
-ALWAYS_COMPLY = True
-'''For possible extension to agents that responds to requests
-
-'''
-
 class Node(object):
     '''Bla bla
     
     '''
-    def set_name(self, name):
-        '''Set name of node
-        
-        Parameters
-        ----------
-        name
-            The name to assign to node
+    def __init__(self, name, object_content):
 
-        Returns
-        -------
-        bool
-            Boolean if naming request was complied with
-
-        '''
-        self.name = name
-    
-        return ALWAYS_COMPLY
-        
-    def __init__(self):
-
-        self.name = ''
-        self.node_type = None
-        self.engine = None
+        self.name = name 
+        self.content = object_content
 
 class EdgeProperty(object):
     '''Bla bla

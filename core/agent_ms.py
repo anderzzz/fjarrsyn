@@ -13,7 +13,7 @@ class AgentManagementSystem(object):
         '''
         return iter(self.agents_in_scope.values())
 
-    def __init__(self, name, agents):
+    def __init__(self, name, agents, agents_graph=None):
 
         self.name = name
 
@@ -21,3 +21,8 @@ class AgentManagementSystem(object):
         for agent in agents:
             agent.agent_id_system = str(uuid4())
             self.agents_in_scope[agent.agent_id_system] = agent
+
+        if agents_graph is None:
+            agents_graph = Graph()
+            nodes = [Node('dummy', agent) for agent in agents]
+            agents_graph.build_complete_nondirectional(nodes)
