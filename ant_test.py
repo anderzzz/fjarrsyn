@@ -11,19 +11,19 @@ from core.graph import Graph
 def parse_(argv):
 
     parser = argparse.ArgumentParser()
-    parser.add_arguments('--n-ants',
+    parser.add_argument('--n-ants',
                          dest='n_ants',
                          default='10',
                          help='Number of ants in colony')
-    parser.add_arguments('--rebel-type',
+    parser.add_argument('--rebel-type',
                          dest='rebel_type',
                          default='single_value',
                          help='Type of rebel distribution')
-    parser.add_arguments('--rebel-index',
+    parser.add_argument('--rebel-index',
                          dest='rebel_index',
                          default='0.1',
                          help='Rebel index, meaning set by --rebel-type')
-    parser.add_arguments('--n-opinions',
+    parser.add_argument('--n-opinions',
                          dest='n_opinions',
                          default='2',
                          help='Number of distinct opinions')
@@ -34,7 +34,7 @@ def parse_(argv):
     rebel_index = float(args.rebel_index)
     n_opinions = int(args.n_opinions)
 
-    return n_ants, rebel_type, rebel_index, n_opinions
+    return n_ants, args.rebel_type, rebel_index, n_opinions
 
 def main(args):
 

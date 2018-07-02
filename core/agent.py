@@ -178,8 +178,8 @@ class Agent(object):
         self.belief = {} 
         self.goal = None
         self.plan = None
-        self.sensors = None
-        self.actuators = None
+        self.sensors = {} 
+        self.actuators = {}
         self.services = {'list_my_services': self._request_service_labels}
         self.database = {} 
 

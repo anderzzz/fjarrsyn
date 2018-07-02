@@ -1,6 +1,7 @@
 '''Bla bla
 
 '''
+import random
 import pandas as pd
 
 class Node(object):
@@ -38,6 +39,19 @@ class Graph(object):
         for k_node1, node1 in enumerate(nodes):
             for node2 in nodes[k_node1:]:
                 connections.append((node1, node2, EdgeProperty()))
+
+        self._populate(nodes, connections)
+
+    def build_poisson_nondirectional(self, nodes, p):
+        '''Bla bla
+
+        '''
+        connections = []
+        for k_node1, node1 in enumerate(nodes):
+            for node2 in nodes[k_node1:]:
+                yes_no = random.random()
+                if yes_no < p:
+                    connections.append((node1, node2, EdgeProperty()))
 
         self._populate(nodes, connections)
 

@@ -4,6 +4,8 @@
 from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
 
+from core.graph import Graph, Node
+
 class Ant(Agent):
     '''Bla bla
 
@@ -40,9 +42,14 @@ class AntColony(AgentManagementSystem):
         '''
         pass
 
-    def __init__(self, name, agents):
+    def __init__(self, name, agents, graph_type='poisson', graph_p=0.5):
 
-        super().__init__(name, agents)
+        ant_relations = Graph()
+        nodes = [Node('ant_%s' %(str(k)), agent) for k, agent in enumerate(agents)]
+        if graph_type == 'poisson':
+            ant_relations.build_poisson_nondirectional(nodes, graph_p)
+
+        super().__init__(name, agents, full_agents_graph=ant_relations)
 
         for ant in self.agents_iter():
             ant.update_sensor('neighbours_opinions', self._obtain_neighbours_opinions)
