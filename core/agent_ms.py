@@ -9,8 +9,20 @@ class AgentManagementSystem(object):
     '''Bla bla
 
     '''
-    def get_neighbours(self, agent_index):
-        '''Bla bla
+    def graph_neighbours_to(self, agent_index):
+        '''Method to extract the agent objects neighbours in the graph to the
+        agent of a certain system identifier
+
+        Parameters
+        ----------
+        agent_index : str
+            The agent identifier within the system, available from the
+            `agent_id_system` attribute
+
+        Returns
+        -------
+        agents_hood : set
+            Set of agents directly adjacent to the given agent
 
         '''
         adjacency_list = self.agents_graph.get_adjacency_list()
@@ -27,8 +39,14 @@ class AgentManagementSystem(object):
 
         return set(ret_list)
 
-    def agents_iter(self):
-        '''Bla bla
+    def iteritems(self):
+        '''Iterator over the agents of the agent management system in no
+        particular order
+
+        Returns
+        -------
+        agent_iter 
+            Agent iterator
 
         '''
         return iter(self.agents_in_scope.values())

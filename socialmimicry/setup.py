@@ -11,7 +11,17 @@ class Ant(Agent):
 
     '''
     def _request_what_is_opinion(self):
-        '''Bla bla
+        '''Unadulterated service request method to supply agent opinion
+
+        Notes
+        -----
+            Should not be directly accessed from an external source, rather the
+            `request_service` method is what is publically available.
+
+        Returns
+        -------
+        my_opinion 
+            The opinion of the agent
 
         '''
         return self.belief['my_opinion']
@@ -29,8 +39,8 @@ class Ant(Agent):
         self.update_belief('rebel', rebel_index)
         self.update_belief('my_opinion', opinion_init)
 
-        self.set_service('what_is_opinion', self._request_what_is_opinion)
-        self.set_service('form_new_opinion', self._request_form_new_opinion)
+        self.add_service('what_is_opinion', self._request_what_is_opinion)
+        self.add_service('form_new_opinion', self._request_form_new_opinion)
 
 class AntColony(AgentManagementSystem):
     '''Bla bla
@@ -62,8 +72,7 @@ class AntColony(AgentManagementSystem):
 
         super().__init__(name, agents, full_agents_graph=ant_relations)
 
-        for ant in self.agents_iter():
-            # HOW TO SET SENSOR TO JUST PART OF GRAPH?
+        for ant in self.iteritems():
             ant.update_sensor('neighbours_opinions',
                               self._obtain_neighbours_opinions, 
                               {'agent_index': ant.agent_id_system})

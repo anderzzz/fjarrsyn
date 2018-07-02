@@ -89,32 +89,105 @@ class Agent(object):
 
     '''
     def _request_service_labels(self):
-        '''Bla bla
+        '''Method for the mandatory service for an agent to announce labels for
+        its requestable services.
+
+        Notes
+        -----
+            This method should not be accessed directly, only through the
+            `request_service` method should this method be executed.
+
+        Returns
+        -------
+        service_labels : set
+            Service labels for requestable services by the agent
 
         '''
         return self.services.keys() 
 
-    def _request_general(self, request_type, kwargs={}):
-        '''Bla bla
+    def _request_root(self, request_type, kwargs={}):
+        '''The method that executes the request of service. The method should
+        not be called directly but accessed via `request_service`.
+
+        Notes
+        -----
+            The method has multiple return points, including a very general
+            exception handling, such that an external agent providing a bad
+            request does not force the agent to break. In these circumstances a
+            `NULL_RETURN` is returned of identical format as the other return.
+
+        Parameters
+        ----------
+        request_type : str
+            The label for the service that is requested
+        kwargs : dict, optional
+            Optional dictionary of arguments to be passed onto the service
+            method
+
+        Returns
+        -------
+        outcome 
+            Return variable containing the outcome of the requested service
+        performed_service : bool
+            Variable that indicates if the service was executed or denied for
+            some reason by the agent
 
         '''
         if not request_type in self._request_service_labels():
             return NULL_RETURN
 
-        func = self.services[request_type]
-        outcome = func(**kwargs)
+        else:
+            func = self.services[request_type]
+
+        try:
+            outcome = func(**kwargs)
+        except Exception:
+            return NULL_RETURN
 
         return (outcome, True)
 
-    def request_service(self, request_type, kwargs={}):
-        '''Bla bla
+    def request_service(self, service_label, kwargs={}):
+        '''Public method for external agents to request present agent to supply
+        some service as specified by the `service_label`.
+
+        Notes
+        -----
+            Formally the method returns a function that has been decorated with
+            a model of capricious behaviour on part of the agent.
+
+        Parameters
+        ----------
+        service_label : str
+            String label for the service that is requested
+        kwargs : dict, optional
+            Optional dictionary of arguments to be passed onto the service
+            method
+
+        Returns
+        -------
+        outcome 
+            Return variable containing the outcome of the requested service
+        performed_service : bool
+            Variable that indicates if the service was executed or denied for
+            some reason by the agent
 
         '''
-        request_runner = self.capricious_decorator(self._request_general)
-        return request_runner(request_type, kwargs)
+        request_runner = self.capricious_decorator(self._request_root)
+        return request_runner(service_label, kwargs)
 
-    def set_service(self, service_label, service_method, overwrite=False):
-        '''Bla bla
+    def add_service(self, service_label, service_method, overwrite=False):
+        '''Add service method and associate it to a service label that can be
+        requested by an external agent
+
+        Parameters
+        ----------
+        service_label : str
+            The label of the service that the agent is imbued with
+        service_method : function
+            An executable function that executes the agent service
+        overwrite : bool, optional
+            If a service method already exists with the given label the
+            overwriting only takes place if this Boolean is True
 
         '''
         if service_label in self._request_service_labels():
@@ -126,16 +199,32 @@ class Agent(object):
         else:
             self.services[service_label] = service_method
 
-    def sense(self, precept):
-        '''Bla bla
+    def _sense(self, precept):
+        '''Method for agent to sense a precept of the environment. The method
+        should only be called by the agent itself
+
+        Parameters
+        ----------
+        precept : str
+            Label for the precept to be sensed
+
+        Returns
+        -------
+        outcome
+            Variable with data returned from the sensor
+
+        Raises
+        ------
+        RuntimeError
+            If no sensor is associated with the provided precept
 
         '''
-        print (precept)
-        print (self.sensors)
-        print (self.sensors[precept])
-        (sensor_func, sensor_func_kwargs) = self.sensors[precept]
-        print (sensor_func)
-        print (sensor_func_kwargs)
+        if not precept in self.sensors:
+            raise RuntimeError('Agent lacks sensor for precept %s' %(precept))
+
+        else:
+            (sensor_func, sensor_func_kwargs) = self.sensors[precept]
+
         outcome = sensor_func(**sensor_func_kwargs)
 
         return outcome
