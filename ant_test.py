@@ -52,5 +52,15 @@ def main(args):
 
     colony = AntColony('the_pile', ants)
 
+    print (colony)
+    for x in colony.agents_iter():
+        print (x)
+        x.request_sensor('neighbours_opinions')
+
+    print (colony.agents_graph)
+    print (colony.agents_graph.get_adjacency_matrix())
+
+
+
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

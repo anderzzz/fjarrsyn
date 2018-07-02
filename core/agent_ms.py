@@ -9,6 +9,14 @@ class AgentManagementSystem(object):
     '''Bla bla
 
     '''
+    def get_neighbours(self, agent_index):
+        '''Bla bla
+
+        '''
+        adjacency_list = self.agents_graph.get_adjacency_list
+        print (adjacency_list)
+        raise RuntimeError('DUMMY')
+
     def agents_iter(self):
         '''Bla bla
 

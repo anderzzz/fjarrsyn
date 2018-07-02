@@ -36,10 +36,12 @@ class AntColony(AgentManagementSystem):
     '''Bla bla
 
     '''
-    def _obtain_neighbours_opinions(self):
+    def _obtain_neighbours_opinions(self, agent_index):
         '''Bla bla
 
         '''
+        self.get_neighbours(agent_index)
+        # CALL NEIGHBOUR FUNC IN PARENT
         pass
 
     def __init__(self, name, agents, graph_type='poisson', graph_p=0.5):
@@ -48,8 +50,12 @@ class AntColony(AgentManagementSystem):
         nodes = [Node('ant_%s' %(str(k)), agent) for k, agent in enumerate(agents)]
         if graph_type == 'poisson':
             ant_relations.build_poisson_nondirectional(nodes, graph_p)
+        else:
+            raise RuntimeError('Unknown graph type for ant colony: %s' %(graph_type))
 
         super().__init__(name, agents, full_agents_graph=ant_relations)
 
         for ant in self.agents_iter():
-            ant.update_sensor('neighbours_opinions', self._obtain_neighbours_opinions)
+            # HOW TO SET SENSOR TO JUST PART OF GRAPH?
+            ant.update_sensor('neighbours_opinions',
+                              self._obtain_neighbours_opinions, ant.agent_id_system)
