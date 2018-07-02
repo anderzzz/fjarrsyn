@@ -13,9 +13,19 @@ class AgentManagementSystem(object):
         '''Bla bla
 
         '''
-        adjacency_list = self.agents_graph.get_adjacency_list
-        print (adjacency_list)
-        raise RuntimeError('DUMMY')
+        adjacency_list = self.agents_graph.get_adjacency_list()
+
+        ret_list = []
+        for ind, connection_tuple in adjacency_list.iteritems():
+            agent_id1 = connection_tuple[0].content.agent_id_system
+            agent_id2 = connection_tuple[1].content.agent_id_system
+           
+            if agent_id1 == agent_index:
+                ret_list.append(connection_tuple[1].content)
+            elif agent_id2 == agent_index:
+                ret_list.append(connection_tuple[0].content)
+
+        return set(ret_list)
 
     def agents_iter(self):
         '''Bla bla

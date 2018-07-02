@@ -40,9 +40,16 @@ class AntColony(AgentManagementSystem):
         '''Bla bla
 
         '''
-        self.get_neighbours(agent_index)
-        # CALL NEIGHBOUR FUNC IN PARENT
-        pass
+        neighbour_agents = self.get_neighbours(agent_index)
+
+        ret = []
+        for agent in neighbour_agents:
+            opinion, responded = agent.request_service('what_is_opinion')
+
+            if responded:
+                ret.append(opinion)
+
+        return ret
 
     def __init__(self, name, agents, graph_type='poisson', graph_p=0.5):
 
@@ -58,4 +65,5 @@ class AntColony(AgentManagementSystem):
         for ant in self.agents_iter():
             # HOW TO SET SENSOR TO JUST PART OF GRAPH?
             ant.update_sensor('neighbours_opinions',
-                              self._obtain_neighbours_opinions, ant.agent_id_system)
+                              self._obtain_neighbours_opinions, 
+                              {'agent_index': ant.agent_id_system})

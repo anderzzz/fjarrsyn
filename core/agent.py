@@ -126,22 +126,19 @@ class Agent(object):
         else:
             self.services[service_label] = service_method
 
-    # FIX: SENSOR CALL INTEGRATE WITH SERVICE CALL
-    def _request_sensor(self, sensor_type, kwargs={}):
+    def sense(self, precept):
         '''Bla bla
 
         '''
-        func = self.sensors[sensor_type]
-        outcome = func(**kwargs)
+        print (precept)
+        print (self.sensors)
+        print (self.sensors[precept])
+        (sensor_func, sensor_func_kwargs) = self.sensors[precept]
+        print (sensor_func)
+        print (sensor_func_kwargs)
+        outcome = sensor_func(**sensor_func_kwargs)
 
-        return (outcome, True)
-
-    def request_sensor(self, sensor_type, kwargs={}):
-        '''Bla bla
-
-        '''
-        request_runner = self.capricious_decorator(self._request_sensor)
-        return request_runner(sensor_type, kwargs)
+        return outcome
 
     def _update_dict(self, dict_name, entry, new_v=None, v_diff=None):
         '''Bla bla

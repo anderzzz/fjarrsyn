@@ -55,7 +55,9 @@ def main(args):
     print (colony)
     for x in colony.agents_iter():
         print (x)
-        x.request_sensor('neighbours_opinions')
+        yy = x.sense('neighbours_opinions')
+        print (yy)
+        raise RuntimeError('NEIN')
 
     print (colony.agents_graph)
     print (colony.agents_graph.get_adjacency_matrix())
