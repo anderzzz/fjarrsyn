@@ -31,7 +31,6 @@ class Ant(Agent):
         '''
         opinions_around_me = self._sense('neighbours_opinions')
         n_neighbours = len(opinions_around_me)
-        print (opinions_around_me)
 
         if random.random() > self.belief['rebel']:
             one_opinion = opinions_around_me[random.randrange(n_neighbours)]

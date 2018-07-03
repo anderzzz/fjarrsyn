@@ -28,18 +28,23 @@ def parse_(argv):
                          dest='n_opinions',
                          default='2',
                          help='Number of distinct opinions')
+    parser.add_argument('--n-steps-per-ant',
+                        dest='n_step_factor',
+                        default='1',
+                        help='Average number of steps per ant in simulation')
 
     args = parser.parse_args(argv)
 
     n_ants = int(args.n_ants)
     rebel_index = float(args.rebel_index)
     n_opinions = int(args.n_opinions)
+    n_step_factor = int(args.n_step_factor)
 
-    return n_ants, args.rebel_type, rebel_index, n_opinions
+    return n_ants, args.rebel_type, rebel_index, n_opinions, n_step_factor
 
 def main(args):
 
-    n_ants, rebel_type, rebel_index, n_opinions = parse_(args)
+    n_ants, rebel_type, rebel_index, n_opinions, n_step_factor = parse_(args)
 
     ants = []
     for k_ant in range(n_ants):
@@ -53,11 +58,14 @@ def main(args):
 
     colony = AntColony('the_pile', ants)
 
-    for x in colony.iteritems():
-        print (x, x.belief['my_opinion'])
-        x() 
-        print (x, x.belief['my_opinion'])
+    n_iterations = n_ants * n_step_factor
+    k_iteration = 0
+    while k_iteration < n_iterations:
+        agent_selected = random.choice(colony)
+        print (agent_selected.agent_id_system)
+        agent_selected()
 
+        k_iteration += 1
 
 
 if __name__ == '__main__':

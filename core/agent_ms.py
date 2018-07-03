@@ -2,6 +2,7 @@
 
 '''
 from uuid import uuid4
+from collections import OrderedDict
 
 from core.graph import Graph
 
@@ -51,11 +52,19 @@ class AgentManagementSystem(object):
         '''
         return iter(self.agents_in_scope.values())
 
+    def __len__(self):
+
+        return len(self.agents_in_scope)
+
+    def __getitem__(self, key):
+
+        return list(self.agents_in_scope.values())[key]
+
     def __init__(self, name, agents, full_agents_graph=None, seed=42):
 
         self.name = name
 
-        self.agents_in_scope = {}
+        self.agents_in_scope = OrderedDict() 
         for agent in agents:
             agent.agent_id_system = str(uuid4())
             self.agents_in_scope[agent.agent_id_system] = agent
