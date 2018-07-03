@@ -6,7 +6,7 @@ import argparse
 import random
 
 from socialmimicry.ant import Ant
-from socialmimicry.antcolony import AntColony
+from socialmimicry.antcolony import AntColony, AntColonySummarizer
 from core.graph import Graph
 
 def parse_(argv):
@@ -62,10 +62,13 @@ def main(args):
     k_iteration = 0
     while k_iteration < n_iterations:
         agent_selected = random.choice(colony)
-        print (agent_selected.agent_id_system)
         agent_selected()
 
         k_iteration += 1
+
+    summy = AntColonySummarizer(colony)
+    out = summy.beliefs()
+    print (out)
 
 
 if __name__ == '__main__':

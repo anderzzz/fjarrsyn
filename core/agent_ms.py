@@ -60,7 +60,7 @@ class AgentManagementSystem(object):
 
         return list(self.agents_in_scope.values())[key]
 
-    def __init__(self, name, agents, full_agents_graph=None, seed=42):
+    def __init__(self, name, agents, full_agents_graph=None):
 
         self.name = name
 
@@ -81,3 +81,24 @@ class AgentManagementSystem(object):
             else:
                 raise RuntimeError('Agent Management System given graph not ' + \
                                    'of the Graph class')
+
+class AgentSystemSummarizer(object):
+    '''Bla bla
+
+    '''
+    def nnodes(self):
+        '''Bla bla
+
+        '''
+        return len(self.system)
+
+    def graph_properties(self):
+        '''Bla bla
+
+        '''
+        # Return a namedtuple with descriptive data of graph
+        pass
+
+    def __init__(self, agent_ms):
+
+        self.system = agent_ms

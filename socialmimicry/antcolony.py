@@ -1,7 +1,10 @@
 '''Bla bla
 
 '''
+from collections import Counter, defaultdict
+
 from core.agent_ms import AgentManagementSystem
+from core.agent_ms import AgentSystemSummarizer
 
 from core.graph import Graph, Node
 
@@ -39,3 +42,27 @@ class AntColony(AgentManagementSystem):
             ant.update_sensor('neighbours_opinions',
                               self._obtain_neighbours_opinions, 
                               {'agent_index': ant.agent_id_system})
+
+class AntColonySummarizer(AgentSystemSummarizer):
+    '''Bla bla
+
+    '''
+    def beliefs(self):
+        '''Bla bla
+
+        '''
+        transpose = defaultdict(list) 
+        for ant in self.system.iteritems():
+            for belief_type, belief_value in ant.belief.items():
+                transpose[belief_type].append(belief_value)
+
+        ret = {}
+        for belief_type, population_values in transpose.items():
+            ret[belief_type] = dict(Counter(population_values))
+
+        return ret
+
+    def __init__(self, antcolony):
+
+        super().__init__(antcolony)
+
