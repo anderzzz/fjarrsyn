@@ -13,7 +13,7 @@ class AntColony(AgentManagementSystem):
         '''Bla bla
 
         '''
-        neighbour_agents = self.get_neighbours(agent_index)
+        neighbour_agents = self.graph_neighbours_to(agent_index)
 
         ret = []
         for agent in neighbour_agents:

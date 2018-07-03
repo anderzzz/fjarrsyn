@@ -25,27 +25,27 @@ class Ant(Agent):
         '''
         return self.belief['my_opinion']
 
-    def _request_form_new_opinion(self):
+    def _execute_form_new_opinion_imitation(self):
         '''Bla bla
 
         '''
-        opinions_around_me = self._sense['neighbours_opinions']
+        opinions_around_me = self._sense('neighbours_opinions')
         n_neighbours = len(opinions_around_me)
+        print (opinions_around_me)
 
-        if self.belief['forming_opinion'] == 'immitate_one':
+        if random.random() > self.belief['rebel']:
             one_opinion = opinions_around_me[random.randrange(n_neighbours)]
-            if random.random() > self.belief['rebel']:
-                self.update_belief('my_opinion', one_opinion)
+            self.update_belief('my_opinion', one_opinion)
 
-
-    def __init__(self, name, rebel_index, opinion_init, opinion_forming):
+    def __init__(self, name, rebel_index, opinion_init):
 
         super().__init__(name)
 
         self.update_belief('rebel', rebel_index)
         self.update_belief('my_opinion', opinion_init)
-        self.update_belief('forming_opinion', opinion_forming)
 
         self.add_service('what_is_opinion', self._request_what_is_opinion)
-        self.add_service('form_new_opinion', self._request_form_new_opinion)
+
+        self.update_plan('form_new_opinion_imitation', 
+                         self._execute_form_new_opinion_imitation)
 

@@ -4,7 +4,7 @@
 import numpy as np
 import numpy.random
 
-from collections import namedtuple
+import random
 
 NULL_RETURN = (None, False) 
 
@@ -236,6 +236,20 @@ class Agent(object):
         self._update_dict('sensors', precept, 
                           (sensor_function, sensor_function_kwargs))
 
+    def update_plan(self, plan_name, plan_function, plan_function_kwargs={}):
+        '''Bla bla
+
+        '''
+        self._update_dict('plan', plan_name,
+                          (plan_function, plan_function_kwargs))
+
+    def __call__(self):
+        '''Bla bla
+
+        '''
+        plan_func, plan_kwargs = random.choice(list(self.plan.values()))
+        plan_func(**plan_kwargs)
+
     def __init__(self, name):
 
         self.name = name
@@ -245,7 +259,7 @@ class Agent(object):
 
         self.belief = {} 
         self.goal = None
-        self.plan = None
+        self.plan = {}
         self.sensors = {} 
         self.actuators = {}
         self.services = {'list_my_services': self._request_service_labels}
