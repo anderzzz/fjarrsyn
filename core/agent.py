@@ -6,39 +6,6 @@ import numpy.random
 
 from collections import namedtuple
 
-class State(object):
-    '''Bla bla
-
-    '''
-    def __setitem__(self, key, value):
-        '''Bla bla
-
-        '''
-        self.state_vector[key] = value
-
-    def __getitem__(self, key):
-        '''Bla bla
-
-        '''
-        return self.state_vector[key]
-
-    def __iter__(self):
-        '''Bla bla
-
-        '''
-        return self.state_vector.keys()
-
-    def __contains__(self, item):
-        '''Bla bla
-
-        '''
-        ret_bool = item in self.state_vector.keys()
-        return ret_bool
-
-    def __init__(self):
-
-        self.state_vector = {} 
-
 NULL_RETURN = (None, False) 
 
 class Capriciousness(object):
@@ -275,9 +242,6 @@ class Agent(object):
         self.agent_id_system = None
 
         self.capricious_decorator = Capriciousness(style_type='always_comply')
-
-        self.internal_state = State()
-        self.signaled_state = State()
 
         self.belief = {} 
         self.goal = None
