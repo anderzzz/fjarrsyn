@@ -5,7 +5,8 @@ import sys
 import argparse
 import random
 
-from socialmimicry.setup import AntColony, Ant
+from socialmimicry.ant import Ant
+from socialmimicry.antcolony import AntColony
 from core.graph import Graph
 
 def parse_(argv):
