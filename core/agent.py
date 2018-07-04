@@ -5,8 +5,10 @@ import numpy as np
 import numpy.random
 
 import random
+from collections import namedtuple
 
 NULL_RETURN = (None, False) 
+ExecObject = namedtuple('ExecObject', ['func', 'kwargs'])
 
 class Capriciousness(object):
     '''Bla bla
@@ -190,65 +192,63 @@ class Agent(object):
             raise RuntimeError('Agent lacks sensor for precept %s' %(precept))
 
         else:
-            (sensor_func, sensor_func_kwargs) = self.sensors[precept]
+            the_sensor = self.sensors[precept]
+            func = the_sensor.func
+            kwargs = the_sensor.kwargs
 
-        outcome = sensor_func(**sensor_func_kwargs)
+        outcome = func(**kwargs)
 
         return outcome
 
-    def _update_dict(self, dict_name, entry, new_v=None, v_diff=None):
+    def set_datavalue(self, entry, new_value):
         '''Bla bla
 
         '''
-        ddd = getattr(self, dict_name)
+        self.database[entry] = new_value
 
-        if not (v_diff is None):
-            if not entry in ddd.keys():
-                raise KeyError('Unable to find %s for agent %s' %(entry, self.name))
+    def set_belief(self, about_what, new_belief):
+        '''Bla bla
 
-            else:
-                x_old = ddd[entry] 
-                x_new = x_old + value_diff
-                ddd[entry] = x_new
+        '''
+        self.belief[about_what] = new_belief
 
-        elif not (new_v is None):
-            ddd[entry] = new_v
+    def set_belief_constraint(self, about_what, enumeration=None,
+                              lower_bound=None, upper_bound=None):
+        '''Bla bla
+
+        '''
+        if not (enumeration is None):
+            self.belief_constraint[about_what] = enumeration
+
+        elif (not (lower_bound is None)) or (not (upper_bound is None)):
+            self.belief_constraint[about_what] = (lower_bound, upper_bound) 
+
+        #elif unbiased generator function
 
         else:
-            raise RuntimeError('Update of agent %s attempted without value')
+            raise RuntimeError('Belief constraint invalidly defined')
 
-    def update_database(self, entry, new_value=None, value_diff=None):
+    def set_sensor(self, precept, sensor_function, sensor_function_kwargs={}):
         '''Bla bla
 
         '''
-        self._update_dict('database', entry, new_value, value_diff)
+        self.sensors[precept] = ExecObject(sensor_function, sensor_function_kwargs) 
 
-    def update_belief(self, about_what, new_belief=None, belief_diff=None):
+    def set_plan(self, plan_name, plan_function, plan_function_kwargs={}):
         '''Bla bla
 
         '''
-        self._update_dict('belief', about_what, new_belief, belief_diff)
-
-    def update_sensor(self, precept, sensor_function, sensor_function_kwargs={}):
-        '''Bla bla
-
-        '''
-        self._update_dict('sensors', precept, 
-                          (sensor_function, sensor_function_kwargs))
-
-    def update_plan(self, plan_name, plan_function, plan_function_kwargs={}):
-        '''Bla bla
-
-        '''
-        self._update_dict('plan', plan_name,
-                          (plan_function, plan_function_kwargs))
+        self.plan[plan_name] = ExecObject(plan_function, plan_function_kwargs)
 
     def __call__(self):
         '''Bla bla
 
         '''
-        plan_func, plan_kwargs = random.choice(list(self.plan.values()))
-        plan_func(**plan_kwargs)
+        the_plan = random.choice(list(self.plan.values()))
+        func = the_plan.func
+        kwargs = the_plan.kwargs
+
+        func(**kwargs)
 
     def __init__(self, name):
 
@@ -258,6 +258,7 @@ class Agent(object):
         self.capricious_decorator = Capriciousness(style_type='always_comply')
 
         self.belief = {} 
+        self.belief_constraint = {}
         self.goal = None
         self.plan = {}
         self.sensors = {} 

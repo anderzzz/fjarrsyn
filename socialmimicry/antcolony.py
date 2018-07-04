@@ -39,9 +39,9 @@ class AntColony(AgentManagementSystem):
         super().__init__(name, agents, full_agents_graph=ant_relations)
 
         for ant in self.iteritems():
-            ant.update_sensor('neighbours_opinions',
-                              self._obtain_neighbours_opinions, 
-                              {'agent_index': ant.agent_id_system})
+            ant.set_sensor('neighbours_opinions',
+                           self._obtain_neighbours_opinions, 
+                           {'agent_index': ant.agent_id_system})
 
 class AntColonySummarizer(AgentSystemSummarizer):
     '''Bla bla

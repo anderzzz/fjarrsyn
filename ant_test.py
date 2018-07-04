@@ -50,7 +50,7 @@ def main(args):
     for k_ant in range(n_ants):
         k_opinion = random.randint(0, n_opinions - 1)
         if rebel_type == 'single_value':
-            ant = Ant('dummy', rebel_index, k_opinion)
+            ant = Ant('dummy', rebel_index, k_opinion, range(n_opinions))
         else:
             raise RuntimeError('Unknown rebel type: %s' %(rebel_type))
 
