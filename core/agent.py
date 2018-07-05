@@ -72,7 +72,7 @@ class Agent(object):
             Service labels for requestable services by the agent
 
         '''
-        return self.services.keys() 
+        return self.service.keys() 
 
     def _request_root(self, request_type, kwargs={}):
         '''The method that executes the request of service. The method should
@@ -106,7 +106,7 @@ class Agent(object):
             return NULL_RETURN
 
         else:
-            func = self.services[request_type]
+            func = self.service[request_type]
 
         try:
             outcome = func(**kwargs)
@@ -161,12 +161,12 @@ class Agent(object):
         '''
         if service_label in self._request_service_labels():
             if overwrite:
-                self.services[service_label] = service_method
+                self.service[service_label] = service_method
             else:
                 raise RuntimeError('Agent request method overwrite of %s ' + \
                                    'not authorized' %(service_label))
         else:
-            self.services[service_label] = service_method
+            self.service[service_label] = service_method
 
     def _sense(self, precept):
         '''Method for agent to sense a precept of the environment. The method
@@ -188,11 +188,11 @@ class Agent(object):
             If no sensor is associated with the provided precept
 
         '''
-        if not precept in self.sensors:
+        if not precept in self.sensor:
             raise RuntimeError('Agent lacks sensor for precept %s' %(precept))
 
         else:
-            the_sensor = self.sensors[precept]
+            the_sensor = self.sensor[precept]
             func = the_sensor.func
             kwargs = the_sensor.kwargs
 
@@ -200,11 +200,12 @@ class Agent(object):
 
         return outcome
 
-    def set_datavalue(self, entry, new_value):
+    def set_nature(self, entry, new_value):
         '''Bla bla
 
         '''
-        self.database[entry] = new_value
+        # DISTINGUISH PRIOR AND ARTICLE?
+        self.nature[entry] = new_value
 
     def set_belief(self, about_what, new_belief):
         '''Bla bla
@@ -232,7 +233,7 @@ class Agent(object):
         '''Bla bla
 
         '''
-        self.sensors[precept] = ExecObject(sensor_function, sensor_function_kwargs) 
+        self.sensor[precept] = ExecObject(sensor_function, sensor_function_kwargs) 
 
     def set_plan(self, plan_name, plan_function, plan_function_kwargs={}):
         '''Bla bla
@@ -261,8 +262,8 @@ class Agent(object):
         self.belief_constraint = {}
         self.goal = None
         self.plan = {}
-        self.sensors = {} 
-        self.actuators = {}
-        self.services = {'list_my_services': self._request_service_labels}
-        self.database = {} 
+        self.sensor = {} 
+        self.actuator = {}
+        self.service = {'list_my_services': self._request_service_labels}
+        self.nature = {} 
 
