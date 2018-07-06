@@ -8,6 +8,10 @@ class Node(object):
     '''Bla bla
     
     '''
+    def __str__(self):
+        
+        return self.name
+
     def __init__(self, name, object_content):
 
         self.name = name 
@@ -103,4 +107,35 @@ class Graph(object):
         self.nodes = None
         self.edges = None
 
+class CubicGrid(Graph):
+    '''Bla bla
+
+    '''
+    def __init__(self, n_slots=10):
+
+        super().__init__()
+
+        cells = []
+        coords = []
+        connections = []
+        for x_slot in range(0, n_slots):
+            for y_slot in range(0, n_slots):
+                for z_slot in range(0, n_slots):
+                    cell = Node('grid_cell_%s_%s_%s' %(str(x_slot),
+                                                       str(y_slot), 
+                                                       str(z_slot)), None) 
+                    cells.append(cell)
+                    coord = (x_slot, y_slot, z_slot)
+                    coords.append(coord)
+
+                    for k_cell, coord_past in zip(cells, coords):
+                        x_diff = abs(coord[0] - coord_past[0])
+                        y_diff = abs(coord[1] - coord_past[1])
+                        z_diff = abs(coord[2] - coord_past[2])
+
+                        if (x_diff + y_diff + z_diff) == 1:
+                            connections.append((k_cell, cell, EdgeProperty()))
+
+        self.grid_graph = Graph()
+        self.grid_graph._populate(cells, connections)
 
