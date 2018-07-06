@@ -3,17 +3,16 @@
 '''
 from core.agent_ms import AgentManagementSystem
 
-from core.graph import CubicGrid, Node
+from core.graph import CubicGrid
 
 class Goo(AgentManagementSystem):
     '''Bla bla
 
     '''
-    def __init__(self, name, agents):
+    def __init__(self, name, agents, beaker_length):
 
-        bacteria_matrix = CubicGrid(n_slots=3) 
-        print (bacteria_matrix.grid_graph.get_adjacency_matrix())
-        raise RuntimeError('dummy')
-        nodes = [Node('bacteria_%s' %(str(k)), agent) for k, agent in enumerate(agents)]
+        bacteria_matrix = CubicGrid(n_slots=beaker_length) 
+        for ind, agent in enumerate(agents):
+            bacteria_matrix.nodes[ind].content = agent
 
-        super().__init__(name, agents)
+        super().__init__(name, agents, bacteria_matrix)

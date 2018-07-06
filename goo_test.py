@@ -44,7 +44,7 @@ def main(args):
 
     n_ants, rebel_type, rebel_index, n_opinions, n_step_factor = parse_(args)
 
-    Goo('hello', [])
+    Goo('hello', [], 3)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

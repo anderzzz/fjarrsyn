@@ -44,7 +44,7 @@ class Graph(object):
             for node2 in nodes[k_node1:]:
                 connections.append((node1, node2, EdgeProperty()))
 
-        self._populate(nodes, connections)
+        self.populate(nodes, connections)
 
     def build_poisson_nondirectional(self, nodes, p):
         '''Bla bla
@@ -57,7 +57,7 @@ class Graph(object):
                 if yes_no < p:
                     connections.append((node1, node2, EdgeProperty()))
 
-        self._populate(nodes, connections)
+        self.populate(nodes, connections)
 
     def get_adjacency_matrix(self):
         '''Create and return the adjacency matrix
@@ -88,7 +88,7 @@ class Graph(object):
         '''
         return [(n1, n2) for (n1, n2, edge_property) in connections]
 
-    def _populate(self, nodes, connections):
+    def populate(self, nodes, connections):
         '''Manually build a graph from ordered containers of nodes and
         correspondingly ordered edges.
 
@@ -137,5 +137,5 @@ class CubicGrid(Graph):
                             connections.append((k_cell, cell, EdgeProperty()))
 
         self.grid_graph = Graph()
-        self.grid_graph._populate(cells, connections)
+        self.grid_graph.populate(cells, connections)
 

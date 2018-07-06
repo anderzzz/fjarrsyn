@@ -30,6 +30,7 @@ class AntColony(AgentManagementSystem):
     def __init__(self, name, agents, graph_type='poisson', graph_p=0.5):
 
         ant_relations = Graph()
+        # TBD: MOVE NODE OUT OF THIS LEVEL AND HIDE INSIDE GRAPH CLASS
         nodes = [Node('ant_%s' %(str(k)), agent) for k, agent in enumerate(agents)]
         if graph_type == 'poisson':
             ant_relations.build_poisson_nondirectional(nodes, graph_p)
