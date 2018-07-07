@@ -67,7 +67,7 @@ def main(args):
         k_iteration += 1
 
     summy = AntColonySummarizer(colony)
-    out = summy.beliefs()
+    out = summy.natures()
     print (out)
 
 

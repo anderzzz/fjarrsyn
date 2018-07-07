@@ -8,7 +8,6 @@ import random
 from collections import namedtuple
 
 NULL_RETURN = (None, False) 
-ExecObject = namedtuple('ExecObject', ['func', 'kwargs'])
 
 class Capriciousness(object):
     '''Bla bla
@@ -115,7 +114,7 @@ class Agent(object):
 
         return (outcome, True)
 
-    def request_service(self, service_label, kwargs={}):
+    def request_service(self, service_name, kwargs={}):
         '''Public method for external agents to request present agent to supply
         some service as specified by the `service_label`.
 
@@ -126,7 +125,7 @@ class Agent(object):
 
         Parameters
         ----------
-        service_label : str
+        service_name : str
             String label for the service that is requested
         kwargs : dict, optional
             Optional dictionary of arguments to be passed onto the service
@@ -142,33 +141,9 @@ class Agent(object):
 
         '''
         request_runner = self.capricious_decorator(self._request_root)
-        return request_runner(service_label, kwargs)
+        return request_runner(service_name, kwargs)
 
-    def add_service(self, service_label, service_method, overwrite=False):
-        '''Add service method and associate it to a service label that can be
-        requested by an external agent
-
-        Parameters
-        ----------
-        service_label : str
-            The label of the service that the agent is imbued with
-        service_method : function
-            An executable function that executes the agent service
-        overwrite : bool, optional
-            If a service method already exists with the given label the
-            overwriting only takes place if this Boolean is True
-
-        '''
-        if service_label in self._request_service_labels():
-            if overwrite:
-                self.service[service_label] = service_method
-            else:
-                raise RuntimeError('Agent request method overwrite of %s ' + \
-                                   'not authorized' %(service_label))
-        else:
-            self.service[service_label] = service_method
-
-    def _sense(self, precept):
+    def _sense(self, precept, kwargs={}):
         '''Method for agent to sense a precept of the environment. The method
         should only be called by the agent itself
 
@@ -176,6 +151,8 @@ class Agent(object):
         ----------
         precept : str
             Label for the precept to be sensed
+        kwargs : dict
+            Arguments to the sensor function passed at runtime
 
         Returns
         -------
@@ -193,18 +170,16 @@ class Agent(object):
 
         else:
             the_sensor = self.sensor[precept]
-            func = the_sensor.func
-            kwargs = the_sensor.kwargs
 
-        outcome = func(**kwargs)
+        outcome = the_sensor(**kwargs)
 
         return outcome
 
+    # ABSTRACT AGENT PROPERTIES SUCH THAT SCALAR VALUES ARE LIKE CALLABLE
     def set_nature(self, entry, new_value):
         '''Bla bla
 
         '''
-        # DISTINGUISH PRIOR AND ARTICLE?
         self.nature[entry] = new_value
 
     def set_belief(self, about_what, new_belief):
@@ -213,43 +188,63 @@ class Agent(object):
         '''
         self.belief[about_what] = new_belief
 
-    def set_belief_constraint(self, about_what, enumeration=None,
+    def set_natural_constraint(self, about_what, enumeration=None,
                               lower_bound=None, upper_bound=None):
         '''Bla bla
 
         '''
         if not (enumeration is None):
-            self.belief_constraint[about_what] = enumeration
+            self.natural_constraint[about_what] = enumeration
 
         elif (not (lower_bound is None)) or (not (upper_bound is None)):
-            self.belief_constraint[about_what] = (lower_bound, upper_bound) 
+            self.natural_constraint[about_what] = (lower_bound, upper_bound) 
 
         #elif unbiased generator function
 
         else:
-            raise RuntimeError('Belief constraint invalidly defined')
+            raise RuntimeError('Natural constraint invalidly defined')
 
-    def set_sensor(self, precept, sensor_function, sensor_function_kwargs={}):
+    def set_service(self, service_name, service_function):
         '''Bla bla
 
         '''
-        self.sensor[precept] = ExecObject(sensor_function, sensor_function_kwargs) 
+        self._set_exec('service', service_name, service_function)
 
-    def set_plan(self, plan_name, plan_function, plan_function_kwargs={}):
+    def set_sensor(self, precept, sensor_function):
         '''Bla bla
 
         '''
-        self.plan[plan_name] = ExecObject(plan_function, plan_function_kwargs)
+        self._set_exec('sensor', precept, sensor_function)
 
-    def __call__(self):
+    def set_plan(self, plan_name, plan_function):
+        '''Bla bla
+
+        '''
+        self._set_exec('plan', plan_name, plan_function)
+
+    def set_actuator(self, action, actuator_function):
+        '''Bla bla
+
+        '''
+        self._set_exec('actuator', action, actuator_function)
+
+    def _set_exec(self, agent_property, name, func):
+        '''Bla bla
+
+        '''
+        if not callable(func):
+            raise RuntimeError('Attempt to set non-callable object')
+
+        container = getattr(self, agent_property)
+        container[name] = func
+        setattr(self, agent_property, container)
+
+    def __call__(self, kwargs={}):
         '''Bla bla
 
         '''
         the_plan = random.choice(list(self.plan.values()))
-        func = the_plan.func
-        kwargs = the_plan.kwargs
-
-        func(**kwargs)
+        the_plan(**kwargs)
 
     def __init__(self, name):
 
@@ -259,11 +254,12 @@ class Agent(object):
         self.capricious_decorator = Capriciousness(style_type='always_comply')
 
         self.belief = {} 
-        self.belief_constraint = {}
         self.goal = None
         self.plan = {}
         self.sensor = {} 
         self.actuator = {}
-        self.service = {'list_my_services': self._request_service_labels}
+        self.service = {}
         self.nature = {} 
+        self.natural_constraint = {}
 
+        self.set_service('list_my_services', self._request_service_labels)

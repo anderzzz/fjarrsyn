@@ -41,25 +41,24 @@ class AntColony(AgentManagementSystem):
 
         for ant in self.iteritems():
             ant.set_sensor('neighbours_opinions',
-                           self._obtain_neighbours_opinions, 
-                           {'agent_index': ant.agent_id_system})
+                           self._obtain_neighbours_opinions) 
 
 class AntColonySummarizer(AgentSystemSummarizer):
     '''Bla bla
 
     '''
-    def beliefs(self):
+    def natures(self):
         '''Bla bla
 
         '''
         transpose = defaultdict(list) 
         for ant in self.system.iteritems():
-            for belief_type, belief_value in ant.belief.items():
-                transpose[belief_type].append(belief_value)
+            for nature_type, nature_value in ant.nature.items():
+                transpose[nature_type].append(nature_value)
 
         ret = {}
-        for belief_type, population_values in transpose.items():
-            ret[belief_type] = dict(Counter(population_values))
+        for nature_type, population_values in transpose.items():
+            ret[nature_type] = dict(Counter(population_values))
 
         return ret
 

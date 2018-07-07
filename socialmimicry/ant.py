@@ -23,31 +23,32 @@ class Ant(Agent):
             The opinion of the agent
 
         '''
-        return self.belief['my_opinion']
+        return self.nature['my_opinion']
 
     def _execute_form_new_opinion_imitation(self):
         '''Bla bla
 
         '''
-        opinions_around_me = self._sense('neighbours_opinions')
+        opinions_around_me = self._sense('neighbours_opinions', 
+                                        {'agent_index': self.agent_id_system})
         n_neighbours = len(opinions_around_me)
 
-        if random.random() > self.belief['rebel']:
+        if random.random() > self.nature['rebel']:
             one_opinion = opinions_around_me[random.randrange(n_neighbours)]
-            self.set_belief('my_opinion', one_opinion)
+            self.set_nature('my_opinion', one_opinion)
         else:
-            random_opinion = random.choice(self.belief_constraint['my_opinion'])
-            self.set_belief('my_opinion', random_opinion) 
+            random_opinion = random.choice(self.natural_constraint['my_opinion'])
+            self.set_nature('my_opinion', random_opinion) 
 
     def __init__(self, name, rebel_index, opinion_init, opinion_universe):
 
         super().__init__(name)
 
-        self.set_belief('rebel', rebel_index)
-        self.set_belief('my_opinion', opinion_init)
-        self.set_belief_constraint('my_opinion', enumeration=opinion_universe)
+        self.set_nature('rebel', rebel_index)
+        self.set_nature('my_opinion', opinion_init)
+        self.set_natural_constraint('my_opinion', enumeration=opinion_universe)
 
-        self.add_service('what_is_opinion', self._request_what_is_opinion)
+        self.set_service('what_is_opinion', self._request_what_is_opinion)
 
         self.set_plan('form_new_opinion_imitation', 
                       self._execute_form_new_opinion_imitation)
