@@ -11,6 +11,24 @@ class Goo(AgentManagementSystem):
     '''Bla bla
 
     '''
+    def _take_nutrients(self, agent_index):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _excrete_poison(self, agent_index):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _obtain_neighbour_surface(self, agent_index):
+        '''Bla bla
+
+        '''
+        pass
+
     def __init__(self, name, beaker_length, bacterial_agents, env_agent):
 
         matrix = CubicGrid(n_slots=beaker_length) 
@@ -29,6 +47,10 @@ class Goo(AgentManagementSystem):
                 matrix.nodes[ind].content = {'bacteria':None,
                                              'env':env_agent}
 
-        agents = bacterial_agents + env_agents
+        # WORK HERE
+        for bacteria in bacterial_agents:
+            bacteria.set_actuator('take_nutrients', self._take_nutrients)
 
+        agents = bacterial_agents + env_agents
         super().__init__(name, agents, matrix)
+
