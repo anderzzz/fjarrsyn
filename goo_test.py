@@ -6,45 +6,47 @@ import argparse
 import random
 
 from infection.goo import Goo
+from infection.bacteria import Bacteria, ExtracellEnvironment
 
 def parse_(argv):
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n-ants',
-                         dest='n_ants',
-                         default='10',
-                         help='Number of ants in colony')
-    parser.add_argument('--rebel-type',
-                         dest='rebel_type',
-                         default='single_value',
-                         help='Type of rebel distribution')
-    parser.add_argument('--rebel-index',
-                         dest='rebel_index',
-                         default='0.1',
-                         help='Rebel index, meaning set by --rebel-type')
-    parser.add_argument('--n-opinions',
-                         dest='n_opinions',
-                         default='2',
-                         help='Number of distinct opinions')
-    parser.add_argument('--n-steps-per-ant',
-                        dest='n_step_factor',
-                        default='1',
-                        help='Average number of steps per ant in simulation')
+    parser.add_argument('--n-bacteria-1',
+                         dest='n_bacteria_1',
+                         default='5',
+                         help='Number of initial bacteria of type 1 in cell space')
+    parser.add_argument('--n-bacteria-2',
+                         dest='n_bacteria_2',
+                         default='5',
+                         help='Number of initial bacteria of type 2 in cell space')
+    parser.add_argument('--cell-length',
+                        dest='cell_length',
+                        default='10',
+                        help='Number of grid points along any one dimension ' + \
+                             'of the cubic grid of the cell space')
 
     args = parser.parse_args(argv)
 
-    n_ants = int(args.n_ants)
-    rebel_index = float(args.rebel_index)
-    n_opinions = int(args.n_opinions)
-    n_step_factor = int(args.n_step_factor)
+    n_bacteria_1 = int(args.n_bacteria_1)
+    n_bacteria_2 = int(args.n_bacteria_2)
+    cell_length = int(args.cell_length)
 
-    return n_ants, args.rebel_type, rebel_index, n_opinions, n_step_factor
+    return n_bacteria_1, n_bacteria_2, cell_length
 
 def main(args):
 
-    n_ants, rebel_type, rebel_index, n_opinions, n_step_factor = parse_(args)
+    n_bacteria_1, n_bacteria_2, cell_length = parse_(args)
 
-    Goo('hello', [], 3)
+    bacterial_agents = []
+    for k_bacteria in range(n_bacteria_1):
+        bacterial_agents.append(Bacteria('bacteria_1_%s' %(str(k_bacteria)), 'aaaaa'))
+    for k_bacteria in range(n_bacteria_2):
+        bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)), 'wwwww'))
+
+    extracellular_env_agent = ExtracellEnvironment('extracell',
+                              {'nutrients':0.2, 'poison_A':0.0, 'poison_B':0.0})
+
+    cell_space = Goo('cell_space', 10, bacterial_agents, extracellular_env_agent)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

@@ -102,10 +102,14 @@ class Graph(object):
         self.edges = connections
         self.adjacency_list = self._compute_adjacency_list(connections)
 
+    def __len__(self):
+
+        return len(self.nodes)
+
     def __init__(self):
 
-        self.nodes = None
-        self.edges = None
+        self.nodes = [] 
+        self.edges = []
 
 class CubicGrid(Graph):
     '''Bla bla
@@ -136,6 +140,5 @@ class CubicGrid(Graph):
                         if (x_diff + y_diff + z_diff) == 1:
                             connections.append((k_cell, cell, EdgeProperty()))
 
-        self.grid_graph = Graph()
-        self.grid_graph.populate(cells, connections)
+        self.populate(cells, connections)
 

@@ -20,3 +20,13 @@ class Bacteria(Agent):
         self.set_nature('surface_profile', surface_profile)
         self.set_service('reveal_surface_profile', self._request_surface_profile)
 
+class ExtracellEnvironment(Agent):
+    '''Bla bla
+
+    '''
+    def __init__(self, name, natures_init):
+
+        super().__init__(name)
+
+        for nature_key, nature_value in natures_init.items():
+            self.set_nature(nature_key, nature_value)
