@@ -1,6 +1,8 @@
 '''Agent 
 
 '''
+import random
+
 NULL_RETURN = (None, False) 
 
 class _Agent(object):

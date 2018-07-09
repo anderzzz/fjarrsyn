@@ -38,12 +38,15 @@ class Ant(EngagedAgent):
         else:
             opinion = random.choice(self.scaffold['my_opinion_enumeration'])
 
-        return self._setter('scaffold', 'my_opinion', opinion)
+        self.set_data('scaffold', 'my_opinion', opinion)
+
+        return True
 
     def __call__(self):
 
-        reformer = self._execute_form_new_opinion_imitation()
-        reformer()
+        self._execute_form_new_opinion_imitation()
+
+        return True
 
     def __init__(self, name, rebel_index, opinion_init, opinion_universe):
 
