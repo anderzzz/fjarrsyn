@@ -67,7 +67,7 @@ def main(args):
         k_iteration += 1
 
     summy = AntColonySummarizer(colony)
-    out = summy.natures()
+    out = summy.scaffolds()
     print (out)
 
 

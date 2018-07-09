@@ -1,4 +1,4 @@
-'''Bla bla
+'''Agent Management System
 
 '''
 from uuid import uuid4

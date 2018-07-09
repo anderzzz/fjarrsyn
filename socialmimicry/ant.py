@@ -3,9 +3,9 @@
 '''
 import random
 
-from core.agent import Agent
+from core.agent import EngagedAgent
 
-class Ant(Agent):
+class Ant(EngagedAgent):
     '''Bla bla
 
     '''
@@ -23,7 +23,7 @@ class Ant(Agent):
             The opinion of the agent
 
         '''
-        return self.nature['my_opinion']
+        return self.scaffold['my_opinion']
 
     def _execute_form_new_opinion_imitation(self):
         '''Bla bla
@@ -33,23 +33,28 @@ class Ant(Agent):
                                         {'agent_index': self.agent_id_system})
         n_neighbours = len(opinions_around_me)
 
-        if random.random() > self.nature['rebel']:
-            one_opinion = opinions_around_me[random.randrange(n_neighbours)]
-            self.set_nature('my_opinion', one_opinion)
+        if random.random() > self.scaffold['rebel']:
+            opinion = opinions_around_me[random.randrange(n_neighbours)]
         else:
-            random_opinion = random.choice(self.natural_constraint['my_opinion'])
-            self.set_nature('my_opinion', random_opinion) 
+            opinion = random.choice(self.scaffold['my_opinion_enumeration'])
+
+        return self._setter('scaffold', 'my_opinion', opinion)
+
+    def __call__(self):
+
+        reformer = self._execute_form_new_opinion_imitation()
+        reformer()
 
     def __init__(self, name, rebel_index, opinion_init, opinion_universe):
 
         super().__init__(name)
 
-        self.set_nature('rebel', rebel_index)
-        self.set_nature('my_opinion', opinion_init)
-        self.set_natural_constraint('my_opinion', enumeration=opinion_universe)
+        self.set_data('scaffold', 'rebel', rebel_index)
+        self.set_data('scaffold', 'my_opinion', opinion_init)
+        self.set_data('scaffold', 'my_opinion_enumeration', opinion_universe)
 
-        self.set_service('what_is_opinion', self._request_what_is_opinion)
+        self.set_organ('service', 'what_is_opinion', self._request_what_is_opinion)
 
-        self.set_plan('form_new_opinion_imitation', 
+        self.set_organ('plan', 'form_new_opinion_imitation', 
                       self._execute_form_new_opinion_imitation)
 

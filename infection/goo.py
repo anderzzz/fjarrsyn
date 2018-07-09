@@ -11,13 +11,13 @@ class Goo(AgentManagementSystem):
     '''Bla bla
 
     '''
-    def _take_nutrients(self, agent_index):
+    def _gulp_environment(self, agent_index):
         '''Bla bla
 
         '''
         pass
 
-    def _excrete_poison(self, agent_index):
+    def _share_molecules(self, agent_index):
         '''Bla bla
 
         '''

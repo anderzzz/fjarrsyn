@@ -40,25 +40,25 @@ class AntColony(AgentManagementSystem):
         super().__init__(name, agents, full_agents_graph=ant_relations)
 
         for ant in self.iteritems():
-            ant.set_sensor('neighbours_opinions',
+            ant.set_organ('sensor', 'neighbours_opinions',
                            self._obtain_neighbours_opinions) 
 
 class AntColonySummarizer(AgentSystemSummarizer):
     '''Bla bla
 
     '''
-    def natures(self):
+    def scaffolds(self):
         '''Bla bla
 
         '''
         transpose = defaultdict(list) 
         for ant in self.system.iteritems():
-            for nature_type, nature_value in ant.nature.items():
-                transpose[nature_type].append(nature_value)
+            for scaffold_type, scaffold_value in ant.scaffold.items():
+                transpose[scaffold_type].append(scaffold_value)
 
         ret = {}
-        for nature_type, population_values in transpose.items():
-            ret[nature_type] = dict(Counter(population_values))
+        for scaffold_type, population_values in transpose.items():
+            ret[scaffold_type] = dict(Counter(population_values))
 
         return ret
 
