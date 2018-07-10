@@ -13,7 +13,23 @@ class Bacteria(EngagedAgent):
         '''
         return self.scaffold['surface_profile']
 
-    def _execute_probe_surrounding(self) 
+    def _execute_supply_molecules_to_env(self):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _execute_gulp_molecules_from_env(self):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _execute_cell_division(self):
+        '''Bla bla
+
+        '''
+        pass
 
     def __init__(self, name, surface_profile, molecules):
 
@@ -26,17 +42,30 @@ class Bacteria(EngagedAgent):
         self.set_data('scaffold', 'molecule_C', molecules[2])
         self.set_data('scaffold', 'molecule_D', molecules[3])
 
-#        self.set_organ('plan', 'react_to_neighbour', self._execute_react_neighbour)
-        self.set_organ('plan', 'probe_surrounding', self._execute_probe_surrounding)
-#        self.set_organ('plan', 'split_off_child', self._execute_split_child)
+        self.set_organ('plan', 'supply_molecules_to_env',
+                               self._execute_supply_molecules_to_env)
+        self.set_organ('plan', 'gulp_molecules_from_env',
+                               self._execute_gulp_molecules_from_env)
+        self.set_organ('plan', 'cell_division',
+                               self._execute_cell_division)
 
 class ExtracellEnvironment(PassiveAgent):
     '''Bla bla
 
     '''
+    def _request_molecules_scaffold(self):
+        '''Bla bla
+
+        '''
+        return dict([(x, y) for x, y in self.scaffold.items() if 'molecule_' in x]
+               
+
     def __init__(self, name, natures_init):
 
         super().__init__(name)
 
         for nature_key, nature_value in natures_init.items():
             self.set_data('scaffold', nature_key, nature_value)
+
+        self.set_organ('service', 'how_many_molecules',
+                       self._request_molecules_scaffold)
