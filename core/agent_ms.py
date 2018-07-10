@@ -34,9 +34,9 @@ class AgentManagementSystem(object):
             agent_id2 = connection_tuple[1].content.agent_id_system
            
             if agent_id1 == agent_index:
-                ret_list.append(connection_tuple[1].content)
+                ret_list.append(connection_tuple[1].agent_content)
             elif agent_id2 == agent_index:
-                ret_list.append(connection_tuple[0].content)
+                ret_list.append(connection_tuple[0].agent_content)
 
         return set(ret_list)
 

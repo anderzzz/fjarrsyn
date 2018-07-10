@@ -12,10 +12,15 @@ class Node(object):
         
         return self.name
 
-    def __init__(self, name, object_content):
+    def __contains__(self, item):
+
+        return item == agent_content.agent_id_system
+
+    def __init__(self, name, agent_content, aux_content=None):
 
         self.name = name 
-        self.content = object_content
+        self.agent_content = agent_content
+        self.aux_content = aux_content
 
 class EdgeProperty(object):
     '''Bla bla
@@ -127,7 +132,7 @@ class CubicGrid(Graph):
                 for z_slot in range(0, n_slots):
                     cell = Node('grid_cell_%s_%s_%s' %(str(x_slot),
                                                        str(y_slot), 
-                                                       str(z_slot)), None) 
+                                                       str(z_slot)), None, None) 
                     cells.append(cell)
                     coord = (x_slot, y_slot, z_slot)
                     coords.append(coord)

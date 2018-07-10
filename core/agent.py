@@ -5,7 +5,7 @@ import random
 
 NULL_RETURN = (None, False) 
 
-class _Agent(object):
+class Agent(object):
     '''Bla bla
 
     '''
@@ -104,31 +104,6 @@ class _Agent(object):
 
         return (outcome, True)
 
-    def __str__(self):
-
-        return self.name + '(ID:%s)'%(str(self.agent_id_system))
-
-    def __init__(self, name):
-
-        self.name = name
-        self.agent_id_system = None
-
-        self.scaffold = {}
-
-        self.service = {}
-        self.plan = {}
-        self.reformer = {}
-
-        self.organs = {'service' : self.service, 'plan' : self.plan, 
-                       'reformer' : self.reformer}
-        self.data = {'scaffold' : self.scaffold}
-
-        self.set_organ('service', 'list_my_services', self._request_service_labels)
-
-class EngagedAgent(_Agent):
-    '''Bla bla
-
-    '''
     def _sense(self, precept, kwargs={}):
         '''Method for agent to sense a precept of the environment. The method
         should only be called by the agent itself
@@ -161,24 +136,29 @@ class EngagedAgent(_Agent):
 
         return outcome
 
+    def __str__(self):
+
+        return self.name + '(ID:%s)'%(str(self.agent_id_system))
+
     def __init__(self, name):
 
-        super().__init__(name)
+        self.name = name
+        self.agent_id_system = None
 
+        self.scaffold = {}
         self.belief = {}
+        self.data = {'scaffold' : self.scaffold, 'belief' : self.belief}
 
+        self.service = {}
         self.sensor = {}
         self.actuator = {}
+        self.interpreter = {}
+        self.handler = {}
+        self.organs = {'service' : self.service, 
+                       'sensor' : self.sensor,
+                       'actuator' : self.actuator, 
+                       'interpreter' : self.interpreter,
+                       'handler' : self.handler}
 
-        self.data['belief'] = self.belief
-        self.organs['sensor'] = self.sensor
-        self.organs['actuator'] = self.actuator
-
-class PassiveAgent(_Agent):
-    '''Bla bla
-
-    '''
-    def __init__(self, name):
-
-        super().__init__(name)
+        self.set_organ('service', 'list_my_services', self._request_service_labels)
 

@@ -43,10 +43,11 @@ def main(args):
     for k_bacteria in range(n_bacteria_2):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)), 'wwwww'))
 
-    extracellular_env_agent = ExtracellEnvironment('extracell',
-                              {'nutrients':0.2, 'poison_A':0.0, 'poison_B':0.0})
+    extracellular = ExtracellEnvironment('extracellular_fluid',
+                              {'molecule_A' : 0.0, 'molecule_B' : 0.0,
+                               'molecule_C' : 0.0, 'molecule_D' : 0.0})
 
-    cell_space = Goo('cell_space', 10, bacterial_agents, extracellular_env_agent)
+    cell_space = Goo('cell_space', 10, bacterial_agents, extracellular)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

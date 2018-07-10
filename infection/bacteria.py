@@ -3,7 +3,7 @@
 '''
 from core.agent import EngagedAgent
 
-class Bacteria(EngagedAgent):
+class Bacteria(Agent):
     '''Bla bla
 
     '''
@@ -31,6 +31,12 @@ class Bacteria(EngagedAgent):
         '''
         pass
 
+    def _execute_let_time_pass(self):
+        '''Bla bla
+
+        '''
+        pass
+
     def __init__(self, name, surface_profile, molecules):
 
         super().__init__(name)
@@ -49,23 +55,19 @@ class Bacteria(EngagedAgent):
         self.set_organ('plan', 'cell_division',
                                self._execute_cell_division)
 
-class ExtracellEnvironment(PassiveAgent):
+class ExtracellEnvironment(object):
     '''Bla bla
 
     '''
-    def _request_molecules_scaffold(self):
+    def take_or_add_molecules(self):
         '''Bla bla
 
         '''
         return dict([(x, y) for x, y in self.scaffold.items() if 'molecule_' in x]
                
 
-    def __init__(self, name, natures_init):
+    def __init__(self, name, molecules):
 
-        super().__init__(name)
+        self.name = name 
 
-        for nature_key, nature_value in natures_init.items():
-            self.set_data('scaffold', nature_key, nature_value)
-
-        self.set_organ('service', 'how_many_molecules',
-                       self._request_molecules_scaffold)
+        self.molecule_content = molecules

@@ -35,7 +35,7 @@ class Goo(AgentManagementSystem):
         '''
         neighbour_agents = self.graph_neighbours_to(agent_index)
 
-        bacteria = random.choice(neighbour_agents)['bacteria']
+        bacteria = random.choice(neighbour_agents)
         if bacteria is None:
             ret = (None, None)
         else:
@@ -66,27 +66,24 @@ class Goo(AgentManagementSystem):
         self.relation[bacteria_id] = env_id
         self.relation[env_id] = bacteria_id
 
-    def __init__(self, name, beaker_length, bacterial_agents, env_agent):
+    def __init__(self, name, beaker_length, bacterial_agents, env_object):
 
         self.relation = {}
 
         matrix = CubicGrid(n_slots=beaker_length) 
         matrix_size = len(matrix)
 
-        env_agents = [copy.deepcopy(env_agent) for k in range(matrix_size)]
+        env_objects = [copy.deepcopy(env_object) for k in range(matrix_size)]
         random_index = random.sample(range(matrix_size), 
                                      len(bacterial_agents))
 
-        for ind, env_agent in enumerate(env_agents):
+        for ind, env_object in enumerate(env_object):
+            matrix.nodes[ind].aux_content = env_object
             if ind in random_index:
                 bact_agent = bacterial_agents.pop(0)
-                matrix.nodes[ind].content = {'bacteria':bact_agent,
-                                             'env':env_agent}
-                self.update_bact_env_map(bact_agent.agent_id_system,
-                                         env_agent.agent_id_system)
+                matrix.nodes[ind].agent_content = bact_agent
             else:
-                matrix.nodes[ind].content = {'bacteria':None,
-                                             'env':env_agent}
+                matrix.nodes[ind].agent_content = None 
 
         for bacteria in bacterial_agents:
             bacteria.set_organ('actuator', 'add_molecules_to_env',
@@ -98,7 +95,5 @@ class Goo(AgentManagementSystem):
             bacteria.set_organ('sensor', 'sense_random_neighbour_surface',
                                          self._obtain_random_neighbour_surface)
                                        
-
-        agents = bacterial_agents + env_agents
-        super().__init__(name, agents, matrix)
+        super().__init__(name, bacterial_agents, matrix)
 
