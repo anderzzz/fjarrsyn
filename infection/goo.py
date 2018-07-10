@@ -15,8 +15,9 @@ class Goo(AgentManagementSystem):
         '''Bla bla
 
         '''
-        env_agent = self.agents_in_scope[self.relation[agent_index]]
-        molecules = env_agent.request_service('how_many_molecules')
+        node_with_agent = self.matrix[agent_index]
+        environment = node_with_agent.aux_content
+        molecules = environment.molecules_content 
 
         ret = {}
         for molecule_name, molecule_amount in molecules.items():
@@ -25,7 +26,7 @@ class Goo(AgentManagementSystem):
 
             ret[molecule_name] = gulped_amount
 
-            env_agent.scaffold[molecule_name] = remaining_amount
+            environment.molecules_content[molecule_name] = remaining_amount
 
         return ret 
 
@@ -47,24 +48,18 @@ class Goo(AgentManagementSystem):
         '''Bla bla
 
         '''
-        env_agent = self.agents_in_scope[self.relation[agent_index]]
+        node_with_agent = self.matrix[agent_index]
+        environment = node_with_agent.aux_content
         for molecule, dx in dx_molecules.items():
-            x = env_agent.scaffold[molecule]
-            x_new =+ dx
-            env_agent.set_data('scaffold', molecule, x_new)
+            x = environment.molecule_content[molecule] 
+            x_new = x + dx
+            environment.molecule_content[molecule] = x_new 
 
     def _new_cell_into_matrix(self):
         '''Bla bla
 
         '''
         pass
-
-    def update_bact_env_map(self, bacteria_id, env_id):
-        '''Bla bla
-
-        '''
-        self.relation[bacteria_id] = env_id
-        self.relation[env_id] = bacteria_id
 
     def __init__(self, name, beaker_length, bacterial_agents, env_object):
 

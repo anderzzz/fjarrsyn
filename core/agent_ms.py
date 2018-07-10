@@ -26,6 +26,7 @@ class AgentManagementSystem(object):
             Set of agents directly adjacent to the given agent
 
         '''
+        #TBD: REFACTOR TO USE __GETITEM__ FUNCTIONALITY OF GRAPH
         adjacency_list = self.agents_graph.get_adjacency_list()
 
         ret_list = []

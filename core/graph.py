@@ -107,6 +107,19 @@ class Graph(object):
         self.edges = connections
         self.adjacency_list = self._compute_adjacency_list(connections)
 
+    def __getitem__(self, key):
+
+        ret = None
+        for node in self.nodes:
+            if key in node:
+                ret = node
+                break
+
+        if ret is None:
+            raise KeyError('Agent with ID %s not found in graph' %(key))
+
+        return ret
+
     def __len__(self):
 
         return len(self.nodes)
