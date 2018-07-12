@@ -87,7 +87,7 @@ class Goo(AgentManagementSystem):
                                            self._gulp_my_environment)
             bacteria.set_organ('actuator', 'bring_new_cell_into_matrix',
                                            self._new_cell_into_matrix)
-            bacteria.set_organ('sensor', 'sense_random_neighbour_surface',
+            bacteria.set_organ('sensor', 'random_neighbour_surface',
                                          self._obtain_random_neighbour_surface)
                                        
         super().__init__(name, bacterial_agents, matrix)

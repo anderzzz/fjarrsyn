@@ -136,6 +136,34 @@ class Agent(object):
 
         return outcome
 
+    def interpret(self, what, kwargs={}):
+        '''Bla bla
+
+        '''
+        if not what in self.interpreter:
+            raise RuntimeError('Agent lacks interpreter for %s' %(what))
+
+        else:
+            the_interpreter = self.interpreter[what]
+
+        updated_beliefs = the_interpreter(**kwargs)
+
+        return updated_beliefs
+
+    def handle(self, target, kwargs={}):
+        '''Bla bla
+
+        '''
+        if not target in self.handler:
+            raise RuntimeError('Agent lacks handler for %s' %(target))
+
+        else:
+            the_handler = self.handler[target]
+
+        actuators = the_handler(**kwargs)
+
+        return actuators
+
     def __str__(self):
 
         return self.name + '(ID:%s)'%(str(self.agent_id_system))

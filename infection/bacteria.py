@@ -17,8 +17,22 @@ class Bacteria(Agent):
         '''Bla bla
 
         '''
-        # USE SENSOR THEN MAP BELIEF OF FRIEND OR FOE
-        pass
+        self.belief['my_neighbour'] = None
+
+        surface_profile, neighbour_agent_index = 
+            self._sense('random_neighbour_surface', 
+                        {'agent_index' : self.agent_id_system})
+
+        if not surface_profile[0] is None:
+            my_profile = self.scaffold['surface_profile']
+            for char_me, char_other in zip(my_profile, surface_profile):
+                if char_me == char_other:
+                    n_same += 1
+
+            frac_same = float(n_same) / float(len(my_profile))
+            self.belief['my_neighbour'] = frac_same
+
+        return ('my_neighbour')
 
     def _handle_supply_molecules_to_env(self):
         '''Bla bla
@@ -48,6 +62,7 @@ class Bacteria(Agent):
         '''Bla bla
 
         '''
+        self.interpret('random_neighbour')
         # HERE PLAN IS EXECUTED. HIERARCHY OF PLANS?
         pass
 
