@@ -7,6 +7,8 @@ import random
 from core.agent_ms import AgentManagementSystem
 from core.graph import CubicGrid
 
+from core.sensor import _Sensor
+
 class Goo(AgentManagementSystem):
     '''Bla bla
 
@@ -81,14 +83,18 @@ class Goo(AgentManagementSystem):
                 matrix.nodes[ind].agent_content = None 
 
         for bacteria in bacterial_agents:
-            bacteria.set_organ('actuator', 'add_molecules_to_env',
-                                           self._add_molecules_to_env)
-            bacteria.set_organ('actuator', 'gulp_environment',
-                                           self._gulp_my_environment)
-            bacteria.set_organ('actuator', 'bring_new_cell_into_matrix',
-                                           self._new_cell_into_matrix)
-            bacteria.set_organ('sensor', 'random_neighbour_surface',
-                                         self._obtain_random_neighbour_surface)
+            actuator = Actuator('add_molecules_to_environment',
+                                'share_molecules',
+                                self._add_molecules_to_env,
+                                ['dx_molecules'],
+                                bacteria.agent_id_system)
+            bacteria.set_organ(actuator)
+
+            sensor = Sensor('random_neighbour_surface', 
+                            'neighbour_surface',
+                            self._obtain_random_neighbour_surface,
+                            {'agent_index' : bacteria.agent_id_system})
+            bacteria.set_organ(sensor)
                                        
         super().__init__(name, bacterial_agents, matrix)
 

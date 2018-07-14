@@ -3,6 +3,8 @@
 '''
 import random
 
+from core.organs import Sensor, Actuator
+
 NULL_RETURN = (None, False) 
 
 class Agent(object):
@@ -56,14 +58,18 @@ class Agent(object):
         else:
             self._set(data, entry_name, entry)
 
-    def set_organ(self, organ, func_name, func):
+    def set_organ(self, organ):
         '''Bla bla
 
         '''
-        if not callable(func):
-            raise RuntimeError('Attempt to set organ to non-callable object')
+        if isinstance(organ, Sensor):
+            self._set('sensor', organ.precept_name, organ.sensor_func)
+
+        elif isinstance(organ, Actuator):
+            self._set('actuator', organ.action_name, organ.actuator_func)
+
         else:
-            self._set(organ, func_name, func)
+            raise TypeError('Unknown organ type: %s' %str(type(organ)))
 
     def request_service(self, service_name, kwargs={}):
         '''Public method for external agents to request present agent to supply
@@ -104,26 +110,9 @@ class Agent(object):
 
         return (outcome, True)
 
-    def _sense(self, precept, kwargs={}):
+    def sense(self, precept, buzz_names):
         '''Method for agent to sense a precept of the environment. The method
         should only be called by the agent itself
-
-        Parameters
-        ----------
-        precept : str
-            Label for the precept to be sensed
-        kwargs : dict
-            Arguments to the sensor function passed at runtime
-
-        Returns
-        -------
-        outcome
-            Variable with data returned from the sensor
-
-        Raises
-        ------
-        RuntimeError
-            If no sensor is associated with the provided precept
 
         '''
         if not precept in self.sensor:
@@ -132,9 +121,16 @@ class Agent(object):
         else:
             the_sensor = self.sensor[precept]
 
-        outcome = the_sensor(**kwargs)
+        buzz = the_sensor()
 
-        return outcome
+        if len(buzz) != len(buzz_names):
+            raise ValueError('Sensor buzz of dimension not matching ' + \
+                             'expected dimension')
+
+        else:
+            ret = dict(zip(buzz_names, buzz))
+
+        return ret
 
     def interpret(self, what, kwargs={}):
         '''Bla bla
@@ -150,17 +146,17 @@ class Agent(object):
 
         return updated_beliefs
 
-    def handle(self, target, kwargs={}):
+    def mould(self, target, kwargs={}):
         '''Bla bla
 
         '''
-        if not target in self.handler:
-            raise RuntimeError('Agent lacks handler for %s' %(target))
+        if not target in self.moulder:
+            raise RuntimeError('Agent lacks moulder for %s' %(target))
 
         else:
-            the_handler = self.handler[target]
+            the_moulder = self.moulder[target]
 
-        actuators = the_handler(**kwargs)
+        actuators = the_moulder(**kwargs)
 
         return actuators
 
@@ -181,12 +177,12 @@ class Agent(object):
         self.sensor = {}
         self.actuator = {}
         self.interpreter = {}
-        self.handler = {}
+        self.moulder = {}
         self.organs = {'service' : self.service, 
                        'sensor' : self.sensor,
                        'actuator' : self.actuator, 
                        'interpreter' : self.interpreter,
-                       'handler' : self.handler}
+                       'moulder' : self.moulder}
 
         self.set_organ('service', 'list_my_services', self._request_service_labels)
 

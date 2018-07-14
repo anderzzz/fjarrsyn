@@ -62,7 +62,8 @@ class Bacteria(Agent):
         '''Bla bla
 
         '''
-        self.interpret('random_neighbour')
+        buzz_1 = self.sense('neighbour_surface')
+        self.interpret(buzz_1)
         # HERE PLAN IS EXECUTED. HIERARCHY OF PLANS?
         pass
 
