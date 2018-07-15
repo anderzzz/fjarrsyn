@@ -62,6 +62,7 @@ class Agent(object):
         '''Bla bla
 
         '''
+        #HOW TO KEY INTERPRETER? ON SENSOR? ON BUZZ PROFILE
         if isinstance(organ, Sensor):
             self._set('sensor', organ.precept_name, organ.sensor_func)
 
@@ -110,7 +111,7 @@ class Agent(object):
 
         return (outcome, True)
 
-    def sense(self, precept, buzz_names):
+    def sense(self, precept):
         '''Method for agent to sense a precept of the environment. The method
         should only be called by the agent itself
 
@@ -123,16 +124,9 @@ class Agent(object):
 
         buzz = the_sensor()
 
-        if len(buzz) != len(buzz_names):
-            raise ValueError('Sensor buzz of dimension not matching ' + \
-                             'expected dimension')
+        return buzz 
 
-        else:
-            ret = dict(zip(buzz_names, buzz))
-
-        return ret
-
-    def interpret(self, what, kwargs={}):
+    def interpret(self, what_belief, kwargs={}):
         '''Bla bla
 
         '''

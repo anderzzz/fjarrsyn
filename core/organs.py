@@ -12,11 +12,12 @@ class Sensor(object):
         ret = self.func(**self.kwargs)
         return ret 
 
-    def __init__(self, name, precept_name, sensor_func, kwargs={}):
+    def __init__(self, name, precept_name, sensor_func, buzzkeys, kwargs={}):
 
         self.name = name
         self.precept_name = precept_name
         self.func = sensor_func
+        self.buzzkeys = buzzkeys
         self.kwargs = kwargs
 
 class Actuator(object):
@@ -57,3 +58,20 @@ class Actuator(object):
         self.agent_index = agent_index
 
         self.kwargs = None
+
+class Interpreter(object):
+    '''Bla bla
+
+    '''
+    def __call__(self, buzz):
+        '''Bla bla
+
+        '''
+        pass
+
+    def __init__(self, name, buzz_names, interpreter_func, kwargs={}):
+
+        self.name = name
+        self.buzz_names = buzz_names
+        self.interpreter_func = interpreter_func
+        self.kwargs = kwargs

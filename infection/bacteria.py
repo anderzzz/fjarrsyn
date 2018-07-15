@@ -2,6 +2,7 @@
 
 '''
 from core.agent import Agent
+from core.organ import Interpreter
 
 class Bacteria(Agent):
     '''Bla bla
@@ -13,15 +14,11 @@ class Bacteria(Agent):
         '''
         return self.scaffold['surface_profile']
 
-    def _interpret_random_neighbour(self):
+    def _interpret_selfsimilarity_neighbourhood(self):
         '''Bla bla
 
         '''
-        self.belief['my_neighbour'] = None
-
-        surface_profile, neighbour_agent_index = 
-            self._sense('random_neighbour_surface', 
-                        {'agent_index' : self.agent_id_system})
+        self.belief['selfsimilarity_neighbourhood'] = None
 
         if not surface_profile[0] is None:
             my_profile = self.scaffold['surface_profile']
@@ -78,8 +75,13 @@ class Bacteria(Agent):
         self.set_data('scaffold', 'molecule_C', molecules[2])
         self.set_data('scaffold', 'molecule_D', molecules[3])
 
-        self.set_organ('interpreter', 'random_neighbour', 
-                       self._interpret_random_neighbour)
+        interpreter = Interpreter('similar_hood', 
+                                  ['surface_profile'],
+                                  self._interpret_selfsimilarity_neighbourhood)
+        self.set_organ(interpreter)
+
+        self.set_organ('interpreter', 'selfsimilarity_neighbourhood', 
+                       self._interpret_selfsimilarity_neighbourhood)
         self.set_organ('handler', 'supply_molecules_to_env',
                        self._handle_supply_molecules_to_env)
         self.set_organ('handler', 'gulp_molecules_from_env',

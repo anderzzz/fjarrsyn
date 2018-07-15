@@ -40,9 +40,11 @@ class Goo(AgentManagementSystem):
 
         bacteria = random.choice(neighbour_agents)
         if bacteria is None:
-            ret = (None, None)
+            ret = {'surface_profile' : None, 'neighbour' : None} 
+
         else:
-            ret = (bacteria.request_service('surface_profile'), bacteria.agent_id_system)
+            ret = {'surface_profile' : bacteria.request_service('surface_profile'), 
+                   'neighbour' : bacteria.agent_id_system}
 
         return ret
 
@@ -93,6 +95,7 @@ class Goo(AgentManagementSystem):
             sensor = Sensor('random_neighbour_surface', 
                             'neighbour_surface',
                             self._obtain_random_neighbour_surface,
+                            ['surface_profile', 'neighbour'],
                             {'agent_index' : bacteria.agent_id_system})
             bacteria.set_organ(sensor)
                                        
