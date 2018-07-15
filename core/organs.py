@@ -87,9 +87,29 @@ class Moulder(object):
     '''Bla bla
 
     '''
-    def __init__(self):
+    def __call__(self, beliefs, actuator):
+        '''Bla bla
 
-        pass
+        '''
+        func_kwargs = {}
+        for belief_input in self.belief_names:
+            func_kwargs[belief_input] = beliefs[belief_input]
+
+        for kwarg, value in self.kwargs.items():
+            func_kwargs[kwarg] = value
+
+        actuator_params = self.moulder_func(**func_kwargs)
+
+        ret = actuator.populate(actuator_params)
+
+        return ret
+
+    def __init__(self, name, belief_names, moulder_func, kwargs={}):
+
+        self.name = name
+        self.belief_names = belief_names
+        self.moulder_func = moulder_func
+        self.kwargs = kwargs
 
 class Cortex(object):
     '''Bla bla

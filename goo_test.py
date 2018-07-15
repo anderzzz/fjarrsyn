@@ -52,7 +52,9 @@ def main(args):
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
     for bacteria in cell_space.iteritems():
-        bacteria()
+        actions = bacteria()
+        for action in actions:
+            action()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

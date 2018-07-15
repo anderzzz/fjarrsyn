@@ -26,6 +26,31 @@ class BacteriaBrain(object):
 
         return ('my_neighbour',)
 
+    def _mould_supply_molecules_to_env(self, my_neighbour):
+        '''Bla bla
+
+        '''
+        # HOW TO DO THIS NOW?
+        raise RuntimeError('dummy')
+
+    def _mould_gulp_molecules_from_env(self):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _mould_cell_division(self):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _mould_spontaneous_growth(self):
+        '''Bla bla
+
+        '''
+        pass
+
     def __init__(self, scaffold, belief):
         
         self.scaffold = scaffold
@@ -41,39 +66,27 @@ class Bacteria(Agent):
         '''
         return self.scaffold['surface_profile']
 
-    def _handle_supply_molecules_to_env(self):
-        '''Bla bla
-
-        '''
-        pass
-
-    def _handle_gulp_molecules_from_env(self):
-        '''Bla bla
-
-        '''
-        pass
-
-    def _handle_cell_division(self):
-        '''Bla bla
-
-        '''
-        pass
-
-    def _handle_spontaneous_growth(self):
-        '''Bla bla
-
-        '''
-        pass
-
     def __call__(self):
         '''Bla bla
 
         '''
+        return_actuator = []
+
         buzz_1 = self.sense('neighbour_surface')
         self.interpret('similar_hood', buzz_1)
-        # HERE PLAN IS EXECUTED. HIERARCHY OF PLANS?
-        raise RuntimeError('dummy') 
 
+        if self.belief['my_neighbour'] is None:
+            # ADD OBJECTFORCE
+            pass
+        
+        else:
+            actuator = self.mould('share_molecules',
+                                  self.belief['my_neighbour'], 
+                                  self.actuator['share_molecules'])
+            return_actuator.append(actuator)
+
+        return return_actuator
+        
     def __init__(self, name, surface_profile, molecules):
 
         super().__init__(name)
@@ -94,6 +107,11 @@ class Bacteria(Agent):
                                   ['surface_profile'],
                                   brain._interpret_selfsimilarity_neighbourhood)
         self.set_organ(interpreter)
+
+        moulder = Moulder('share_molecules',
+                          ['my_neighbour'],
+                          brain._mould_supply_molecules_to_env)
+        self.set_organ(moulder)
 
 #        self.set_organ('handler', 'supply_molecules_to_env',
 #                       self._handle_supply_molecules_to_env)

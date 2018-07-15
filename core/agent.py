@@ -62,7 +62,7 @@ class Agent(object):
             self._set('interpreter', organ.name, organ)
 
         elif isinstance(organ, Moulder):
-            pass
+            self._set('moulder', organ.name, organ) 
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.tickle_name, organ)
@@ -113,17 +113,17 @@ class Agent(object):
 
         return updated_belief_labels
 
-    def mould(self, target, kwargs={}):
+    def mould(self, action, beliefs):
         '''Bla bla
 
         '''
-        if not target in self.moulder:
-            raise RuntimeError('Agent lacks moulder for %s' %(target))
+        if not action in self.moulder:
+            raise RuntimeError('Agent lacks moulder for action %s' %(target))
 
         else:
-            the_moulder = self.moulder[target]
+            the_moulder = self.moulder[action]
 
-        actuators = the_moulder(**kwargs)
+        actuators = the_moulder(beliefs)
 
         return actuators
 
