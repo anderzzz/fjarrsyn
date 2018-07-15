@@ -13,11 +13,11 @@ def parse_(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--n-bacteria-1',
                          dest='n_bacteria_1',
-                         default='5',
+                         default='4',
                          help='Number of initial bacteria of type 1 in cell space')
     parser.add_argument('--n-bacteria-2',
                          dest='n_bacteria_2',
-                         default='5',
+                         default='4',
                          help='Number of initial bacteria of type 2 in cell space')
     parser.add_argument('--cell-length',
                         dest='cell_length',
@@ -39,15 +39,20 @@ def main(args):
 
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
-        bacterial_agents.append(Bacteria('bacteria_1_%s' %(str(k_bacteria)), 'aaaaa'))
+        bacterial_agents.append(Bacteria('bacteria_1_%s' %(str(k_bacteria)),
+                                         'aaaaa', [0.0, 0.0, 0.0, 0.0]))
     for k_bacteria in range(n_bacteria_2):
-        bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)), 'wwwww'))
+        bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
+                                         'wwwww', [0.0, 0.0, 0.0, 0.0]))
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
                               {'molecule_A' : 0.0, 'molecule_B' : 0.0,
                                'molecule_C' : 0.0, 'molecule_D' : 0.0})
 
-    cell_space = Goo('cell_space', 10, bacterial_agents, extracellular)
+    cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
+
+    for bacteria in cell_space.iteritems():
+        bacteria()
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

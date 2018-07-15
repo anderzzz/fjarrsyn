@@ -7,7 +7,7 @@ import random
 from core.agent_ms import AgentManagementSystem
 from core.graph import CubicGrid
 
-from core.sensor import _Sensor
+from core.organs import Sensor, Actuator
 
 class Goo(AgentManagementSystem):
     '''Bla bla
@@ -38,12 +38,12 @@ class Goo(AgentManagementSystem):
         '''
         neighbour_agents = self.graph_neighbours_to(agent_index)
 
-        bacteria = random.choice(neighbour_agents)
+        bacteria = random.choice(list(neighbour_agents))
         if bacteria is None:
             ret = {'surface_profile' : None, 'neighbour' : None} 
 
         else:
-            ret = {'surface_profile' : bacteria.request_service('surface_profile'), 
+            ret = {'surface_profile' : bacteria.tickle('surface_profile'), 
                    'neighbour' : bacteria.agent_id_system}
 
         return ret
@@ -72,14 +72,18 @@ class Goo(AgentManagementSystem):
         matrix = CubicGrid(n_slots=beaker_length) 
         matrix_size = len(matrix)
 
+        super().__init__(name, bacterial_agents, matrix)
+
         env_objects = [copy.deepcopy(env_object) for k in range(matrix_size)]
         random_index = random.sample(range(matrix_size), 
                                      len(bacterial_agents))
 
-        for ind, env_object in enumerate(env_object):
+        k_bacteria = 0 
+        for ind, env_object in enumerate(env_objects):
             matrix.nodes[ind].aux_content = env_object
             if ind in random_index:
-                bact_agent = bacterial_agents.pop(0)
+                bact_agent = bacterial_agents[k_bacteria]
+                k_bacteria += 1
                 matrix.nodes[ind].agent_content = bact_agent
             else:
                 matrix.nodes[ind].agent_content = None 
@@ -99,5 +103,4 @@ class Goo(AgentManagementSystem):
                             {'agent_index' : bacteria.agent_id_system})
             bacteria.set_organ(sensor)
                                        
-        super().__init__(name, bacterial_agents, matrix)
 

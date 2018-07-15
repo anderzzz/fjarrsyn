@@ -3,7 +3,7 @@
 '''
 import random
 
-from core.organs import Sensor, Actuator
+from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
 
 NULL_RETURN = (None, False) 
 
@@ -11,22 +11,11 @@ class Agent(object):
     '''Bla bla
 
     '''
-    def _request_service_labels(self):
-        '''Method for the mandatory service for an agent to announce labels for
-        its requestable services.
-
-        Notes
-        -----
-            This method should not be accessed directly, only through the
-            `request_service` method should this method be executed.
-
-        Returns
-        -------
-        service_labels : set
-            Service labels for requestable services by the agent
+    def _tickle_cortex_labels(self):
+        '''Bla bla
 
         '''
-        return self.service.keys() 
+        return self.cortex.keys() 
 
     def _set(self, object_type, key, value):
         '''Bla bla
@@ -64,52 +53,36 @@ class Agent(object):
         '''
         #HOW TO KEY INTERPRETER? ON SENSOR? ON BUZZ PROFILE
         if isinstance(organ, Sensor):
-            self._set('sensor', organ.precept_name, organ.sensor_func)
+            self._set('sensor', organ.precept_name, organ)
 
         elif isinstance(organ, Actuator):
-            self._set('actuator', organ.action_name, organ.actuator_func)
+            self._set('actuator', organ.action_name, organ)
+
+        elif isinstance(organ, Interpreter):
+            self._set('interpreter', organ.name, organ)
+
+        elif isinstance(organ, Moulder):
+            pass
+
+        elif isinstance(organ, Cortex):
+            self._set('cortex', organ.tickle_name, organ)
 
         else:
             raise TypeError('Unknown organ type: %s' %str(type(organ)))
 
-    def request_service(self, service_name, kwargs={}):
-        '''Public method for external agents to request present agent to supply
-        some service as specified by the `service_label`.
-
-        Notes
-        -----
-            Formally the method returns a function that has been decorated with
-            a model of capricious behaviour on part of the agent.
-
-        Parameters
-        ----------
-        service_name : str
-            String label for the service that is requested
-        kwargs : dict, optional
-            Optional dictionary of arguments to be passed onto the service
-            method
-
-        Returns
-        -------
-        outcome 
-            Return variable containing the outcome of the requested service
-        performed_service : bool
-            Variable that indicates if the service was executed or denied for
-            some reason by the agent
+    def tickle(self, itch):
+        '''Bla bla
 
         '''
-        if not service_name in self._request_service_labels():
-            return NULL_RETURN
+        if not itch in self.cortex:
+            raise RuntimeError('Agent lacks cortex for itch %s' %(itch))
 
         else:
-            func = self.service[service_name]
+            func = self.cortex[itch]
 
-        try:
-            outcome = func(**kwargs)
-        except Exception:
-            return NULL_RETURN
+        reaction = func()
 
-        return (outcome, True)
+        return reaction 
 
     def sense(self, precept):
         '''Method for agent to sense a precept of the environment. The method
@@ -126,19 +99,19 @@ class Agent(object):
 
         return buzz 
 
-    def interpret(self, what_belief, kwargs={}):
+    def interpret(self, brain_tissue, buzz):
         '''Bla bla
 
         '''
-        if not what in self.interpreter:
-            raise RuntimeError('Agent lacks interpreter for %s' %(what))
+        if not brain_tissue in self.interpreter:
+            raise RuntimeError('Agent lacks interpreter %s' %(brain_tissue))
 
         else:
-            the_interpreter = self.interpreter[what]
+            the_interpreter = self.interpreter[brain_tissue]
 
-        updated_beliefs = the_interpreter(**kwargs)
+        updated_belief_labels = the_interpreter(buzz)
 
-        return updated_beliefs
+        return updated_belief_labels
 
     def mould(self, target, kwargs={}):
         '''Bla bla
@@ -167,16 +140,17 @@ class Agent(object):
         self.belief = {}
         self.data = {'scaffold' : self.scaffold, 'belief' : self.belief}
 
-        self.service = {}
+        self.cortex = {}
         self.sensor = {}
         self.actuator = {}
         self.interpreter = {}
         self.moulder = {}
-        self.organs = {'service' : self.service, 
+        self.organs = {'cortex' : self.cortex, 
                        'sensor' : self.sensor,
                        'actuator' : self.actuator, 
                        'interpreter' : self.interpreter,
                        'moulder' : self.moulder}
 
-        self.set_organ('service', 'list_my_services', self._request_service_labels)
+        cortex = Cortex('revealation_set', 'cortex_labels', self._tickle_cortex_labels)
+        self.set_organ(cortex)
 

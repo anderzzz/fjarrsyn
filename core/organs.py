@@ -9,14 +9,14 @@ class Sensor(object):
         '''Bla bla
 
         '''
-        ret = self.func(**self.kwargs)
+        ret = self.sensor_func(**self.kwargs)
         return ret 
 
     def __init__(self, name, precept_name, sensor_func, buzzkeys, kwargs={}):
 
         self.name = name
         self.precept_name = precept_name
-        self.func = sensor_func
+        self.sensor_func = sensor_func
         self.buzzkeys = buzzkeys
         self.kwargs = kwargs
 
@@ -67,11 +67,43 @@ class Interpreter(object):
         '''Bla bla
 
         '''
-        pass
+        func_kwargs = {}
+        for buzz_input in self.buzz_names:
+            func_kwargs[buzz_input] = buzz[buzz_input]
+
+        for kwarg, value in self.kwargs.items():
+            func_kwargs[kwarg] = value
+
+        return self.interpreter_func(**func_kwargs) 
 
     def __init__(self, name, buzz_names, interpreter_func, kwargs={}):
 
         self.name = name
         self.buzz_names = buzz_names
         self.interpreter_func = interpreter_func
+        self.kwargs = kwargs
+
+class Moulder(object):
+    '''Bla bla
+
+    '''
+    def __init__(self):
+
+        pass
+
+class Cortex(object):
+    '''Bla bla
+
+    '''
+    def __call__(self):
+        '''Bla bla
+
+        '''
+        return self.cortex_func(**self.kwargs)
+
+    def __init__(self, name, tickle_name, cortex_func, kwargs={}):
+
+        self.name = name
+        self.tickle_name = tickle_name
+        self.cortex_func = cortex_func
         self.kwargs = kwargs

@@ -31,8 +31,8 @@ class AgentManagementSystem(object):
 
         ret_list = []
         for ind, connection_tuple in adjacency_list.iteritems():
-            agent_id1 = connection_tuple[0].content.agent_id_system
-            agent_id2 = connection_tuple[1].content.agent_id_system
+            agent_id1 = connection_tuple[0].agent_content.agent_id_system
+            agent_id2 = connection_tuple[1].agent_content.agent_id_system
            
             if agent_id1 == agent_index:
                 ret_list.append(connection_tuple[1].agent_content)
@@ -69,7 +69,6 @@ class AgentManagementSystem(object):
         for agent in agents:
             agent.agent_id_system = str(uuid4())
             self.agents_in_scope[agent.agent_id_system] = agent
-
 
         if full_agents_graph is None:
             self.agents_graph = Graph()
