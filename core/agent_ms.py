@@ -4,10 +4,34 @@
 from uuid import uuid4
 from collections import OrderedDict
 
-from core.graph import Graph
+from core.graph import Graph, Node
 
 class AgentManagementSystem(object):
-    '''Bla bla
+    '''Base class for the medium in which agents interacts with other agents or
+    other external objects. 
+    
+    Notes 
+    -----
+    The agent management system is an abstract object in which the agent 
+    affordances are implemented and transplanted into the relevant agent
+    organs. Any spatial network relations between agents are part of this
+    system. Agents part of the system are assinged a unique ID.
+
+    Parameters
+    ----------
+    name : str
+        Name of the agent management system
+    agents
+        Iterable of agents to be part of the system, in no particular order.
+    full_agents_graph : Graph, optional
+        Optional Graph object that defines the spatial network relation between
+        the agents of the system. If none given, a complete non-directional
+        graph is used.
+
+    Raises
+    ------
+    TypeError
+        If a full agents graph is given that is not of the Graph class
 
     '''
     def graph_neighbours_to(self, agent_index):
@@ -78,9 +102,10 @@ class AgentManagementSystem(object):
         else:
             if isinstance(full_agents_graph, Graph):
                 self.agents_graph = full_agents_graph
+
             else:
-                raise RuntimeError('Agent Management System given graph not ' + \
-                                   'of the Graph class')
+                raise TypeError('Agent Management System given graph not ' + \
+                                'of the Graph class')
 
 class AgentSystemSummarizer(object):
     '''Bla bla
