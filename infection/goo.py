@@ -62,7 +62,7 @@ class Goo(AgentManagementSystem):
 
         return ret
 
-    def _act_add_molecules_to_env(self, agent_index, dx_molecules):
+    def _act_add_molecules_to_env(self, agent_index, dx_molecules_poison):
         '''Actuator method to add molecules from one agent to another
 
         Parameters
@@ -76,7 +76,7 @@ class Goo(AgentManagementSystem):
         '''
         node_with_agent = self.matrix[agent_index]
         environment = node_with_agent.aux_content
-        for molecule, dx in dx_molecules.items():
+        for molecule, dx in dx_molecules_poison.items():
             x = environment.molecule_content[molecule] 
             x_new = x + dx
             environment.molecule_content[molecule] = x_new 
@@ -124,7 +124,7 @@ class Goo(AgentManagementSystem):
             actuator = Actuator('molecules_to_environment',
                                 'share_molecules',
                                 self._act_add_molecules_to_env,
-                                ['dx_molecules'],
+                                ['dx_molecules_poison'],
                                 bacteria.agent_id_system)
             bacteria.set_organ(actuator)
 

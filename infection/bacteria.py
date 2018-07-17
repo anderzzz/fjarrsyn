@@ -30,21 +30,46 @@ class BacteriaBrain(object):
         '''Bla bla
 
         '''
-        diff_g = belief_of_neighbour - self.scaffold['generosity']
-        diff_a = belief_of_neighbour - self.scaffold['attacker']
+        def sigmoid(max_height, steepness, midpoint, up_down, x_value):
+            '''Bla bla
 
-        if diff_g > 0.0:
-            share_percentage = self.scaffold['generosity_mag'] 
-        else:
-            share_percentage = 0.0
+            '''
+            if max_height > 1.0 or max_height < 0.0:
+                raise ValueError('Sigmoidal value range should be between ' + \
+                                 '0.0 and 1.0, not %s' %(str(max_height)))
 
-        if diff_a < 0.0:
-            poison_percentage = self.scaffold['attack_mag']
-        else:
-            poison_percentage = 0.0
+            if up_down:
+                alpha = -1.0 * steepness
+            else:
+                alpha = 1.0 * steepness
 
-        # CONTINUE HERE 
-        raise RuntimeError('dummy')
+            exp_val = np.exp(alpha * (midpoint - x_value))
+
+            return max_height / (1.0 + exp_val)
+
+        share_percentage = sigmoid(self.scaffold['generosity_mag'], 10.0,
+                                   self.scaffold['generosity'], False, 
+                                   belief_of_neighbour)
+        poison_percentage = sigmoid(self.scaffold['attack_mag'], 10.0,
+                                    self.scaffold['attacker'], True,
+                                    belief_of_neighbour)
+        
+        ret_env = {}
+        key_molecule = [key for key in self.scaffold if 'molecule_' in key]
+        for molecule in key_molecule:
+            current_amount = self.scaffold[molecule]
+            dx_amount = share_percentage * current_amount
+            ret_env[molecule] = dx_amount
+            left_over = current_amount - dx_amount
+            self.scaffold[molecules] = left_over
+
+        current_amount = self.scaffold['poison']
+        dx_amount = poison_percentage * current_amount
+        ret_env['poison'] = dx_amount
+        left_over = current_amount - dx_amount
+        self.scaffold['poison'] = left_over
+
+        return ret_env
 
     def _mould_gulp_molecules_from_env(self):
         '''Bla bla
@@ -100,9 +125,7 @@ class Bacteria(Agent):
             pass
         
         else:
-            actuator = self.mould('share_molecules',
-                                  self.belief['my_neighbour'], 
-                                  self.actuator['share_molecules'])
+            actuator = self.mould('share_molecules')
             return_actuator.append(actuator)
 
         return return_actuator
@@ -115,7 +138,7 @@ class Bacteria(Agent):
         self.set_data('scaffold', 'molecule_A', molecules[0])
         self.set_data('scaffold', 'molecule_B', molecules[1])
         self.set_data('scaffold', 'molecule_C', molecules[2])
-        self.set_data('scaffold', 'molecule_D', molecules[3])
+        self.set_data('scaffold', 'poison', molecules[3])
         self.set_data('scaffold', 'generosity', 0.5)
         self.set_data('scaffold', 'attacker', 0.5)
 

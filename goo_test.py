@@ -47,7 +47,7 @@ def main(args):
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
                               {'molecule_A' : 0.0, 'molecule_B' : 0.0,
-                               'molecule_C' : 0.0, 'molecule_D' : 0.0})
+                               'molecule_C' : 0.0, 'poison' : 0.0})
 
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
