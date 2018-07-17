@@ -123,9 +123,9 @@ class Agent(object):
             raise KeyError('Agent lacks cortex for itch %s' %(itch))
 
         else:
-            func = self.cortex[itch]
+            the_cortex = self.cortex[itch]
 
-        reaction = func()
+        reaction = the_cortex()
 
         return reaction 
 
@@ -200,20 +200,20 @@ class Agent(object):
 
         return updated_belief_labels
 
-    def mould(self, action, beliefs):
+    def mould(self, action):
         '''Method for agent to mould beliefs into an action
 
         Notes
         -----
         The desired action is moulded from a number of given beliefs wherein
         the method is intended as a private method to the current agent.
+        The beliefs to be used are defined as part of initilization of the
+        organ.
 
         Parameters
         ----------
         actions : str
             Name of the action onto the World to mould
-        beliefs : dict
-            Beliefs of the current agent to be used to mould the action
 
         Returns
         -------
@@ -233,7 +233,7 @@ class Agent(object):
         else:
             the_moulder = self.moulder[action]
 
-        actuators = the_moulder(beliefs)
+        actuators = the_moulder()
 
         return actuators
 

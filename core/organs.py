@@ -126,7 +126,7 @@ class Moulder(object):
     '''Bla bla
 
     '''
-    def __call__(self, beliefs, actuator):
+    def __call__(self):
         '''Bla bla
 
         '''

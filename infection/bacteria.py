@@ -26,11 +26,24 @@ class BacteriaBrain(object):
 
         return ('my_neighbour',)
 
-    def _mould_supply_molecules_to_env(self, my_neighbour):
+    def _mould_supply_molecules_to_env(self, belief_of_neighbour):
         '''Bla bla
 
         '''
-        # HOW TO DO THIS NOW?
+        diff_g = belief_of_neighbour - self.scaffold['generosity']
+        diff_a = belief_of_neighbour - self.scaffold['attacker']
+
+        if diff_g > 0.0:
+            share_percentage = self.scaffold['generosity_mag'] 
+        else:
+            share_percentage = 0.0
+
+        if diff_a < 0.0:
+            poison_percentage = self.scaffold['attack_mag']
+        else:
+            poison_percentage = 0.0
+
+        # CONTINUE HERE 
         raise RuntimeError('dummy')
 
     def _mould_gulp_molecules_from_env(self):
@@ -103,6 +116,8 @@ class Bacteria(Agent):
         self.set_data('scaffold', 'molecule_B', molecules[1])
         self.set_data('scaffold', 'molecule_C', molecules[2])
         self.set_data('scaffold', 'molecule_D', molecules[3])
+        self.set_data('scaffold', 'generosity', 0.5)
+        self.set_data('scaffold', 'attacker', 0.5)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',
