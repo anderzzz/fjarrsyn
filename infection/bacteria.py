@@ -67,7 +67,14 @@ class Bacteria(Agent):
         return self.scaffold['surface_profile']
 
     def __call__(self):
-        '''Bla bla
+        '''The executive function of the bacteria agent wherein it executes a
+        plan and returns actuators to the caller
+
+        Returns
+        -------
+        actuators : list
+            List of actuators to be executed in the World in order to become
+            actions
 
         '''
         return_actuator = []

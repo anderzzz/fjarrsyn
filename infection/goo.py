@@ -13,7 +13,7 @@ class Goo(AgentManagementSystem):
     '''Bla bla
 
     '''
-    def _gulp_my_environment(self, agent_index, how_much):
+    def _act_gulp_my_environment(self, agent_index, how_much):
         '''Bla bla
 
         '''
@@ -32,8 +32,22 @@ class Goo(AgentManagementSystem):
 
         return ret 
 
-    def _obtain_random_neighbour_surface(self, agent_index):
-        '''Bla bla
+    def _sense_random_neighbour_surface(self, agent_index):
+        '''Sensor method that selects random neighbour node and if agent is
+        present tickles it for its surface profile
+
+        Parameters
+        ----------
+        agent_index : str
+            The index of the agent for which to sense its environment
+
+        Returns
+        -------
+        buzz : dict
+            A dictionary of the buzz the sensor elicits in the agent. The
+            dictionary has two keys `surface_profile` and `neighbour`, the
+            former being a string representing the surface profile obtained
+            from the tickle, and the agent index of the neighbouring agent.
 
         '''
         neighbour_agents = self.graph_neighbours_to(agent_index)
@@ -48,8 +62,16 @@ class Goo(AgentManagementSystem):
 
         return ret
 
-    def _add_molecules_to_env(self, agent_index, dx_molecules):
-        '''Bla bla
+    def _act_add_molecules_to_env(self, agent_index, dx_molecules):
+        '''Actuator method to add molecules from one agent to another
+
+        Parameters
+        ----------
+        agent_index : str
+            Agent index to agent to which's environment molecules are to be
+            added
+        dx_molecules : dict
+            Amount of molecules to add based on its key
 
         '''
         node_with_agent = self.matrix[agent_index]
@@ -59,7 +81,7 @@ class Goo(AgentManagementSystem):
             x_new = x + dx
             environment.molecule_content[molecule] = x_new 
 
-    def _new_cell_into_matrix(self):
+    def _act_new_cell_into_matrix(self):
         '''Bla bla
 
         '''
@@ -67,38 +89,48 @@ class Goo(AgentManagementSystem):
 
     def __init__(self, name, beaker_length, bacterial_agents, env_object):
 
-        self.relation = {}
-
+        #
+        # Create agent graph as cubic grid and initialize base agent management
+        # system
+        #
         matrix = CubicGrid(n_slots=beaker_length) 
         matrix_size = len(matrix)
 
         super().__init__(name, bacterial_agents, matrix)
 
+        #
+        # Assign content to the nodes of the grid
+        #
         env_objects = [copy.deepcopy(env_object) for k in range(matrix_size)]
         random_index = random.sample(range(matrix_size), 
                                      len(bacterial_agents))
 
         k_bacteria = 0 
-        for ind, env_object in enumerate(env_objects):
-            matrix.nodes[ind].aux_content = env_object
-            if ind in random_index:
+        for grid_index, env_object in enumerate(env_objects):
+            matrix.nodes[grid_index].aux_content = env_object
+
+            if grid_index in random_index:
                 bact_agent = bacterial_agents[k_bacteria]
                 k_bacteria += 1
-                matrix.nodes[ind].agent_content = bact_agent
-            else:
-                matrix.nodes[ind].agent_content = None 
+                matrix.nodes[grid_index].agent_content = bact_agent
 
+            else:
+                matrix.nodes[grid_index].agent_content = None 
+
+        #
+        # Equip agents with organs to interact with the World
+        #
         for bacteria in bacterial_agents:
-            actuator = Actuator('add_molecules_to_environment',
+            actuator = Actuator('molecules_to_environment',
                                 'share_molecules',
-                                self._add_molecules_to_env,
+                                self._act_add_molecules_to_env,
                                 ['dx_molecules'],
                                 bacteria.agent_id_system)
             bacteria.set_organ(actuator)
 
             sensor = Sensor('random_neighbour_surface', 
                             'neighbour_surface',
-                            self._obtain_random_neighbour_surface,
+                            self._sense_random_neighbour_surface,
                             ['surface_profile', 'neighbour'],
                             {'agent_index' : bacteria.agent_id_system})
             bacteria.set_organ(sensor)
