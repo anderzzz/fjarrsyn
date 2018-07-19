@@ -14,7 +14,7 @@ class Node(object):
 
     def __contains__(self, item):
 
-        return item == agent_content.agent_id_system
+        return item == self.agent_content.agent_id_system
 
     def __init__(self, name, agent_content, aux_content=None):
 

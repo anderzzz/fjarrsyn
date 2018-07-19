@@ -52,8 +52,11 @@ class BacteriaBrain(object):
         ret_env['poison'] = dx_amount
         left_over = current_amount - dx_amount
         self.scaffold['poison'] = left_over
+        print (ret_env)
 
-        return ret_env
+        ret = {'dx_molecules_poison' : ret_env}
+
+        return ret
 
     def _mould_gulp_molecules_from_env(self):
         '''Bla bla
@@ -99,7 +102,7 @@ class Bacteria(Agent):
             actions
 
         '''
-        return_actuator = []
+        return_actuator_names = []
 
         buzz_1 = self.sense('neighbour_surface')
         self.interpret('similar_hood', buzz_1)
@@ -109,12 +112,12 @@ class Bacteria(Agent):
             pass
         
         else:
-            print ('aaa1')
-            actuator = self.mould('share_molecules')
-            print ('aaa2')
-            return_actuator.append(actuator)
+            self.mould('share_molecules')
+            print ('abc1')
+            self.act('share_molecules')
+            print ('abc2')
 
-        return return_actuator
+        return return_actuator_names
         
     def __init__(self, name, surface_profile, molecules):
 

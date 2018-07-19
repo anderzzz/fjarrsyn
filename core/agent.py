@@ -228,15 +228,24 @@ class Agent(object):
 
         '''
         if not action in self.moulder:
-            raise KeyError('Agent lacks moulder for action %s' %(target))
+            raise KeyError('Agent lacks moulder for action %s' %(action))
 
         else:
             the_moulder = self.moulder[action]
 
-        actuator_params = the_moulder(self.actuator[action], self.belief)
-        self.actuator[action].populate(actuator_params)
+        the_moulder(self.actuator[action], self.belief)
 
-        return actuators
+    def act(self, action):
+        '''Bla bla
+
+        '''
+        if not action in self.actuator:
+            raise KeyError('Agent lacks actuator for action %s' %(action))
+
+        else:
+            the_actuator = self.actuator[action]
+
+        the_actuator()
 
     def __str__(self):
 

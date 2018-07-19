@@ -74,12 +74,15 @@ class Goo(AgentManagementSystem):
             Amount of molecules to add based on its key
 
         '''
-        node_with_agent = self.matrix[agent_index]
+        node_with_agent = self.agents_graph[agent_index]
         environment = node_with_agent.aux_content
+        print (dx_molecules_poison)
+        print ('aaa555')
         for molecule, dx in dx_molecules_poison.items():
             x = environment.molecule_content[molecule] 
             x_new = x + dx
             environment.molecule_content[molecule] = x_new 
+        print (environment.molecule_content)
 
     def _act_new_cell_into_matrix(self):
         '''Bla bla
@@ -124,7 +127,7 @@ class Goo(AgentManagementSystem):
             actuator = Actuator('molecules_to_environment',
                                 'share_molecules',
                                 self._act_add_molecules_to_env,
-                                ['molecule_A','molecule_B','molecule_C','poison'],
+                                ['dx_molecules_poison'],
                                 bacteria.agent_id_system)
             bacteria.set_organ(actuator)
 

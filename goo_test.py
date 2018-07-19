@@ -40,24 +40,20 @@ def main(args):
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
         bacterial_agents.append(Bacteria('bacteria_1_%s' %(str(k_bacteria)),
-                                         'aaaaa', [0.0, 0.0, 0.0, 0.0]))
+                                         'aaaaa', [1.0, 0.0, 0.0, 0.0]))
     for k_bacteria in range(n_bacteria_2):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
-                                         'wwwww', [0.0, 0.0, 0.0, 0.0]))
+                                         'wwwww', [0.0, 1.0, 0.0, 0.0]))
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
-                              {'molecule_A' : 0.0, 'molecule_B' : 0.0,
-                               'molecule_C' : 0.0, 'poison' : 0.0})
+                              {'molecule_A' : 0.1, 'molecule_B' : 0.1,
+                               'molecule_C' : 0.1, 'poison' : 0.0})
 
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
     for bacteria in cell_space.iteritems():
-        print ('hello1')
-        actions = bacteria()
-        print ('hello2')
-        for action in actions:
-            action()
-            raise Exception('DUMMY')
+        bacteria()
+        raise Exception('DUMMY')
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

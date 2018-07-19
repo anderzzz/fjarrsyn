@@ -140,6 +140,7 @@ class Moulder(object):
             func_kwargs[kwarg] = value
 
         actuator_params = self.moulder_func(**func_kwargs)
+        print ('yy1', actuator_params)
         actuator.populate(actuator_params)
 
     def __init__(self, name, belief_names, moulder_func, kwargs={}):
