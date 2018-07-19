@@ -1,7 +1,6 @@
-'''Bla bla
+'''Specific objects, agents included, for the infection scenario
 
 '''
-from core.helper_funcs import sigmoid_10
 from core.agent import Agent
 from core.organs import Interpreter, Moulder, Cortex
 from infection.bacteria_brain import BacteriaBrain
@@ -18,32 +17,14 @@ class Bacteria(Agent):
 
     def __call__(self):
         '''The executive function of the bacteria agent wherein it executes a
-        plan and returns actuators to the caller
-
-        Returns
-        -------
-        actuators : list
-            List of actuators to be executed in the World in order to become
-            actions
+        plan and experiences an object force
 
         '''
-        return_actuator_names = []
+        self.perceive('neighbour_surface', 'similar_hood')
 
-        buzz_1 = self.sense('neighbour_surface')
-        self.interpret('similar_hood', buzz_1)
+        if not self.belief['my_neighbour'] is None:
+            self.engage('share_molecules')
 
-        if self.belief['my_neighbour'] is None:
-            # ADD OBJECTFORCE
-            pass
-        
-        else:
-            self.mould('share_molecules')
-            print ('abc1')
-            self.act('share_molecules')
-            print ('abc2')
-
-        return return_actuator_names
-        
     def __init__(self, name, surface_profile, molecules):
 
         super().__init__(name)
