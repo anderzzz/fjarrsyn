@@ -233,7 +233,8 @@ class Agent(object):
         else:
             the_moulder = self.moulder[action]
 
-        actuators = the_moulder()
+        actuator_params = the_moulder(self.actuator[action], self.belief)
+        self.actuator[action].populate(actuator_params)
 
         return actuators
 

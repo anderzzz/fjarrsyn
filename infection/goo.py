@@ -124,7 +124,7 @@ class Goo(AgentManagementSystem):
             actuator = Actuator('molecules_to_environment',
                                 'share_molecules',
                                 self._act_add_molecules_to_env,
-                                ['dx_molecules_poison'],
+                                ['molecule_A','molecule_B','molecule_C','poison'],
                                 bacteria.agent_id_system)
             bacteria.set_organ(actuator)
 

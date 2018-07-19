@@ -69,6 +69,8 @@ class Actuator(object):
         '''
         self.kwargs = {'agent_index' : self.agent_index}
 
+        print (keyvalue)
+        print (self.keys2populate)
         keys = set(keyvalue.keys())
         key_reference = set(self.keys2populate)
         if keys != key_reference:
@@ -126,22 +128,19 @@ class Moulder(object):
     '''Bla bla
 
     '''
-    def __call__(self):
+    def __call__(self, actuator, belief):
         '''Bla bla
 
         '''
         func_kwargs = {}
         for belief_input in self.belief_names:
-            func_kwargs[belief_input] = beliefs[belief_input]
+            func_kwargs[belief_input] = belief[belief_input]
 
         for kwarg, value in self.kwargs.items():
             func_kwargs[kwarg] = value
 
         actuator_params = self.moulder_func(**func_kwargs)
-
-        ret = actuator.populate(actuator_params)
-
-        return ret
+        actuator.populate(actuator_params)
 
     def __init__(self, name, belief_names, moulder_func, kwargs={}):
 

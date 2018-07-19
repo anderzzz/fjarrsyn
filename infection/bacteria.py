@@ -1,6 +1,7 @@
 '''Bla bla
 
 '''
+from core.helper_funcs import sigmoid_10
 from core.agent import Agent
 from core.organs import Interpreter, Moulder, Cortex
 
@@ -26,33 +27,16 @@ class BacteriaBrain(object):
 
         return ('my_neighbour',)
 
-    def _mould_supply_molecules_to_env(self, belief_of_neighbour):
+    def _mould_supply_molecules_to_env(self, my_neighbour):
         '''Bla bla
 
         '''
-        def sigmoid(max_height, steepness, midpoint, up_down, x_value):
-            '''Bla bla
-
-            '''
-            if max_height > 1.0 or max_height < 0.0:
-                raise ValueError('Sigmoidal value range should be between ' + \
-                                 '0.0 and 1.0, not %s' %(str(max_height)))
-
-            if up_down:
-                alpha = -1.0 * steepness
-            else:
-                alpha = 1.0 * steepness
-
-            exp_val = np.exp(alpha * (midpoint - x_value))
-
-            return max_height / (1.0 + exp_val)
-
-        share_percentage = sigmoid(self.scaffold['generosity_mag'], 10.0,
-                                   self.scaffold['generosity'], False, 
-                                   belief_of_neighbour)
-        poison_percentage = sigmoid(self.scaffold['attack_mag'], 10.0,
-                                    self.scaffold['attacker'], True,
-                                    belief_of_neighbour)
+        share_percentage = sigmoid_10(self.scaffold['generosity_mag'], 
+                                      self.scaffold['generosity'], False, 
+                                      my_neighbour)
+        poison_percentage = sigmoid_10(self.scaffold['attack_mag'],
+                                       self.scaffold['attacker'], True,
+                                       my_neighbour)
         
         ret_env = {}
         key_molecule = [key for key in self.scaffold if 'molecule_' in key]
@@ -61,7 +45,7 @@ class BacteriaBrain(object):
             dx_amount = share_percentage * current_amount
             ret_env[molecule] = dx_amount
             left_over = current_amount - dx_amount
-            self.scaffold[molecules] = left_over
+            self.scaffold[molecule] = left_over
 
         current_amount = self.scaffold['poison']
         dx_amount = poison_percentage * current_amount
@@ -125,7 +109,9 @@ class Bacteria(Agent):
             pass
         
         else:
+            print ('aaa1')
             actuator = self.mould('share_molecules')
+            print ('aaa2')
             return_actuator.append(actuator)
 
         return return_actuator
@@ -141,6 +127,8 @@ class Bacteria(Agent):
         self.set_data('scaffold', 'poison', molecules[3])
         self.set_data('scaffold', 'generosity', 0.5)
         self.set_data('scaffold', 'attacker', 0.5)
+        self.set_data('scaffold', 'generosity_mag', 0.5)
+        self.set_data('scaffold', 'attack_mag', 0.5)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',
@@ -157,15 +145,6 @@ class Bacteria(Agent):
                           ['my_neighbour'],
                           brain._mould_supply_molecules_to_env)
         self.set_organ(moulder)
-
-#        self.set_organ('handler', 'supply_molecules_to_env',
-#                       self._handle_supply_molecules_to_env)
-#        self.set_organ('handler', 'gulp_molecules_from_env',
-#                       self._handle_gulp_molecules_from_env)
-#        self.set_organ('handler', 'cell_division',
-#                       self._handle_cell_division) 
-#        self.set_organ('handler', 'spontaneous_growth',
-#                       self._spontaneous_growth) 
 
 class ExtracellEnvironment(object):
     '''Bla bla
