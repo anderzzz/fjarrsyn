@@ -89,11 +89,19 @@ class AgentManagementSystem(object):
 
         self.name = name
 
+        #
+        # Agents in scope are put into an ordered dictionary keyed on a random
+        # and unique string identifier.
+        #
         self.agents_in_scope = OrderedDict() 
         for agent in agents:
             agent.agent_id_system = str(uuid4())
             self.agents_in_scope[agent.agent_id_system] = agent
 
+        #
+        # The agent to agent network relation is defined, which is a complete
+        # graph in case nothing specific is given.
+        #
         if full_agents_graph is None:
             self.agents_graph = Graph()
             nodes = [Node('agent_%s'%(str(k)), agent) for k, agent in enumerate(agents)]

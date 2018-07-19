@@ -135,7 +135,9 @@ class Agent(object):
         Notes
         -----
         The sensor is intended to sense a precept of the World wherein the
-        method is intended as a private method to the current agent.
+        method is intended as a private method to the current agent. The buzz a
+        sensor generates should be understood as transient and will only
+        through an interpretation manifest itself in a persistent beliefs.
 
         Parameters
         ----------
@@ -170,7 +172,8 @@ class Agent(object):
         -----
         The particular interpreter brain tissue interprets a buzz
         triggered by sensor wherein the method is intended as a private method
-        to the current agent.
+        to the current agent. The beliefs that are created as persistent within
+        the agent, but not necessarily identical to the buzz.
 
         Parameters
         ----------
@@ -182,7 +185,7 @@ class Agent(object):
         Returns
         -------
         updated_belief_labels
-            Iterable with labels of updated beliefs following interpretation
+            Iterable with labels of updated beliefs following interpretation. 
 
         Raises
         ------
@@ -200,26 +203,47 @@ class Agent(object):
 
         return updated_belief_labels
 
-    def mould(self, action):
-        '''Method for agent to mould beliefs into an action
+    def perceive(self, precept, brain_tissue):
+        '''Method for agent to sense and interpret a percept
 
         Notes
         -----
-        The desired action is moulded from a number of given beliefs wherein
+        This is a convenience method that combines `sense` and `interpret` methods
+        since these two methods are mostly executed directly after each other.
+
+        Parameters
+        ----------
+        buzz : dict
+            Buzz that the sensor triggers once it senses the precept
+        brain_tissue : str
+            The name of the interpreter to be used
+
+        Returns
+        -------
+        updated_belief_labels
+            Iterable with labels of updated beliefs following interpretation. 
+
+        '''
+        return self.interpret(brain_tissue, self.sense(precept))
+
+    def mould(self, action):
+        '''Method for agent to mould beliefs into a populated actuator that
+        subsequently can be acted upon
+
+        Notes
+        -----
+        The desired action is moulded from a number of beliefs wherein
         the method is intended as a private method to the current agent.
         The beliefs to be used are defined as part of initilization of the
-        organ.
+        corresponding Moulder organ. The method populates persistent actuators
+        of the agent, keyed on the action, which subsequently can be acted
+        upon. Observe that the moulding can alter the internal scaffold of the
+        agent.
 
         Parameters
         ----------
         actions : str
             Name of the action onto the World to mould
-
-        Returns
-        -------
-        actuators
-            Iterable of actuator instances that once executed in the World
-            generates the specified action
 
         Raises
         ------
@@ -236,7 +260,26 @@ class Agent(object):
         the_moulder(self.actuator[action], self.belief)
 
     def act(self, action):
-        '''Bla bla
+        '''Method for agent to act a populated actuator.
+
+        Notes
+        -----
+        The action is acted onto the World wherein the actuator must be
+        populated by a Moulder organ. The method is intended as a private
+        method to the current agent. Observe that the act method only alters
+        the state of the World. Observe that the act method exhausts the
+        actuator and a new one must be moulded in case an act should be done
+        again.
+
+        Parameters
+        ----------
+        actions : str
+            Name of the action onto the World to act on
+
+        Raises
+        ------
+        KeyError
+            If an action is requested for which the agent has no actuator
 
         '''
         if not action in self.actuator:
@@ -246,6 +289,24 @@ class Agent(object):
             the_actuator = self.actuator[action]
 
         the_actuator()
+        the_actuator.depopulate()
+
+    def engage(self, action):
+        '''Method for agent to mould and act an action
+
+        Notes
+        -----
+        This is a convenience method that combines `mould` and `act` methods
+        since these two methods are mostly executed directly after each other.
+
+        Parameters
+        ----------
+        action : str
+            Name of the action onto the World to mould and act on
+
+        '''
+        self.mould(action)
+        self.act(action)
 
     def __str__(self):
 
