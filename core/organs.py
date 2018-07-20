@@ -1,6 +1,11 @@
 '''All organ classes of the basic Agent are contained in this file.
 
 '''
+class Organ(object):
+
+    def __init__(self):
+        # MAKE THIS PARENT TO ALL ORGANS
+
 class Sensor(object):
     '''Sensor class, which defines how a precept of the external World is
     turned into buzz within the agent.

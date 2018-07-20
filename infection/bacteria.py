@@ -29,15 +29,15 @@ class Bacteria(Agent):
 
         super().__init__(name)
 
-        self.set_data('scaffold', 'surface_profile', surface_profile)
-        self.set_data('scaffold', 'molecule_A', molecules[0])
-        self.set_data('scaffold', 'molecule_B', molecules[1])
-        self.set_data('scaffold', 'molecule_C', molecules[2])
-        self.set_data('scaffold', 'poison', molecules[3])
-        self.set_data('scaffold', 'generosity', 0.5)
-        self.set_data('scaffold', 'attacker', 0.5)
-        self.set_data('scaffold', 'generosity_mag', 0.5)
-        self.set_data('scaffold', 'attack_mag', 0.5)
+        self.set_imprint('scaffold', 'surface_profile', surface_profile)
+        self.set_imprint('scaffold', 'molecule_A', molecules[0])
+        self.set_imprint('scaffold', 'molecule_B', molecules[1])
+        self.set_imprint('scaffold', 'molecule_C', molecules[2])
+        self.set_imprint('scaffold', 'poison', molecules[3])
+        self.set_imprint('scaffold', 'generosity', 0.5)
+        self.set_imprint('scaffold', 'attacker', 0.5)
+        self.set_imprint('scaffold', 'generosity_mag', 0.5)
+        self.set_imprint('scaffold', 'attack_mag', 0.5)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',

@@ -21,7 +21,7 @@ class Agent(object):
         return self.cortex.keys() 
 
     def _set(self, object_type, key, value):
-        '''Common function to add agent organ or data to the appropriate
+        '''Common function to add agent organ or imprint to the appropriate
         attribute container.
 
         Notes
@@ -31,11 +31,11 @@ class Agent(object):
         Parameters
         ----------
         object_type : str
-            Type of organ or data
+            Type of organ or imprint 
         key : str
-            Key for the particular organ or data
+            Key for the particular organ or imprint 
         value 
-            The object of the particular organ or data, such as float or
+            The object of the particular organ or imprint, such as float or
             callable functions
 
         Raises
@@ -52,14 +52,29 @@ class Agent(object):
         container[key] = value
         setattr(self, object_type, container)
 
-    def set_data(self, data, entry_name, entry):
-        '''Set data... more details TBD
+    def set_imprint(self, imprint, entry_name, entry):
+        '''Add an imprint to the agent 
+
+        Parameters
+        ----------
+        imprint : str
+            Type of imprint to set
+        entry_name : str
+            Key to the specific imprint
+        entry 
+            The value to set the imprint to. This should be a number, string or
+            similar atomic variable, not a callable function
+
+        Raises
+        ------
+        TypeError
+            If given entry is a callable function
 
         '''
         if callable(entry):
-            raise RuntimeError('Attempt to set data to callable object')
+            raise TypeError('Attempt to set imprint to callable object')
         else:
-            self._set(data, entry_name, entry)
+            self._set(imprint, entry_name, entry)
 
     def set_organ(self, organ):
         '''Add an organ to the agent.
@@ -327,8 +342,8 @@ class Agent(object):
 
         self.scaffold = {}
         self.belief = {}
-        self.data = {'scaffold' : self.scaffold, 
-                     'belief' : self.belief}
+        self.imprint = {'scaffold' : self.scaffold, 
+                        'belief' : self.belief}
 
         self.cortex = {}
         self.sensor = {}
