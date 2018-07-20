@@ -5,6 +5,7 @@ class Organ(object):
 
     def __init__(self):
         # MAKE THIS PARENT TO ALL ORGANS
+        pass
 
 class Sensor(object):
     '''Sensor class, which defines how a precept of the external World is

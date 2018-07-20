@@ -7,6 +7,7 @@ import random
 
 from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
+from evolution.objectforce import ObjectForce
 
 def parse_(argv):
 
@@ -44,6 +45,9 @@ def main(args):
     for k_bacteria in range(n_bacteria_2):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
                                          'wwwww', [0.0, 1.0, 0.0, 0.0]))
+
+    force_bacteria = ObjectForce('bacterial_drift', Bacteria)
+    raise Exception('TMP_DUMMY')
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
                               {'molecule_A' : 0.1, 'molecule_B' : 0.1,

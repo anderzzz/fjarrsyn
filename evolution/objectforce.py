@@ -39,7 +39,7 @@ class ObjectForce(object):
         '''Bla bla
 
         '''
-        pass
+        raise NotImplementedError('Noisy exponential decay not implemented yet') 
 
     def attempted_addition(self, old_value, increment, thrs_prob):
         '''Bla bla
@@ -71,8 +71,9 @@ class ObjectForce(object):
                 new_value = func_data[0](old_value, **func_data[1])
                 agent.scaffold[new_value]
 
-    def __init__(self, name):
+    def __init__(self, name, agent_class):
 
         self.name = name 
+        print (agent_class)
 
         self.scaffold_force_func = {}
