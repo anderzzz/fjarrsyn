@@ -46,8 +46,21 @@ def main(args):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
                                          'wwwww', [0.0, 1.0, 0.0, 0.0]))
 
-    force_bacteria = ObjectForce('bacterial_drift', Bacteria)
-    raise Exception('TMP_DUMMY')
+    force_bacteria = ObjectForce('bacterial_drift')
+    force_bacteria.set_force_func('generosity', 'wiener_bounded', 
+                                  {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+    force_bacteria.set_force_func('attacker', 'wiener_bounded', 
+                                  {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+    force_bacteria.set_force_func('generosity_mag', 'wiener_bounded', 
+                                  {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+    force_bacteria.set_force_func('attack_mag', 'wiener_bounded', 
+                                  {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+    force_bacteria.set_force_func('molecule_A', 'stochastic_addition',
+                                  {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
+    force_bacteria.set_force_func('molecule_B', 'stochastic_addition',
+                                  {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
+    force_bacteria.set_force_func('molecule_C', 'stochastic_addition',
+                                  {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
                               {'molecule_A' : 0.1, 'molecule_B' : 0.1,
@@ -56,7 +69,11 @@ def main(args):
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
     for bacteria in cell_space.iteritems():
+        print (bacteria.scaffold)
         bacteria()
+        print (bacteria.scaffold)
+        force_bacteria(bacteria)
+        print (bacteria.scaffold)
         raise Exception('DUMMY')
 
 if __name__ == '__main__':

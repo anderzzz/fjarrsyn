@@ -16,7 +16,8 @@ class ObjectForce(object):
         increment = np.random.normal(0.0, std)
         return old_value + increment
 
-    def wiener_bounded(self, old_value, std, lower_bound, upper_bound):
+    def wiener_bounded(self, old_value, std, lower_bound=-1.0*np.Infinity, 
+                             upper_bound=1.0*np.Infinity):
         '''Bla bla
 
         '''
@@ -41,7 +42,7 @@ class ObjectForce(object):
         '''
         raise NotImplementedError('Noisy exponential decay not implemented yet') 
 
-    def attempted_addition(self, old_value, increment, thrs_prob):
+    def stochastic_addition(self, old_value, increment, thrs_prob):
         '''Bla bla
 
         '''
@@ -54,11 +55,33 @@ class ObjectForce(object):
 
         return new_value
 
-    def set_force_func(self, scaffold_name, force_func, force_func_kwargs):
+    def stochastic_attempt(self, apply_thrs):
         '''Bla bla
 
         '''
-        self.scaffold_force_func[scaffold_name] = (force_func, force_func_kwargs)
+        test_value = np.random.random()
+        return test_value <= apply_thrs
+
+    def set_force_func(self, scaffold_name, force_func, force_func_kwargs={},
+                       stochastic_apply=1.0):
+        '''Bla bla
+
+        '''
+        if isinstance(force_func, str):
+            try:
+                func = getattr(self, force_func)
+            except AttributeError:
+                raise ValueError('Object force method %s undefined' %(force_func))
+
+        elif callable(force_func):
+            func = force_func
+
+        else:
+            raise TypeError('Object force function either callable or string')
+
+        self.scaffold_force_func[scaffold_name] = (func, 
+                                                   force_func_kwargs,
+                                                   stochastic_apply)
 
     def __call__(self, agent):
         '''Bla bla
@@ -68,12 +91,17 @@ class ObjectForce(object):
             
             if scaffold_name in agent.scaffold:
                 old_value = agent.scaffold[scaffold_name]
-                new_value = func_data[0](old_value, **func_data[1])
-                agent.scaffold[new_value]
+                if self.stochastic_attempt(func_data[2]): 
 
-    def __init__(self, name, agent_class):
+                    new_value = func_data[0](old_value, **func_data[1])
+                else:
+
+                    new_value = old_value
+
+                agent.scaffold[scaffold_name] = new_value
+
+    def __init__(self, name):
 
         self.name = name 
-        print (agent_class)
 
         self.scaffold_force_func = {}
