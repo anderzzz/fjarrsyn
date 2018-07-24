@@ -20,14 +20,20 @@ class Bacteria(Agent):
         plan and experiences an object force
 
         '''
-        self.engage('contemplate_suicide')
-
+        # Ascertain if there is a neighbour and how similar it is
         self.perceive('neighbour_surface', 'similar_hood')
-
         if not self.belief['my_neighbour'] is None:
             self.engage('share_molecules')
 
-        self.engage('gulp_molecules')
+        # Gulp molecules from the nearby environment
+#        self.engage('gulp_molecules')
+
+        # Contemplate suicide
+        print (self)
+        self.engage('contemplate_suicide')
+        print (self)
+
+        raise Exception('Not Implemented Beyond This Point')
 
         self.engage('make_poison')
 
@@ -47,6 +53,7 @@ class Bacteria(Agent):
         self.set_imprint('scaffold', 'attacker', 0.5)
         self.set_imprint('scaffold', 'generosity_mag', 0.5)
         self.set_imprint('scaffold', 'attack_mag', 0.5)
+        self.set_imprint('scaffold', 'vulnerability_to_poison', 2.0)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',
@@ -62,6 +69,10 @@ class Bacteria(Agent):
         moulder = Moulder('share_molecules',
                           ['my_neighbour'],
                           brain._mould_supply_molecules_to_env)
+        self.set_organ(moulder)
+
+        moulder = Moulder('contemplate_suicide', [],
+                          brain._mould_contemplate_suicide)
         self.set_organ(moulder)
 
 class ExtracellEnvironment(object):

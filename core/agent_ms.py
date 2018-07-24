@@ -5,6 +5,7 @@ from uuid import uuid4
 from collections import OrderedDict
 
 from core.graph import Graph, Node
+from core.agent import Agent
 
 class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or
@@ -92,13 +93,22 @@ class AgentManagementSystem(object):
         '''Bla bla
 
         '''
-        pass
+        if not isinstance(value, Agent):
+            raise TypeError('Agent manager can only have members of the Agent class')
+
+        self.agents_in_scope[key] = value
 
     def __delitem__(self, key):
         '''Bla bla
 
         '''
-        pass
+        if not key in self.agents_in_scope:
+            raise KeyError('Unknown agent id: %s' %(key))
+
+        del self.agents_in_scope[key]
+
+        node = self.agents_graph[key]
+        node.agent_content = None
 
     def __init__(self, name, agents, full_agents_graph=None):
 

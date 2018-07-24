@@ -93,11 +93,15 @@ class Goo(AgentManagementSystem):
         '''
         pass
 
-    def _act_suicide(self):
+    def _act_suicide(self, agent_index, do_it):
         '''Bla bla
 
         '''
-        pass
+        if do_it:
+            del self[agent_index]
+
+        else:
+            pass
 
     def __init__(self, name, beaker_length, bacterial_agents, env_object):
 
@@ -138,6 +142,12 @@ class Goo(AgentManagementSystem):
                                 self._act_add_molecules_to_env,
                                 ['dx_molecules_poison'],
                                 bacteria.agent_id_system)
+            bacteria.set_organ(actuator)
+
+            actuator = Actuator('agent_suicide',
+                                'contemplate_suicide',
+                                self._act_suicide,
+                                ['do_it'], bacteria.agent_id_system)
             bacteria.set_organ(actuator)
 
             sensor = Sensor('random_neighbour_surface', 

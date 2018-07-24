@@ -142,6 +142,8 @@ class Actuator(object):
         if self.kwargs is None:
             raise RuntimeError('Actuator called prior to population')
 
+        print ('xxx1')
+        print (self.kwargs)
         self.actuator_func(**self.kwargs)
 
     def __init__(self, name, action_name, actuator_func, keys2populate,
@@ -248,6 +250,7 @@ class Moulder(object):
             func_kwargs[kwarg] = value
 
         actuator_params = self.moulder_func(**func_kwargs)
+        print (func_kwargs, actuator_params)
         actuator.populate(actuator_params)
 
     def __init__(self, name, belief_names, moulder_func, kwargs={}):

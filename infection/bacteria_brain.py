@@ -1,7 +1,8 @@
 '''All internal cognition of bacteria agent contained here
 
 '''
-from core.helper_funcs import sigmoid_10
+import random
+from core.helper_funcs import sigmoid, sigmoid_10
 
 class BacteriaBrain(object):
     '''Bla bla
@@ -73,18 +74,51 @@ class BacteriaBrain(object):
                                        my_neighbour)
         
         compounds = [key for key in self.scaffold if 'molecule_' in key]
-        compounds.append('poison')
+        compounds.append('poison_vacuole')
 
         ret_env = {}
         for molecule in compounds:
             current_amount = self.scaffold[molecule]
             dx_amount = share_percentage * current_amount
 
-            ret_env[molecule] = dx_amount
+            if molecule == 'poison_vacuole':
+                env_compond_key = 'poison'
+
+            else:
+                env_compound_key = molecule
+
+            ret_env[env_compound_key] = dx_amount
             left_over = current_amount - dx_amount
             self.scaffold[molecule] = left_over
 
         ret = {'dx_molecules_poison' : ret_env}
+
+        return ret
+
+    def _mould_contemplate_suicide(self):
+        '''Determine if the bacteria should kill itself or not
+
+        Notes
+        -----
+        The decision is a function of scaffold properties only, no belief, as
+        well as a stochastic component.
+
+        Returns
+        -------
+        params : dict
+            Dictionary of parameter values needed to populate the relevant
+            actuator
+
+        '''
+        x_poison = self.scaffold['poison']
+        m_point = self.scaffold['vulnerability_to_poison']
+        probability = sigmoid(1.0, 5.0, m_point, False, x_poison)
+
+        if probability > random.random():
+            ret = {'do_it' : True}
+        
+        else:
+            ret = {'do_it' : False}
 
         return ret
 
@@ -95,12 +129,6 @@ class BacteriaBrain(object):
         pass
 
     def _mould_cell_division(self):
-        '''Bla bla
-
-        '''
-        pass
-
-    def _mould_spontaneous_growth(self):
         '''Bla bla
 
         '''

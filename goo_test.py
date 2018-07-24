@@ -41,10 +41,10 @@ def main(args):
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
         bacterial_agents.append(Bacteria('bacteria_1_%s' %(str(k_bacteria)),
-                                         'aaaaa', [1.0, 0.0, 0.0, 0.0, 0.0]))
+                                         'aaaaa', [1.0, 0.0, 0.0, 2.0, 0.0]))
     for k_bacteria in range(n_bacteria_2):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
-                                         'wwwww', [0.0, 1.0, 0.0, 0.0, 0.0]))
+                                         'wwwww', [0.0, 1.0, 0.0, 2.0, 0.0]))
 
     force_ = ObjectForce('bacterial_drift')
     force_.set_force_func('generosity', 'wiener_bounded', 
