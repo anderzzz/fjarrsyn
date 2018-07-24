@@ -20,10 +20,18 @@ class Bacteria(Agent):
         plan and experiences an object force
 
         '''
+        self.engage('contemplate_suicide')
+
         self.perceive('neighbour_surface', 'similar_hood')
 
         if not self.belief['my_neighbour'] is None:
             self.engage('share_molecules')
+
+        self.engage('gulp_molecules')
+
+        self.engage('make_poison')
+
+        self.engage('split_in_two')
 
     def __init__(self, name, surface_profile, molecules):
 
@@ -34,6 +42,7 @@ class Bacteria(Agent):
         self.set_imprint('scaffold', 'molecule_B', molecules[1])
         self.set_imprint('scaffold', 'molecule_C', molecules[2])
         self.set_imprint('scaffold', 'poison', molecules[3])
+        self.set_imprint('scaffold', 'poison_vacuole', molecules[4])
         self.set_imprint('scaffold', 'generosity', 0.5)
         self.set_imprint('scaffold', 'attacker', 0.5)
         self.set_imprint('scaffold', 'generosity_mag', 0.5)

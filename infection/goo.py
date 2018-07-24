@@ -13,25 +13,6 @@ class Goo(AgentManagementSystem):
     '''Bla bla
 
     '''
-    def _act_gulp_my_environment(self, agent_index, how_much):
-        '''Bla bla
-
-        '''
-        node_with_agent = self.matrix[agent_index]
-        environment = node_with_agent.aux_content
-        molecules = environment.molecules_content 
-
-        ret = {}
-        for molecule_name, molecule_amount in molecules.items():
-            gulped_amount = how_much * float(molecule_amount)
-            remaining_amount = float(molecule_amount) - gulped_amount
-
-            ret[molecule_name] = gulped_amount
-
-            environment.molecules_content[molecule_name] = remaining_amount
-
-        return ret 
-
     def _sense_random_neighbour_surface(self, agent_index):
         '''Sensor method that selects random neighbour node and if agent is
         present tickles it for its surface profile
@@ -62,6 +43,25 @@ class Goo(AgentManagementSystem):
 
         return ret
 
+    def _act_gulp_my_environment(self, agent_index, how_much):
+        '''Bla bla
+
+        '''
+        node_with_agent = self.matrix[agent_index]
+        environment = node_with_agent.aux_content
+        molecules = environment.molecules_content 
+
+        ret = {}
+        for molecule_name, molecule_amount in molecules.items():
+            gulped_amount = how_much * float(molecule_amount)
+            remaining_amount = float(molecule_amount) - gulped_amount
+
+            ret[molecule_name] = gulped_amount
+
+            environment.molecules_content[molecule_name] = remaining_amount
+
+        return ret 
+
     def _act_add_molecules_to_env(self, agent_index, dx_molecules_poison):
         '''Actuator method to add molecules from one agent to another
 
@@ -82,6 +82,18 @@ class Goo(AgentManagementSystem):
             environment.molecule_content[molecule] = x_new 
 
     def _act_new_cell_into_matrix(self):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _act_synthesize_poison(self):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _act_suicide(self):
         '''Bla bla
 
         '''

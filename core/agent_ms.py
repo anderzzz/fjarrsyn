@@ -82,8 +82,23 @@ class AgentManagementSystem(object):
         return len(self.agents_in_scope)
 
     def __getitem__(self, key):
+        '''Bla bla
+
+        '''
 
         return list(self.agents_in_scope.values())[key]
+
+    def __setitem__(self, key, value):
+        '''Bla bla
+
+        '''
+        pass
+
+    def __delitem__(self, key):
+        '''Bla bla
+
+        '''
+        pass
 
     def __init__(self, name, agents, full_agents_graph=None):
 
