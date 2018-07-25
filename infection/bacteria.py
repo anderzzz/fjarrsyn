@@ -29,9 +29,10 @@ class Bacteria(Agent):
 #        self.engage('gulp_molecules')
 
         # Contemplate suicide
-        print (self)
         self.engage('contemplate_suicide')
-        print (self)
+        if not self.hooked_up():
+            print ('early exit')
+            return None
 
         raise Exception('Not Implemented Beyond This Point')
 

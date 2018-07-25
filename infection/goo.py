@@ -98,6 +98,7 @@ class Goo(AgentManagementSystem):
 
         '''
         if do_it:
+            print ('rrr')
             del self[agent_index]
 
         else:

@@ -72,6 +72,7 @@ def main(args):
         print (bacteria.scaffold)
         bacteria()
         print (bacteria.scaffold)
+        raise Exception('DUMMY')
         force_(bacteria)
         print (bacteria.scaffold)
         raise Exception('DUMMY')

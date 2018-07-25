@@ -323,6 +323,12 @@ class Agent(object):
         self.mould(action)
         self.act(action)
 
+    def hooked_up(self):
+        '''Bla bla
+
+        '''
+        return (not self.agent_id_system is None)
+
     def __str__(self):
 
         return self.name + '(ID:%s)'%(str(self.agent_id_system))

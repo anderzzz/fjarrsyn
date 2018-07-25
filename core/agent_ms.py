@@ -105,10 +105,13 @@ class AgentManagementSystem(object):
         if not key in self.agents_in_scope:
             raise KeyError('Unknown agent id: %s' %(key))
 
-        del self.agents_in_scope[key]
-
         node = self.agents_graph[key]
         node.agent_content = None
+
+        agent = self.agents_in_scope[key]
+        agent.agent_id_system = None
+
+        del self.agents_in_scope[key]
 
     def __init__(self, name, agents, full_agents_graph=None):
 
