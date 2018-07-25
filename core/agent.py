@@ -20,7 +20,7 @@ class Agent(object):
         '''
         return self.cortex.keys() 
 
-    def _set(self, object_type, key, value):
+    def _set(self, object_type, key, value, key_check=False):
         '''Common function to add agent organ or imprint to the appropriate
         attribute container.
 
@@ -37,11 +37,16 @@ class Agent(object):
         value 
             The object of the particular organ or imprint, such as float or
             callable functions
+        key_check : bool
+            If True enforces that `key` already exists in container, if False
+            `key` does not have to exist.
 
         Raises
         ------
         AttributeError
             If the `object_type` does not map onto a container
+        KeyError
+            If the `key` is missing from the container
 
         '''
         try:
@@ -49,10 +54,13 @@ class Agent(object):
         except AttributeError:
             raise AttributeError('Agent lacks container for %s' %(object_type))
 
+        if key_check and (not key in container):
+            raise KeyError('Agent container lacks key %s' %(key))
+
         container[key] = value
         setattr(self, object_type, container)
 
-    def set_imprint(self, imprint, entry_name, entry):
+    def set_imprint(self, imprint, entry_name, entry, edit_only=False):
         '''Add an imprint to the agent 
 
         Parameters
@@ -64,6 +72,10 @@ class Agent(object):
         entry 
             The value to set the imprint to. This should be a number, string or
             similar atomic variable, not a callable function
+        edit_only : bool, optional
+            If False, `entry_name` can be non-existent in the particular
+            imprint, if True, `entry_name` must exist already. Hence, this flag
+            validates if imprints can be only edited or not.
 
         Raises
         ------
@@ -73,8 +85,9 @@ class Agent(object):
         '''
         if callable(entry):
             raise TypeError('Attempt to set imprint to callable object')
+
         else:
-            self._set(imprint, entry_name, entry)
+            self._set(imprint, entry_name, entry, edit_only)
 
     def set_organ(self, organ):
         '''Add an organ to the agent.
@@ -303,7 +316,10 @@ class Agent(object):
         else:
             the_actuator = self.actuator[action]
 
-        the_actuator()
+        reaction = the_actuator()
+        if not reaction is None:
+            reaction(self)
+                
         the_actuator.depopulate()
 
     def engage(self, action):

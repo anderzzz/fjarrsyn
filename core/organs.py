@@ -1,6 +1,8 @@
 '''All organ classes of the basic Agent are contained in this file.
 
 '''
+from evolution.objectforce import ObjectForce
+
 class Organ(object):
 
     def __init__(self):
@@ -142,7 +144,14 @@ class Actuator(object):
         if self.kwargs is None:
             raise RuntimeError('Actuator called prior to population')
 
-        self.actuator_func(**self.kwargs)
+        reaction = self.actuator_func(**self.kwargs)
+
+        if not reaction is None:
+            if not isinstance(reaction, ObjectForce):
+                raise TypeError('Actuator organ is only allowed to return ' + \
+                                'instance of ObjectForce')
+
+        return reaction
 
     def __init__(self, name, action_name, actuator_func, keys2populate,
                  agent_index):

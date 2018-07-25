@@ -48,7 +48,7 @@ class ObjectForce(object):
         '''
         test_value = np.random.random()
         if test_value <= thrs_prob:
-            new_value = old_value + increment
+            new_value = self.delta(old_value, increment) 
 
         else:
             new_value = old_value
@@ -61,6 +61,12 @@ class ObjectForce(object):
         '''
         test_value = np.random.random()
         return test_value <= apply_thrs
+
+    def delta(self, old_value, increment):
+        '''Bla bla
+
+        '''
+        return old_value + increment
 
     def set_force_func(self, scaffold_name, force_func, force_func_kwargs={},
                        stochastic_apply=1.0):
@@ -88,6 +94,7 @@ class ObjectForce(object):
 
         '''
         for scaffold_name, func_data in self.scaffold_force_func.items():
+            print (scaffold_name, func_data)
             
             if scaffold_name in agent.scaffold:
                 old_value = agent.scaffold[scaffold_name]

@@ -8,6 +8,7 @@ from core.agent_ms import AgentManagementSystem
 from core.graph import CubicGrid
 
 from core.organs import Sensor, Actuator
+from evolution.objectforce import ObjectForce
 
 class Goo(AgentManagementSystem):
     '''Bla bla
@@ -48,23 +49,23 @@ class Goo(AgentManagementSystem):
 
         '''
         # WHATS THE RIGHT WAY TO HAVE ACTUATOR AFFECT SCAFFOLD?
-        node_with_agent = self.matrix[agent_index]
+        reaction = ObjectForce('scaffold_reaction')
+        node_with_agent = self.agents_graph[agent_index]
         environment = node_with_agent.aux_content
-        molecules = environment.molecules_content 
+        molecules = environment.molecule_content 
 
-        ret = {}
         for molecule_name, molecule_amount in molecules.items():
             gulped_amount = how_much * float(molecule_amount)
             remaining_amount = float(molecule_amount) - gulped_amount
+            environment.molecule_content[molecule_name] = remaining_amount
+            reaction.set_force_func(molecule_name, 'delta', 
+                                    {'increment' : gulped_amount})
 
-            ret[molecule_name] = gulped_amount
-
-            environment.molecules_content[molecule_name] = remaining_amount
-
-        return ret 
+        return reaction 
 
     def _act_add_molecules_to_env(self, agent_index, dx_molecules_poison):
-        '''Actuator method to add molecules from one agent to another
+        '''Actuator method to add molecules from one agent to all neighbouring
+        agent environments
 
         Parameters
         ----------
@@ -75,12 +76,16 @@ class Goo(AgentManagementSystem):
             Amount of molecules to add based on its key
 
         '''
-        node_with_agent = self.agents_graph[agent_index]
-        environment = node_with_agent.aux_content
-        for molecule, dx in dx_molecules_poison.items():
-            x = environment.molecule_content[molecule] 
-            x_new = x + dx
-            environment.molecule_content[molecule] = x_new 
+        neighbour_agents = self.graph_neighbours_to(agent_index)
+        n_neighbours = len(neighbour_agents)
+
+        for neighbour_agent in neighbour_agents:
+            neighbour_id = neighbour_agent.agent_id_system
+            environment = self.agents_graph[neighbour_id].aux_content
+            for molecule, dx in dx_molecules_poison.items():
+                x = environment.molecule_content[molecule] 
+                x_new = x + dx / float(n_neighbours)
+                environment.molecule_content[molecule] = x_new 
 
     def _act_new_cell_into_matrix(self):
         '''Bla bla

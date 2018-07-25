@@ -26,7 +26,10 @@ class Bacteria(Agent):
             self.engage('share_molecules')
 
         # Gulp molecules from the nearby environment
-        self.engage('gulp_molecules')
+        print ('yy', self.scaffold)
+        self.engage('gulp_environment')
+        print ('zz', self.scaffold)
+        raise Exception('Lordy')
 
         # Contemplate suicide
         self.engage('contemplate_suicide')
@@ -56,6 +59,7 @@ class Bacteria(Agent):
         self.set_imprint('scaffold', 'attack_mag', 0.5)
         self.set_imprint('scaffold', 'vulnerability_to_poison', 2.0)
         self.set_imprint('scaffold', 'trusting', 0.5)
+        self.set_imprint('scaffold', 'trusting_mag', 0.5)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',
@@ -73,8 +77,14 @@ class Bacteria(Agent):
                           brain._mould_supply_molecules_to_env)
         self.set_organ(moulder)
 
-        moulder = Moulder('contemplate_suicide', [],
+        moulder = Moulder('contemplate_suicide', 
+                          [],
                           brain._mould_contemplate_suicide)
+        self.set_organ(moulder)
+
+        moulder = Moulder('gulp_environment', 
+                          ['my_neighbour'],
+                          brain._mould_gulp_molecules_from_env)
         self.set_organ(moulder)
 
 class ExtracellEnvironment(object):
