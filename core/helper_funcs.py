@@ -4,6 +4,7 @@
 import numpy as np
 
 RAPID_SHIFT_STEEPNESS = 10.0
+HORIZONTAL_SHIFT = 0.25
 
 def sigmoid(max_height, steepness, midpoint, up_down, x_value):
     '''Basic sigmoidal function
@@ -71,3 +72,39 @@ def sigmoid_10(max_height, midpoint, up_down, x_value):
                          '0.0 and 1.0, not %s' %(str(x_value)))
 
     return sigmoid(max_height, RAPID_SHIFT_STEEPNESS, midpoint, up_down, x_value)
+
+def linear_step(low_bend, high_bend, max_val, min_val, up_down, x_value):
+    '''Bla bla
+
+    '''
+    if low_bend >= high_bend:
+        raise ValueError('Lower bound must be strictly smaller than higher bound')
+
+    if x_value < low_bend:
+        val = min_val
+
+    elif x_value > high_bend:
+        val = max_val
+
+    else:
+        val = min_val + (max_val - min_val) * (x_value - low_bend) / (high_bend - low_bend)
+
+    if up_down:
+        val = (max_val + min_val) - val
+
+    return val
+
+def linear_step_10(max_val, min_val, mid_point, up_down, x_value):
+    '''Bla bla
+
+    '''
+    if max_val > 1.0 or max_val < 0.0:
+        raise ValueError('Linear step value should be between ' + \
+                         '0.0 and 1.0, not %s' %(str(max_val)))
+
+    if x_value > 1.0 or x_value < 0.0:
+        raise ValueError('Linear step horizontal value range should be between ' + \
+                         '0.0 and 1.0, not %s' %(str(x_value)))
+
+    return linear_step(mid_point - HORIZONTAL_SHIFT, mid_point + HORIZONTAL_SHIFT,
+                       max_val, min_val, up_down, x_value)

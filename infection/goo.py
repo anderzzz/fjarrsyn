@@ -47,6 +47,7 @@ class Goo(AgentManagementSystem):
         '''Bla bla
 
         '''
+        # WHATS THE RIGHT WAY TO HAVE ACTUATOR AFFECT SCAFFOLD?
         node_with_agent = self.matrix[agent_index]
         environment = node_with_agent.aux_content
         molecules = environment.molecules_content 
@@ -94,7 +95,14 @@ class Goo(AgentManagementSystem):
         pass
 
     def _act_suicide(self, agent_index, do_it):
-        '''Bla bla
+        '''Actuator to remove agent from the agent management system
+
+        Parameters
+        ----------
+        agent_index : str
+            Agent index to agent to remove from system
+        do_it : bool
+            Boolean flag to instruct actuator if agent suicide should be done
 
         '''
         if do_it:
@@ -148,7 +156,15 @@ class Goo(AgentManagementSystem):
             actuator = Actuator('agent_suicide',
                                 'contemplate_suicide',
                                 self._act_suicide,
-                                ['do_it'], bacteria.agent_id_system)
+                                ['do_it'], 
+                                bacteria.agent_id_system)
+            bacteria.set_organ(actuator)
+
+            actuator = Actuator('environment_gulper',
+                                'gulp_environment',
+                                self._act_gulp_my_environment,
+                                ['how_much'],
+                                bacteria.agent_id_system)
             bacteria.set_organ(actuator)
 
             sensor = Sensor('random_neighbour_surface', 

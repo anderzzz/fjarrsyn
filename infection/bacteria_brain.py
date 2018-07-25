@@ -2,7 +2,7 @@
 
 '''
 import random
-from core.helper_funcs import sigmoid, sigmoid_10
+from core.helper_funcs import sigmoid, sigmoid_10, linear_step_10
 
 class BacteriaBrain(object):
     '''Bla bla
@@ -81,6 +81,8 @@ class BacteriaBrain(object):
             current_amount = self.scaffold[molecule]
             dx_amount = share_percentage * current_amount
 
+            # Poison is taken from the vacuole of the agent, but put into
+            # general poison category of environment
             if molecule == 'poison_vacuole':
                 env_compond_key = 'poison'
 
@@ -122,11 +124,17 @@ class BacteriaBrain(object):
 
         return ret
 
-    def _mould_gulp_molecules_from_env(self):
+    def _mould_gulp_molecules_from_env(self, my_neighbour):
         '''Bla bla
 
         '''
-        pass
+        gulp_percentage = linear_step_10(self.scaffold['trusting_mag'], 0.0,
+                                         self.scaffold['trusting'], False,
+                                         my_neighbour)
+
+        ret = {'how_much' : gulp_percentage}
+        
+        return ret
 
     def _mould_cell_division(self):
         '''Bla bla

@@ -26,7 +26,7 @@ class Bacteria(Agent):
             self.engage('share_molecules')
 
         # Gulp molecules from the nearby environment
-#        self.engage('gulp_molecules')
+        self.engage('gulp_molecules')
 
         # Contemplate suicide
         self.engage('contemplate_suicide')
@@ -55,6 +55,7 @@ class Bacteria(Agent):
         self.set_imprint('scaffold', 'generosity_mag', 0.5)
         self.set_imprint('scaffold', 'attack_mag', 0.5)
         self.set_imprint('scaffold', 'vulnerability_to_poison', 2.0)
+        self.set_imprint('scaffold', 'trusting', 0.5)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',
