@@ -8,7 +8,7 @@ from core.agent_ms import AgentManagementSystem
 from core.graph import CubicGrid
 
 from core.organs import Sensor, Actuator
-from evolution.objectforce import ObjectForce
+from core.objectforce import ObjectForce
 
 class Goo(AgentManagementSystem):
     '''Bla bla
@@ -45,11 +45,27 @@ class Goo(AgentManagementSystem):
         return ret
 
     def _act_gulp_my_environment(self, agent_index, how_much):
-        '''Bla bla
+        '''Actuator method to collect a fraction of the content of the
+        environment and push that content back as a reaction to the agent
+
+        Parameters
+        ----------
+        agent_index : str
+            The index of the agent that is gulping environment content
+        how_much : float
+            Fraction of environment content to gulp, should be between zero and
+            one
+
+        Returns
+        -------
+        reaction : ObjectForce instance
+            The reaction the environment provides as a fraction of it is gulped
+            by the agent. The reaction must subsequently be executed in order
+            to update the internal state of the agent
 
         '''
-        # WHATS THE RIGHT WAY TO HAVE ACTUATOR AFFECT SCAFFOLD?
         reaction = ObjectForce('scaffold_reaction')
+
         node_with_agent = self.agents_graph[agent_index]
         environment = node_with_agent.aux_content
         molecules = environment.molecule_content 
@@ -58,6 +74,7 @@ class Goo(AgentManagementSystem):
             gulped_amount = how_much * float(molecule_amount)
             remaining_amount = float(molecule_amount) - gulped_amount
             environment.molecule_content[molecule_name] = remaining_amount
+
             reaction.set_force_func(molecule_name, 'delta', 
                                     {'increment' : gulped_amount})
 
@@ -111,7 +128,6 @@ class Goo(AgentManagementSystem):
 
         '''
         if do_it:
-            print ('rrr')
             del self[agent_index]
 
         else:

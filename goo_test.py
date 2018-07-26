@@ -7,7 +7,7 @@ import random
 
 from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
-from evolution.objectforce import ObjectForce
+from core.objectforce import ObjectForce
 
 def parse_(argv):
 

@@ -1,7 +1,7 @@
 '''All organ classes of the basic Agent are contained in this file.
 
 '''
-from evolution.objectforce import ObjectForce
+from core.objectforce import ObjectForce
 
 class Organ(object):
 

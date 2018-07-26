@@ -94,7 +94,6 @@ class ObjectForce(object):
 
         '''
         for scaffold_name, func_data in self.scaffold_force_func.items():
-            print (scaffold_name, func_data)
             
             if scaffold_name in agent.scaffold:
                 old_value = agent.scaffold[scaffold_name]
