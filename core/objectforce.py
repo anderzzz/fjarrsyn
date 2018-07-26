@@ -89,6 +89,12 @@ class ObjectForce(object):
                                                    force_func_kwargs,
                                                    stochastic_apply)
 
+    def empty_force_func(self):
+        '''Bla bla
+
+        '''
+        self.scaffold_force_func = {}
+
     def __call__(self, agent):
         '''Bla bla
 

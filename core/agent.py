@@ -319,6 +319,7 @@ class Agent(object):
         reaction = the_actuator()
         if not reaction is None:
             reaction(self)
+            reaction.empty_force_func()
                 
         the_actuator.depopulate()
 
