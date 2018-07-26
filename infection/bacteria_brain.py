@@ -3,6 +3,8 @@
 '''
 import random
 from core.helper_funcs import sigmoid, sigmoid_10, linear_step_10
+from core.naturallaw import ObjectForce
+from core.organs import MoulderReturn
 
 class BacteriaBrain(object):
     '''Bla bla
@@ -66,6 +68,8 @@ class BacteriaBrain(object):
             actuator
 
         '''
+        scaffold_shift = ObjectForce('shift_broth')
+
         share_percentage = sigmoid_10(self.scaffold['generosity_mag'], 
                                       self.scaffold['generosity'], False, 
                                       my_neighbour)
@@ -90,12 +94,13 @@ class BacteriaBrain(object):
                 env_compound_key = molecule
 
             ret_env[env_compound_key] = dx_amount
-            left_over = current_amount - dx_amount
-            self.scaffold[molecule] = left_over
 
-        ret = {'dx_molecules_poison' : ret_env}
+            scaffold_shift.set_force_func(molecule, 'delta', 
+                                          {'increment' : -1.0 * dx_amount})
 
-        return ret
+        actuator_pop = {'dx_molecules_poison' : ret_env}
+
+        return MoulderReturn(actuator_pop, scaffold_shift)
 
     def _mould_contemplate_suicide(self):
         '''Determine if the bacteria should kill itself or not
@@ -122,7 +127,7 @@ class BacteriaBrain(object):
         else:
             ret = {'do_it' : False}
 
-        return ret
+        return MoulderReturn(ret, None)
 
     def _mould_gulp_molecules_from_env(self, my_neighbour):
         '''Bla bla
@@ -134,7 +139,7 @@ class BacteriaBrain(object):
 
         ret = {'how_much' : gulp_percentage}
         
-        return ret
+        return MoulderReturn(ret, None)
 
     def _mould_cell_division(self):
         '''Bla bla

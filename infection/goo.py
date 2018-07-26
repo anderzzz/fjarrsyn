@@ -8,7 +8,7 @@ from core.agent_ms import AgentManagementSystem
 from core.graph import CubicGrid
 
 from core.organs import Sensor, Actuator
-from core.objectforce import ObjectForce
+from core.naturallaw import ObjectForce
 
 class Goo(AgentManagementSystem):
     '''Bla bla

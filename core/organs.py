@@ -1,7 +1,8 @@
 '''All organ classes of the basic Agent are contained in this file.
 
 '''
-from core.objectforce import ObjectForce
+from core.naturallaw import ObjectForce
+from collections import namedtuple
 
 class Organ(object):
 
@@ -214,6 +215,8 @@ class Interpreter(object):
         self.interpreter_func = interpreter_func
         self.kwargs = kwargs
 
+MoulderReturn = namedtuple('MoulderReturn', ['actuator_params', 'object_force'])
+
 class Moulder(object):
     '''Moulder class, which defines how beliefs are turned into an executable
     instance of an actuator.
@@ -256,8 +259,15 @@ class Moulder(object):
         for kwarg, value in self.kwargs.items():
             func_kwargs[kwarg] = value
 
-        actuator_params = self.moulder_func(**func_kwargs)
-        actuator.populate(actuator_params)
+        output = self.moulder_func(**func_kwargs)
+
+        if not isinstance(output, MoulderReturn):
+            raise TypeError('Moulder functions must return MoulderReturn objects')
+
+        if not output.actuator_params is None:
+            actuator.populate(output.actuator_params)
+
+        return output.object_force
 
     def __init__(self, name, belief_names, moulder_func, kwargs={}):
 

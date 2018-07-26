@@ -7,7 +7,7 @@ import random
 
 from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
-from core.objectforce import ObjectForce
+from core.naturallaw import ObjectForce
 
 def parse_(argv):
 
@@ -46,21 +46,21 @@ def main(args):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
                                          'wwwww', [0.0, 1.0, 0.0, 2.0, 0.0]))
 
-    force_ = ObjectForce('bacterial_drift')
-    force_.set_force_func('generosity', 'wiener_bounded', 
-                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
-    force_.set_force_func('attacker', 'wiener_bounded', 
-                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
-    force_.set_force_func('generosity_mag', 'wiener_bounded', 
-                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
-    force_.set_force_func('attack_mag', 'wiener_bounded', 
-                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
-    force_.set_force_func('molecule_A', 'stochastic_addition',
-                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
-    force_.set_force_func('molecule_B', 'stochastic_addition',
-                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
-    force_.set_force_func('molecule_C', 'stochastic_addition',
-                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
+#    force_ = ObjectForce('bacterial_drift')
+#    force_.set_force_func('generosity', 'wiener_bounded', 
+#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+#    force_.set_force_func('attacker', 'wiener_bounded', 
+#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+#    force_.set_force_func('generosity_mag', 'wiener_bounded', 
+#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+#    force_.set_force_func('attack_mag', 'wiener_bounded', 
+#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+#    force_.set_force_func('molecule_A', 'stochastic_addition',
+#                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
+#    force_.set_force_func('molecule_B', 'stochastic_addition',
+#                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
+#    force_.set_force_func('molecule_C', 'stochastic_addition',
+#                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
                               {'molecule_A' : 0.1, 'molecule_B' : 0.1,
@@ -73,7 +73,7 @@ def main(args):
         bacteria()
         print (bacteria.scaffold)
         raise Exception('DUMMY')
-        force_(bacteria)
+#        force_(bacteria)
         print (bacteria.scaffold)
         raise Exception('DUMMY')
 

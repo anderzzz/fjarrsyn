@@ -285,7 +285,10 @@ class Agent(object):
         else:
             the_moulder = self.moulder[action]
 
-        the_moulder(self.actuator[action], self.belief)
+        force = the_moulder(self.actuator[action], self.belief)
+        if not force is None:
+            force(self)
+            force.empty_force_func()
 
     def act(self, action):
         '''Method for agent to act a populated actuator.
