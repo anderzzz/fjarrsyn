@@ -32,7 +32,7 @@ class Goo(AgentManagementSystem):
             from the tickle, and the agent index of the neighbouring agent.
 
         '''
-        neighbour_agents = self.graph_neighbours_to(agent_index)
+        neighbour_agents = self.neighbours_to(agent_index)
 
         bacteria = random.choice(list(neighbour_agents))
         if bacteria is None:
@@ -89,26 +89,27 @@ class Goo(AgentManagementSystem):
         agent_index : str
             Agent index to agent to which's environment molecules are to be
             added
-        dx_molecules : dict
-            Amount of molecules to add based on its key
+        dx_molecules_poison : dict
+            Amount of molecules and poison to add based on its key
 
         '''
-        neighbour_agents = self.graph_neighbours_to(agent_index)
-        n_neighbours = len(neighbour_agents)
+        neighbour_nodes = self.neighbours_to(agent_index, agents_only=False)
+        n_neighbours = len(neighbour_nodes)
 
-        for neighbour_agent in neighbour_agents:
-            neighbour_id = neighbour_agent.agent_id_system
-            environment = self.agents_graph[neighbour_id].aux_content
+        for neighbour_node in neighbour_nodes:
+            environment = neighbour_node.aux_content
             for molecule, dx in dx_molecules_poison.items():
                 x = environment.molecule_content[molecule] 
                 x_new = x + dx / float(n_neighbours)
                 environment.molecule_content[molecule] = x_new 
 
-    def _act_new_cell_into_matrix(self):
+    def _act_new_cell_into_matrix(self, agent_index, do_it):
         '''Bla bla
 
         '''
-        pass
+        if do_it:
+            node = self.agents_graph[agent_index]
+
 
     def _act_suicide(self, agent_index, do_it):
         '''Actuator to remove agent from the agent management system

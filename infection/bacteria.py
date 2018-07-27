@@ -39,8 +39,8 @@ class Bacteria(Agent):
         self.mould('make_poison')
         print ('aa', self.scaffold)
 
-#        raise Exception('DUMMY')
-#        self.engage('split_in_two')
+        self.engage('split_in_two')
+        raise Exception('DUMMY')
 
     def __init__(self, name, surface_profile, molecules):
 
@@ -60,6 +60,7 @@ class Bacteria(Agent):
         self.set_imprint('scaffold', 'vulnerability_to_poison', 2.0)
         self.set_imprint('scaffold', 'trusting', 0.5)
         self.set_imprint('scaffold', 'trusting_mag', 0.5)
+        self.set_imprint('scaffold', 'split_thrs', 2.0)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',

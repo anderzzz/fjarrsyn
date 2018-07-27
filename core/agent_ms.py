@@ -36,7 +36,7 @@ class AgentManagementSystem(object):
         If a full agents graph is given that is not of the Graph class
 
     '''
-    def graph_neighbours_to(self, agent_index):
+    def neighbours_to(self, agent_index, agents_only=True):
         '''Method to extract the agent objects neighbours in the graph to the
         agent of a certain system identifier
 
@@ -52,21 +52,17 @@ class AgentManagementSystem(object):
             Set of agents directly adjacent to the given agent
 
         '''
-        #TBD: REFACTOR TO USE __GETITEM__ FUNCTIONALITY OF GRAPH
-        adjacency_list = self.agents_graph.get_adjacency_list()
+        node_with_agent = self.agents_graph[agent_index]
+        node_neighbours = self.agents_graph.get_neighbours(node_with_agent)
+        node_neighbours = node_neighbours.tolist()
+        if agents_only:
+            ret_neighbours = [x.agent_content for x in node_neighbours]
 
-        ret_list = []
-        for ind, connection_tuple in adjacency_list.iteritems():
-            agent_id1 = connection_tuple[0].agent_content.agent_id_system
-            agent_id2 = connection_tuple[1].agent_content.agent_id_system
-           
-            if agent_id1 == agent_index:
-                ret_list.append(connection_tuple[1].agent_content)
-            elif agent_id2 == agent_index:
-                ret_list.append(connection_tuple[0].agent_content)
+        else:
+            ret_neighbours = node_neighbours
 
-        return set(ret_list)
-
+        return set(ret_neighbours)
+            
     def iteritems(self):
         '''Iterator over the agents of the agent management system in same
         order as they were entered during initialization.

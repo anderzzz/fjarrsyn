@@ -87,6 +87,32 @@ class Graph(object):
         '''
         return pd.Series(self.adjacency_list)
 
+    def get_neighbours(self, node):
+        '''Bla bla
+
+        '''
+        def _extract_pair(ss):
+            ret = []
+            for ss_row in ss.iteritems():
+                ret.append(ss_row[1][0] == node or ss_row[1][1] == node)
+            return ret
+
+        rr = self.get_adjacency_list()
+        tt = rr.loc[_extract_pair] 
+
+        node_neighbours = []
+        for connection in tt.iteritems():
+            if connection[1][0] != node:
+                node_neighbours.append(connection[1][0])
+
+            elif connection[1][1] != node:
+                node_neighbours.append(connection[1][1])
+
+            else:
+                raise RuntimeError('Adjacency pair query returned pair without query node')
+
+        return pd.Series(node_neighbours)
+
     def _compute_adjacency_list(self, connections):
         '''Compute the adjacency list from connections
 
