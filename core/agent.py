@@ -285,7 +285,11 @@ class Agent(object):
         else:
             the_moulder = self.moulder[action]
 
-        force = the_moulder(self.actuator[action], self.belief)
+        if action in self.actuator:
+            force = the_moulder(self.belief, self.actuator[action])
+        else:
+            force = the_moulder(self.belief)
+
         if not force is None:
             force(self)
             force.empty_force_func()

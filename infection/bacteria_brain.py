@@ -141,6 +141,47 @@ class BacteriaBrain(object):
         
         return MoulderReturn(ret, None)
 
+    def _mould_make_poison(self):
+        '''Convert a certain amount of useful molecules to poison to store in
+        the vacuole. The method generates no actuator population instruction
+
+        Returns
+        -------
+        mould_output : MoulderReturn
+            Named tuple with output from moulding. No actuator population
+            instruction. The object force recomputes molecular content and
+            poison content upon execution
+
+        '''
+        scaffold_shift = ObjectForce('shift_broth')
+
+        #
+        # Compute fraction of molecules to turn into poison
+        #
+        p = self.scaffold['poison_vacuole']
+        p_max = self.scaffold['poison_vacuole_max']
+        d = self.scaffold['attacker']
+        f = min(1.0, max(0.0, d - p * d / p_max))
+
+        #
+        # Generate the ObjectForce to apply to adjust compound content
+        #
+        ret_delta = {}
+        total_molecule = 0.0
+        compounds = [key for key in self.scaffold if 'molecule_' in key]
+        n_compounds = len(compounds)
+        for compound in compounds:
+            deduct_compound = self.scaffold[compound] * f / float(n_compounds)
+            total_molecule += deduct_compound
+
+            scaffold_shift.set_force_func(compound, 'delta', 
+                                          {'increment' : -1.0 * deduct_compound})
+
+        scaffold_shift.set_force_func('poison_vacuole', 'delta',
+                                      {'increment' : total_molecule})
+
+        return MoulderReturn(None, scaffold_shift)
+
     def _mould_cell_division(self):
         '''Bla bla
 

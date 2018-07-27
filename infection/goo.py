@@ -110,12 +110,6 @@ class Goo(AgentManagementSystem):
         '''
         pass
 
-    def _act_synthesize_poison(self):
-        '''Bla bla
-
-        '''
-        pass
-
     def _act_suicide(self, agent_index, do_it):
         '''Actuator to remove agent from the agent management system
 

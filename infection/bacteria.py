@@ -29,7 +29,6 @@ class Bacteria(Agent):
         print ('yy', self.scaffold)
         self.engage('gulp_environment')
         print ('zz', self.scaffold)
-        raise Exception('Lordy')
 
         # Contemplate suicide
         self.engage('contemplate_suicide')
@@ -37,11 +36,11 @@ class Bacteria(Agent):
             print ('early exit')
             return None
 
-        raise Exception('Not Implemented Beyond This Point')
+        self.mould('make_poison')
+        print ('aa', self.scaffold)
 
-        self.engage('make_poison')
-
-        self.engage('split_in_two')
+#        raise Exception('DUMMY')
+#        self.engage('split_in_two')
 
     def __init__(self, name, surface_profile, molecules):
 
@@ -53,6 +52,7 @@ class Bacteria(Agent):
         self.set_imprint('scaffold', 'molecule_C', molecules[2])
         self.set_imprint('scaffold', 'poison', molecules[3])
         self.set_imprint('scaffold', 'poison_vacuole', molecules[4])
+        self.set_imprint('scaffold', 'poison_vacuole_max', 5.0)
         self.set_imprint('scaffold', 'generosity', 0.5)
         self.set_imprint('scaffold', 'attacker', 0.5)
         self.set_imprint('scaffold', 'generosity_mag', 0.5)
@@ -85,6 +85,11 @@ class Bacteria(Agent):
         moulder = Moulder('gulp_environment', 
                           ['my_neighbour'],
                           brain._mould_gulp_molecules_from_env)
+        self.set_organ(moulder)
+
+        moulder = Moulder('make_poison',
+                          [],
+                          brain._mould_make_poison)
         self.set_organ(moulder)
 
 class ExtracellEnvironment(object):

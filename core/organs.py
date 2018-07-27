@@ -235,7 +235,7 @@ class Moulder(object):
         Named arguments for the `moulder_func`
 
     '''
-    def __call__(self, actuator, belief):
+    def __call__(self, belief, actuator=None):
         '''Execute the moulder to populate an actuator
 
         Notes
@@ -245,11 +245,12 @@ class Moulder(object):
 
         Parameters
         ----------
-        actuator
-            The actuator instance to populate
         belief : dict
             Dictionary of belief values, at least a subset of which overlaps
             with the belief names defined during initialization
+        actuator
+            The actuator instance to populate. If not defined the moulder is
+            executed expecting only to create an object force output
 
         '''
         func_kwargs = {}
@@ -265,6 +266,9 @@ class Moulder(object):
             raise TypeError('Moulder functions must return MoulderReturn objects')
 
         if not output.actuator_params is None:
+            if not isinstance(actuator, Actuator):
+                raise TypeError('Moulder not given actuator organ to populate')
+
             actuator.populate(output.actuator_params)
 
         return output.object_force

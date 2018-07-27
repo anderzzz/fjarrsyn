@@ -41,10 +41,10 @@ def main(args):
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
         bacterial_agents.append(Bacteria('bacteria_1_%s' %(str(k_bacteria)),
-                                         'aaaaa', [1.0, 0.0, 0.0, 2.0, 0.0]))
+                                         'aaaaa', [1.0, 0.0, 0.0, 0.0, 0.0]))
     for k_bacteria in range(n_bacteria_2):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
-                                         'wwwww', [0.0, 1.0, 0.0, 2.0, 0.0]))
+                                         'wwwww', [0.0, 1.0, 0.0, 0.0, 0.0]))
 
 #    force_ = ObjectForce('bacterial_drift')
 #    force_.set_force_func('generosity', 'wiener_bounded', 
@@ -69,13 +69,15 @@ def main(args):
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
     for bacteria in cell_space.iteritems():
+        print ('PING')
+        print ('PING')
+        print ('PING')
+        print (cell_space.agents_graph[bacteria.agent_id_system])
+        print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
         print (bacteria.scaffold)
         bacteria()
         print (bacteria.scaffold)
-        raise Exception('DUMMY')
-#        force_(bacteria)
-        print (bacteria.scaffold)
-        raise Exception('DUMMY')
+        print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
