@@ -3,6 +3,7 @@
 '''
 from uuid import uuid4
 from collections import OrderedDict
+import random
 
 from core.graph import Graph, Node
 from core.agent import Agent
@@ -67,8 +68,8 @@ class AgentManagementSystem(object):
         return set(ret_list)
 
     def iteritems(self):
-        '''Iterator over the agents of the agent management system in no
-        particular order
+        '''Iterator over the agents of the agent management system in same
+        order as they were entered during initialization.
 
         Returns
         -------
@@ -77,6 +78,21 @@ class AgentManagementSystem(object):
 
         '''
         return iter(self.agents_in_scope.values())
+
+    def shuffle_iteritems(self):
+        '''Iterator over the agents of the agent management system in
+        randomized order
+
+        Returns
+        -------
+        agent_iter
+            Agent iterator
+
+        '''
+        all_agents = list(self.agents_in_scope.values())
+        random.shuffle(all_agents)
+
+        return iter(all_agents)
 
     def __len__(self):
 

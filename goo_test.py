@@ -68,7 +68,7 @@ def main(args):
 
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
-    for bacteria in cell_space.iteritems():
+    for bacteria in cell_space.shuffle_iteritems():
         print ('PING')
         print ('PING')
         print ('PING')
