@@ -1,8 +1,10 @@
 '''All organ classes of the basic Agent are contained in this file.
 
 '''
-from core.naturallaw import ObjectForce
+import copy
 from collections import namedtuple
+
+from core.naturallaw import ObjectForce
 
 class Organ(object):
 
@@ -37,7 +39,7 @@ class Sensor(object):
         ret = 'Sensor %s for precept %s.' %(self.name, self.precept_name)
         return ret
 
-    def __call__(self):
+    def __call__(self, agent_index):
         '''Execute the sensor function with check that buzz output conforms to
         expected shape.
 
@@ -53,7 +55,10 @@ class Sensor(object):
             not match the buzz keys defined during sensor initialization.
 
         '''
-        ret = self.sensor_func(**self.kwargs)
+        kwargs = copy.copy(self.kwargs)
+        kwargs['agent_index'] = agent_index
+
+        ret = self.sensor_func(**kwargs)
 
         if set(ret.keys()) != set(self.buzzkeys):
             raise ValueError('Sensor function generated unexpected buzz keys')

@@ -207,8 +207,7 @@ class Goo(AgentManagementSystem):
             sensor = Sensor('random_neighbour_surface', 
                             'neighbour_surface',
                             self._sense_random_neighbour_surface,
-                            ['surface_profile', 'neighbour'],
-                            {'agent_index' : bacteria.agent_id_system})
+                            ['surface_profile', 'neighbour'])
             bacteria.set_organ(sensor)
                                        
 

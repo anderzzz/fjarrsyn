@@ -189,7 +189,7 @@ class Agent(object):
         else:
             the_sensor = self.sensor[precept]
 
-        buzz = the_sensor()
+        buzz = the_sensor(self.agent_id_system)
 
         return buzz 
 
