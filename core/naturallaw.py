@@ -22,6 +22,12 @@ class ObjectForce(object):
         '''
         return old_value + increment
 
+    def scale(self, old_value, factor):
+        '''Bla bla
+
+        '''
+        return old_value * factor
+
     def set_force_func(self, scaffold_name, force_func, force_func_kwargs={},
                        stochastic_apply=1.0):
         '''Bla bla

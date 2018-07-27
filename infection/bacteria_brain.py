@@ -186,7 +186,25 @@ class BacteriaBrain(object):
         '''Bla bla
 
         '''
-        pass
+        compounds = [name for name in self.scaffold if 'molecule_' in name]
+        thrs_compounds = [self.scaffold[x] >= self.scaffold['split_thrs'] for x in compounds]
+        do_it = all(thrs_compounds)
+        ret_params = {'do_it' : do_it}
+
+        if not do_it:
+            scaffold_shift = None
+
+        else:
+            scaffold_shift = ObjectForce('cell_divide')
+
+            for compound in compounds:
+                scaffold_shift.set_force_func(compound, 'scale', {'factor' : 0.5})
+
+            scaffold_shift.set_force_func('poison_vacuole', 'scale', {'factor' : 0.5})
+            scaffold_shift.set_force_func('poison', 'scale', {'factor' : 0.5})
+
+        return MoulderReturn(ret_params, scaffold_shift)
+            
 
     def __init__(self, scaffold, belief):
         

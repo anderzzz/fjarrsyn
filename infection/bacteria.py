@@ -93,6 +93,11 @@ class Bacteria(Agent):
                           brain._mould_make_poison)
         self.set_organ(moulder)
 
+        moulder = Moulder('split_in_two',
+                          [],
+                          brain._mould_cell_division)
+        self.set_organ(moulder)
+
 class ExtracellEnvironment(object):
     '''Bla bla
 
