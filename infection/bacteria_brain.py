@@ -1,7 +1,9 @@
 '''All internal cognition of bacteria agent contained here
 
 '''
+import copy
 import random
+
 from core.helper_funcs import sigmoid, sigmoid_10, linear_step_10
 from core.naturallaw import ObjectForce
 from core.organs import MoulderReturn
@@ -68,6 +70,10 @@ class BacteriaBrain(object):
             actuator
 
         '''
+        if my_neighbour is None:
+            raise RuntimeError('The supply moulder should only be ' + \
+                               'executed with belief about neighbours')
+
         scaffold_shift = ObjectForce('shift_broth')
 
         share_percentage = sigmoid_10(self.scaffold['generosity_mag'], 
@@ -133,9 +139,15 @@ class BacteriaBrain(object):
         '''Bla bla
 
         '''
+        if my_neighbour is None:
+            trust = 1.0
+
+        else:
+            trust = my_neighbour
+
         gulp_percentage = linear_step_10(self.scaffold['trusting_mag'], 0.0,
                                          self.scaffold['trusting'], False,
-                                         my_neighbour)
+                                         trust)
 
         ret = {'how_much' : gulp_percentage}
         

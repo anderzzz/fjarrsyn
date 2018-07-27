@@ -52,6 +52,7 @@ class AgentManagementSystem(object):
             Set of agents directly adjacent to the given agent
 
         '''
+        print ('********',agent_index)
         node_with_agent = self.agents_graph[agent_index]
         node_neighbours = self.agents_graph.get_neighbours(node_with_agent)
         node_neighbours = node_neighbours.tolist()
@@ -125,6 +126,13 @@ class AgentManagementSystem(object):
 
         del self.agents_in_scope[key]
 
+    def add_to_ms(self, agent):
+        '''Bla bla
+
+        '''
+        agent.agent_id_system = str(uuid4())
+        self.agents_in_scope[agent.agent_id_system] = agent
+
     def __init__(self, name, agents, full_agents_graph=None):
 
         self.name = name
@@ -135,8 +143,7 @@ class AgentManagementSystem(object):
         #
         self.agents_in_scope = OrderedDict() 
         for agent in agents:
-            agent.agent_id_system = str(uuid4())
-            self.agents_in_scope[agent.agent_id_system] = agent
+            self.add_to_ms(agent)
 
         #
         # The agent to agent network relation is defined, which is a complete

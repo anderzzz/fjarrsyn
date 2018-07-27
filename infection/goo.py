@@ -103,8 +103,7 @@ class Goo(AgentManagementSystem):
                 x_new = x + dx / float(n_neighbours)
                 environment.molecule_content[molecule] = x_new 
 
-    def _act_new_cell_into_matrix(self, agent_index, do_it, dx_molecules=None,
-                                  scaffold_parent=None):
+    def _act_new_cell_into_matrix(self, agent_index, do_it):
         '''Bla bla
 
         '''
@@ -117,7 +116,11 @@ class Goo(AgentManagementSystem):
             else:
                 node_to_populate = random.choice(neighbours)
 
-            agent_child = #ADD STUFF
+            agent_child = copy.deepcopy(self.agents_graph[agent_index].agent_content) 
+            self.add_to_ms(agent_child)
+
+            node_to_populate.agent_content = agent_child
+            print (agent_child.agent_id_system, agent_index)
 
         else:
             pass
@@ -197,7 +200,7 @@ class Goo(AgentManagementSystem):
             actuator = Actuator('agent_splitter',
                                 'split_in_two',
                                 self._act_new_cell_into_matrix,
-                                ['do_it', 'dx_molecules_poison'],
+                                ['do_it'],
                                 bacteria.agent_id_system)
             bacteria.set_organ(actuator)
 
