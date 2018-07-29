@@ -323,7 +323,7 @@ class Agent(object):
         else:
             the_actuator = self.actuator[action]
 
-        reaction = the_actuator()
+        reaction = the_actuator(self.agent_id_system)
         if not reaction is None:
             reaction(self)
             reaction.empty_force_func()

@@ -64,6 +64,7 @@ class Goo(AgentManagementSystem):
             to update the internal state of the agent
 
         '''
+        print ('AAAAAAAAAA', agent_index)
         reaction = ObjectForce('scaffold_reaction')
 
         node_with_agent = self.agents_graph[agent_index]
@@ -179,29 +180,25 @@ class Goo(AgentManagementSystem):
             actuator = Actuator('molecules_to_environment',
                                 'share_molecules',
                                 self._act_add_molecules_to_env,
-                                ['dx_molecules_poison'],
-                                bacteria.agent_id_system)
+                                ['dx_molecules_poison'])
             bacteria.set_organ(actuator)
 
             actuator = Actuator('agent_suicide',
                                 'contemplate_suicide',
                                 self._act_suicide,
-                                ['do_it'], 
-                                bacteria.agent_id_system)
+                                ['do_it']) 
             bacteria.set_organ(actuator)
 
             actuator = Actuator('environment_gulper',
                                 'gulp_environment',
                                 self._act_gulp_my_environment,
-                                ['how_much'],
-                                bacteria.agent_id_system)
+                                ['how_much'])
             bacteria.set_organ(actuator)
 
             actuator = Actuator('agent_splitter',
                                 'split_in_two',
                                 self._act_new_cell_into_matrix,
-                                ['do_it'],
-                                bacteria.agent_id_system)
+                                ['do_it'])
             bacteria.set_organ(actuator)
 
             sensor = Sensor('random_neighbour_surface', 

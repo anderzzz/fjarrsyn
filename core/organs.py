@@ -110,7 +110,7 @@ class Actuator(object):
             parameter names defined during initialization.
 
         '''
-        self.kwargs = {'agent_index' : self.agent_index}
+        self.kwargs = {}
 
         keys = set(keyvalue.keys())
         key_reference = set(self.keys2populate)
@@ -133,7 +133,7 @@ class Actuator(object):
         '''
         self.kwargs = None
 
-    def __call__(self):
+    def __call__(self, agent_index):
         '''Execute the actuator function and alter the World
 
         Notes
@@ -150,6 +150,7 @@ class Actuator(object):
         if self.kwargs is None:
             raise RuntimeError('Actuator called prior to population')
 
+        self.kwargs['agent_index'] = agent_index
         reaction = self.actuator_func(**self.kwargs)
 
         if not reaction is None:
@@ -159,14 +160,12 @@ class Actuator(object):
 
         return reaction
 
-    def __init__(self, name, action_name, actuator_func, keys2populate,
-                 agent_index):
+    def __init__(self, name, action_name, actuator_func, keys2populate):
 
         self.name = name
         self.action_name = action_name
         self.actuator_func = actuator_func
         self.keys2populate = keys2populate
-        self.agent_index = agent_index
 
         self.kwargs = None
 
