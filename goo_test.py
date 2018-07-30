@@ -71,6 +71,7 @@ def main(args):
     for bacteria in cell_space.shuffle_iteritems():
         print ('PING')
         print ('PING')
+        # WRITE OVER AGENT WHILE RUNNING BUG
         print ('PING', bacteria.agent_id_system)
         print (cell_space.agents_graph[bacteria.agent_id_system])
         print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)

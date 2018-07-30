@@ -115,7 +115,7 @@ class Goo(AgentManagementSystem):
                 node_to_populate = random.choice(empty_nodes)
 
             else:
-                node_to_populate = random.choice(neighbours)
+                node_to_populate = random.choice(list(neighbours))
 
             agent_child = copy.deepcopy(self.agents_graph[agent_index].agent_content) 
             self.add_to_ms(agent_child)
