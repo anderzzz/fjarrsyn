@@ -68,10 +68,13 @@ def main(args):
 
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
-    for bacteria in cell_space.shuffle_iteritems():
+    for bacteria, env in cell_space:
         print ('PING')
         print ('PING')
         # WRITE OVER AGENT WHILE RUNNING BUG
+        if bacteria is None:
+            continue
+
         print ('PING', bacteria.agent_id_system)
         print (cell_space.agents_graph[bacteria.agent_id_system])
         print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
@@ -81,7 +84,9 @@ def main(args):
         print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
         print ('ZZZZZ', [n.agent_content for n in cell_space.agents_graph.nodes])
 
-    for bacteria in cell_space.shuffle_iteritems():
+    #raise Exception('dummy')
+    print ('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+    for bacteria in cell_space.shuffle_agents(4):
         print ('PING')
         print ('PING')
         print ('PING', bacteria.agent_id_system)

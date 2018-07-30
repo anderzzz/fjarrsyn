@@ -64,7 +64,6 @@ class Goo(AgentManagementSystem):
             to update the internal state of the agent
 
         '''
-        print ('AAAAAAAAAA', agent_index)
         reaction = ObjectForce('scaffold_reaction')
 
         node_with_agent = self.agents_graph[agent_index]
@@ -105,10 +104,24 @@ class Goo(AgentManagementSystem):
                 environment.molecule_content[molecule] = x_new 
 
     def _act_new_cell_into_matrix(self, agent_index, do_it):
-        '''Bla bla
+        '''Actuator method to duplicate an agent and add its child to the agent
+        system
+
+        Parameters
+        ----------
+        agent_index : str
+            Agent index to agent that is to be duplicated
+        do_it : bool
+            Boolean flag that signals if a duplication actually should happen
+            or not. If `True` the duplication is done.
 
         '''
         if do_it:
+
+            #
+            # Obtain an empty neighbouring node, if available. If not available
+            # take any neighbouring node.
+            #
             neighbours = self.neighbours_to(agent_index, agents_only=False)
             empty_nodes = [x for x in neighbours if x.agent_content is None]
             if len(empty_nodes) > 0:
@@ -117,11 +130,12 @@ class Goo(AgentManagementSystem):
             else:
                 node_to_populate = random.choice(list(neighbours))
 
+            #
+            # Create agent child and add to system and node selected above
+            #
             agent_child = copy.deepcopy(self.agents_graph[agent_index].agent_content) 
-            self.add_to_ms(agent_child)
-
+            self.append(agent_child)
             node_to_populate.agent_content = agent_child
-            print (agent_child.agent_id_system, agent_index)
 
         else:
             pass

@@ -150,6 +150,12 @@ class Graph(object):
 
         return ret
 
+    def __iter__(self):
+
+        for node in self.nodes:
+
+            yield node
+
     def __len__(self):
 
         return len(self.nodes)

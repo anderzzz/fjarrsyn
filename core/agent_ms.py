@@ -52,7 +52,6 @@ class AgentManagementSystem(object):
             Set of agents directly adjacent to the given agent
 
         '''
-        print ('********',agent_index)
         node_with_agent = self.agents_graph[agent_index]
         node_neighbours = self.agents_graph.get_neighbours(node_with_agent)
         node_neighbours = node_neighbours.tolist()
@@ -64,55 +63,118 @@ class AgentManagementSystem(object):
 
         return set(ret_neighbours)
             
-    def iteritems(self):
-        '''Iterator over the agents of the agent management system in same
-        order as they were entered during initialization.
+    def shuffle_agents(self, max_iter):
+        '''Iterator over agents in system in random order. 
 
-        Returns
-        -------
-        agent_iter 
-            Agent iterator
+        Notes
+        -----
+        The element is generated in each iteration from the current set of
+        agents in scope. Therefore, this iterator is stable to additions or
+        deletions of agents of the system during the iteration.
+
+        Parameters
+        ----------
+        max_iter : int
+            The number of entries the iterator should yield. If set to negative
+            number the iteration is infinite.
+
+        Yields
+        ------
+        entry : Agent
+            Random agent from the system
+
+        Raises
+        ------
+        StopIteration
+            In case the system is void of agents
 
         '''
-        return iter(self.agents_in_scope.values())
+        def _terminator(counter):
+            if (counter < max_iter) or (max_iter < 0):
+                return True
+            else:
+                return False
+            
+        counter = 0
+        while _terminator(counter): 
+            counter += 1
 
-    def shuffle_iteritems(self):
-        '''Iterator over the agents of the agent management system in
-        randomized order
+            if len(self.agents_in_scope.values()) > 0:
+                entry = random.choice(list(self.agents_in_scope.values()))
 
-        Returns
-        -------
-        agent_iter
-            Agent iterator
+            else:
+                raise StopIteration('No agents left in system')
 
-        '''
-        all_agents = list(self.agents_in_scope.values())
-        random.shuffle(all_agents)
-
-        return iter(all_agents)
+            yield entry
 
     def __len__(self):
 
         return len(self.agents_in_scope)
 
+    def __iter__(self):
+        '''Iterator over the nodes and their content of the agent system.
+
+        Notes
+        -----
+        Graphs can contain nodes that are not populated by an agent. This
+        manifest itself as `agent_content` being `None`. The loop using the
+        iterator should therefore handle these cases. Also note that if nodes
+        are added or deleted to the graph while the iterator is used, can
+        create bad behaviour.
+
+        Yields
+        ------
+        agent_content : Agent
+            Agent of node. Is `None` in case no agent occupies the node
+        aux_content 
+            Any auxiliary content of the node
+
+        '''
+        for node in self.agents_graph:
+            yield node.agent_content, node.aux_content
+
     def __getitem__(self, key):
-        '''Bla bla
+        '''Return agent in agent system based on agent system id
+
+        Parameters
+        ----------
+        key : str
+            Agent system ID
+
+        Returns
+        -------
+        agent : Agent
+            Agent in system with given ID
+
+        Raises
+        ------
+        KeyError
+            If system does not contain an agent of given ID
 
         '''
+        if not key in self.agents_in_scope:
+            raise KeyError('Unknown agent id: %s' %(key))
 
-        return list(self.agents_in_scope.values())[key]
-
-    def __setitem__(self, key, value):
-        '''Bla bla
-
-        '''
-        if not isinstance(value, Agent):
-            raise TypeError('Agent manager can only have members of the Agent class')
-
-        self.agents_in_scope[key] = value
+        return self.agents_in_scope[key] 
 
     def __delitem__(self, key):
-        '''Bla bla
+        '''Delete agent from system based on its key
+
+        Notes
+        -----
+        The deletion of the agent includes both its deletion from the node it
+        occupies as well as the dictionary of agents within the system scope.
+        The deletion operation does not alter the graph topology.
+
+        Parameters
+        ----------
+        key : str
+            Agent system ID
+
+        Raises
+        ------
+        KeyError
+            If system does not contain an agent of given ID
 
         '''
         if not key in self.agents_in_scope:
@@ -126,10 +188,19 @@ class AgentManagementSystem(object):
 
         del self.agents_in_scope[key]
 
-    def add_to_ms(self, agent):
-        '''Bla bla
+    def append(self, agent):
+        '''Append an agent to the system. This assigns a new agent ID
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent to append to system
 
         '''
+        if not isinstance(agent, Agent):
+            raise TypeError('Only instances of the Agent class can be ' + \
+                            'appended to an Agent System')
+
         agent.agent_id_system = str(uuid4())
         self.agents_in_scope[agent.agent_id_system] = agent
 
@@ -143,7 +214,7 @@ class AgentManagementSystem(object):
         #
         self.agents_in_scope = OrderedDict() 
         for agent in agents:
-            self.add_to_ms(agent)
+            self.append(agent)
 
         #
         # The agent to agent network relation is defined, which is a complete

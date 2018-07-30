@@ -26,22 +26,18 @@ class Bacteria(Agent):
             self.engage('share_molecules')
 
         # Gulp molecules from the nearby environment
-        print ('yy', self.scaffold)
         self.engage('gulp_environment')
-        print ('zz', self.scaffold)
 
         # Contemplate suicide
         self.engage('contemplate_suicide')
         if not self.hooked_up():
-            print ('early exit')
             return None
 
-#        self.mould('make_poison')
-        print ('aa', self.scaffold)
+        # Make poison. Internal action only, hence no actuator employed
+        self.mould('make_poison')
 
+        # Determine if to split in two
         self.engage('split_in_two')
-        print ('bb', self.scaffold)
-#        raise Exception('DUMMY')
 
     def __init__(self, name, surface_profile, molecules):
 
