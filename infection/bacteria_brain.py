@@ -101,7 +101,7 @@ class BacteriaBrain(object):
 
             ret_env[env_compound_key] = dx_amount
 
-            scaffold_shift.set_force_func(molecule, 'delta', 
+            scaffold_shift.set_force_func(molecule, 'force_func_delta', 
                                           {'increment' : -1.0 * dx_amount})
 
         actuator_pop = {'dx_molecules_poison' : ret_env}
@@ -186,10 +186,10 @@ class BacteriaBrain(object):
             deduct_compound = self.scaffold[compound] * f / float(n_compounds)
             total_molecule += deduct_compound
 
-            scaffold_shift.set_force_func(compound, 'delta', 
+            scaffold_shift.set_force_func(compound, 'force_func_delta', 
                                           {'increment' : -1.0 * deduct_compound})
 
-        scaffold_shift.set_force_func('poison_vacuole', 'delta',
+        scaffold_shift.set_force_func('poison_vacuole', 'force_func_delta',
                                       {'increment' : total_molecule})
 
         return MoulderReturn(None, scaffold_shift)
@@ -210,10 +210,10 @@ class BacteriaBrain(object):
             scaffold_shift = ObjectForce('cell_divide')
 
             for compound in compounds:
-                scaffold_shift.set_force_func(compound, 'scale', {'factor' : 0.5})
+                scaffold_shift.set_force_func(compound, 'force_func_scale', {'factor' : 0.5})
 
-            scaffold_shift.set_force_func('poison_vacuole', 'scale', {'factor' : 0.5})
-            scaffold_shift.set_force_func('poison', 'scale', {'factor' : 0.5})
+            scaffold_shift.set_force_func('poison_vacuole', 'force_func_scale', {'factor' : 0.5})
+            scaffold_shift.set_force_func('poison', 'force_func_scale', {'factor' : 0.5})
 
         return MoulderReturn(ret_params, scaffold_shift)
             

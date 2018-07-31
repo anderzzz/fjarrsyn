@@ -7,7 +7,7 @@ import random
 
 from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
-from core.naturallaw import ObjectForce
+from core.naturallaw import RandomMutator 
 
 def parse_(argv):
 
@@ -46,9 +46,9 @@ def main(args):
         bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
                                          'wwwww', [0.0, 1.0, 0.0, 0.0, 0.0]))
 
-#    force_ = ObjectForce('bacterial_drift')
-#    force_.set_force_func('generosity', 'wiener_bounded', 
-#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
+    force_ = RandomMutator('bacterial_drift')
+    force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.5,
+                          {'std' : 0.1, 'lower_bound' : 0.0})
 #    force_.set_force_func('attacker', 'wiener_bounded', 
 #                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
 #    force_.set_force_func('generosity_mag', 'wiener_bounded', 
@@ -83,6 +83,10 @@ def main(args):
         print (bacteria.scaffold)
         print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
         print ('ZZZZZ', [n.agent_content for n in cell_space.agents_graph.nodes])
+
+        force_(bacteria)
+        print (bacteria.scaffold)
+    raise Exception('dummy')
 
     #raise Exception('dummy')
     print ('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')

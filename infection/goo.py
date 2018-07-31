@@ -75,7 +75,7 @@ class Goo(AgentManagementSystem):
             remaining_amount = float(molecule_amount) - gulped_amount
             environment.molecule_content[molecule_name] = remaining_amount
 
-            reaction.set_force_func(molecule_name, 'delta', 
+            reaction.set_force_func(molecule_name, 'force_func_delta', 
                                     {'increment' : gulped_amount})
 
         return reaction 
