@@ -63,7 +63,7 @@ class ObjectForce(object):
         '''
         if isinstance(force_func, str):
             try:
-                func = getattr(self.predefinedforcefunctions, force_func)
+                func = getattr(self.forcefunctions, force_func)
             except AttributeError:
                 raise ValueError('Object force method %s undefined' %(force_func))
 
@@ -135,9 +135,9 @@ class ObjectForce(object):
         self.name = name 
         self.scaffold_force_func = {}
 
-        self.predefinedforcefunctions = _PreDefinedForceFunctions()
+        self.forcefunctions = _ForceFunctions()
 
-class _PreDefinedForceFunctions(object):
+class _ForceFunctions(object):
     '''Bunch of pre-defined object force functions that other classes can use
     to associate a callable force function to a scaffold name
 
@@ -186,6 +186,28 @@ class _PreDefinedForceFunctions(object):
 
         '''
         raise NotImplementedError('Noisy exponential decay not implemented yet') 
+
+    def force_func_flip_one_char(self, old_value, alphabet, selector=None):
+        '''Bla bla
+
+        '''
+        index_flip = np.random.randint(len(old_value))
+        other_chars = [x for x in alphabet if not x == old_value[index_flip]]
+
+        if selector is None:
+            _selector = lambda options : np.random.choice(options)
+
+        elif callable(selector):
+            _selector = selector
+
+        else:
+            raise TypeError('Selector must be a callable function, not %s' %(str(type(selector))))
+
+        new_value = old_value[:index_flip] + \
+                    _selector(other_chars) + \
+                    old_value[index_flip + 1:]
+
+        return new_value
 
 class RandomMutator(ObjectForce):
     '''Class to create an object force that randomly mutates a scaffold by some

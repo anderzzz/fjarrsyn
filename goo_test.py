@@ -47,20 +47,22 @@ def main(args):
                                          'wwwww', [0.0, 1.0, 0.0, 0.0, 0.0]))
 
     force_ = RandomMutator('bacterial_drift')
-    force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.5,
+    force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.1,
                           {'std' : 0.1, 'lower_bound' : 0.0})
-#    force_.set_force_func('attacker', 'wiener_bounded', 
-#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
-#    force_.set_force_func('generosity_mag', 'wiener_bounded', 
-#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
-#    force_.set_force_func('attack_mag', 'wiener_bounded', 
-#                          {'std' : 0.1, 'lower_bound' : 0.0}, 0.1)
-#    force_.set_force_func('molecule_A', 'stochastic_addition',
-#                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
-#    force_.set_force_func('molecule_B', 'stochastic_addition',
-#                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
-#    force_.set_force_func('molecule_C', 'stochastic_addition',
-#                          {'increment' : 1.0, 'thrs_prob' : 0.2}, 1.0)
+    force_.set_force_func('attacker', 'force_func_wiener_bounded', 0.1,
+                          {'std' : 0.1, 'lower_bound' : 0.0})
+    force_.set_force_func('generosity_mag', 'force_func_wiener_bounded', 0.1,
+                          {'std' : 0.1, 'lower_bound' : 0.0})
+    force_.set_force_func('attack_mag', 'force_func_wiener_bounded', 0.1,
+                          {'std' : 0.1, 'lower_bound' : 0.0})
+    force_.set_force_func('molecule_A', 'force_func_delta', 0.05,
+                          {'increment' : 1.0})
+    force_.set_force_func('molecule_B', 'force_func_delta', 0.05,
+                          {'increment' : 1.0})
+    force_.set_force_func('molecule_C', 'force_func_delta', 0.05,
+                          {'increment' : 1.0})
+    force_.set_force_func('surface_profile', 'force_func_flip_one_char', 0.5,
+                          {'alphabet' : ['a', 'w']})
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
                               {'molecule_A' : 0.1, 'molecule_B' : 0.1,
@@ -68,24 +70,23 @@ def main(args):
 
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
-    for bacteria, env in cell_space:
-        print ('PING')
-        print ('PING')
-        # WRITE OVER AGENT WHILE RUNNING BUG
-        if bacteria is None:
-            continue
+    for k in range(100):
+        for bacteria, env in cell_space:
+            print ('PING')
+            print ('PING')
+            # WRITE OVER AGENT WHILE RUNNING BUG
+            if bacteria is None:
+                continue
 
-        print ('PING', bacteria.agent_id_system)
-        print (cell_space.agents_graph[bacteria.agent_id_system])
-        print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
-        print (bacteria.scaffold)
-        bacteria()
-        print (bacteria.scaffold)
-        print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
-        print ('ZZZZZ', [n.agent_content for n in cell_space.agents_graph.nodes])
-
-        force_(bacteria)
-        print (bacteria.scaffold)
+            print ('PING', bacteria.agent_id_system)
+            print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
+            print ('Before', bacteria.scaffold)
+            bacteria()
+            print ('After', bacteria.scaffold)
+            print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
+            print ('ZZZZZ', [n.agent_content for n in cell_space.agents_graph.nodes])
+            force_(bacteria)
+            print ('Mutated', bacteria.scaffold)
     raise Exception('dummy')
 
     #raise Exception('dummy')
