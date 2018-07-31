@@ -94,7 +94,7 @@ class BacteriaBrain(object):
             # Poison is taken from the vacuole of the agent, but put into
             # general poison category of environment
             if molecule == 'poison_vacuole':
-                env_compond_key = 'poison'
+                env_compound_key = 'poison'
 
             else:
                 env_compound_key = molecule

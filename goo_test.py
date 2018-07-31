@@ -48,13 +48,13 @@ def main(args):
 
     force_ = RandomMutator('bacterial_drift')
     force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.1,
-                          {'std' : 0.1, 'lower_bound' : 0.0})
+                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
     force_.set_force_func('attacker', 'force_func_wiener_bounded', 0.1,
-                          {'std' : 0.1, 'lower_bound' : 0.0})
+                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
     force_.set_force_func('generosity_mag', 'force_func_wiener_bounded', 0.1,
-                          {'std' : 0.1, 'lower_bound' : 0.0})
+                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
     force_.set_force_func('attack_mag', 'force_func_wiener_bounded', 0.1,
-                          {'std' : 0.1, 'lower_bound' : 0.0})
+                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
     force_.set_force_func('molecule_A', 'force_func_delta', 0.05,
                           {'increment' : 1.0})
     force_.set_force_func('molecule_B', 'force_func_delta', 0.05,
