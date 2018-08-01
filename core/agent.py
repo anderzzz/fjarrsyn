@@ -89,6 +89,26 @@ class Agent(object):
         else:
             self._set(imprint, entry_name, entry, edit_only)
 
+    def set_imprint_bulk(self, imprint, entryvalue, edit_only=False):
+        '''Add several imprints to the agent at once
+
+        Parameters
+        ----------
+        imprint : str
+            Type of imprint to set
+        entryvalue : dict
+            The dictionary of entry name keys and corresponding value.
+            The value should be a number, string or similar atomic variable, 
+            not a callable function
+        edit_only : bool, optional
+            If False, `entry_name` can be non-existent in the particular
+            imprint, if True, `entry_name` must exist already. Hence, this flag
+            validates if imprints can be only edited or not.
+        
+        '''
+        for key, value in entryvalue.items():
+            self.set_imprint(imprint, key, value, edit_only)
+
     def set_organ(self, organ):
         '''Add an organ to the agent.
 

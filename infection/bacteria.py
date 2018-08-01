@@ -31,7 +31,7 @@ class Bacteria(Agent):
         # Contemplate suicide
         self.engage('contemplate_suicide')
         if not self.hooked_up():
-            return None
+            return False
 
         # Make poison. Internal action only, hence no actuator employed
         self.mould('make_poison')
@@ -39,25 +39,13 @@ class Bacteria(Agent):
         # Determine if to split in two
         self.engage('split_in_two')
 
-    def __init__(self, name, surface_profile, molecules):
+        return True
+
+    def __init__(self, name, scaffold_init):
 
         super().__init__(name)
 
-        self.set_imprint('scaffold', 'surface_profile', surface_profile)
-        self.set_imprint('scaffold', 'molecule_A', molecules[0])
-        self.set_imprint('scaffold', 'molecule_B', molecules[1])
-        self.set_imprint('scaffold', 'molecule_C', molecules[2])
-        self.set_imprint('scaffold', 'poison', molecules[3])
-        self.set_imprint('scaffold', 'poison_vacuole', molecules[4])
-        self.set_imprint('scaffold', 'poison_vacuole_max', 0.2)
-        self.set_imprint('scaffold', 'generosity', 0.5)
-        self.set_imprint('scaffold', 'attacker', 0.5)
-        self.set_imprint('scaffold', 'generosity_mag', 0.5)
-        self.set_imprint('scaffold', 'attack_mag', 0.5)
-        self.set_imprint('scaffold', 'vulnerability_to_poison', 2.0)
-        self.set_imprint('scaffold', 'trusting', 0.5)
-        self.set_imprint('scaffold', 'trusting_mag', 0.5)
-        self.set_imprint('scaffold', 'split_thrs', 0.9)
+        self.set_imprint_bulk('scaffold', scaffold_init)
 
         cortex = Cortex('surface_signal', 
                         'surface_profile',

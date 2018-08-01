@@ -126,16 +126,34 @@ class Goo(AgentManagementSystem):
             empty_nodes = [x for x in neighbours if x.agent_content is None]
             if len(empty_nodes) > 0:
                 node_to_populate = random.choice(empty_nodes)
+                print ('POP1')
+                uuuuu=False
 
             else:
+                print ('POP2', self.agents_in_scope)
+                uuuuu=True
                 node_to_populate = random.choice(list(neighbours))
+                del self[node_to_populate.agent_content.agent_id_system]
 
             #
             # Create agent child and add to system and node selected above
             #
-            agent_child = copy.deepcopy(self.agents_graph[agent_index].agent_content) 
+            print ('POP3', self.agents_in_scope)
+            print ('POPA', node_to_populate.agent_content) 
+            print ('POPB', self.agents_graph[agent_index].agent_content)
+            parent_agent = self.agents_graph[agent_index].agent_content
+            agent_child = parent_agent.__class__('bacteria_child', parent_agent.scaffold)
+            # ADD ADDITION TO AGENT_MS
+#            agent_child = copy.deepcopy(self.agents_graph[agent_index].agent_content) 
             self.append(agent_child)
             node_to_populate.agent_content = agent_child
+            print ('POPC', agent_child)
+            print ('POPD', dir(agent_child))
+
+            print ('POP4', self.agents_in_scope)
+
+          #  if uuuuu:
+          #      raise Exception('shart')
 
         else:
             pass

@@ -9,6 +9,38 @@ from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
 from core.naturallaw import RandomMutator 
 
+SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
+                   'molecule_A' : 1.0,
+                   'molecule_B' : 0.0,
+                   'molecule_C' : 0.0,
+                   'poison' : 0.0,
+                   'poison_vacuole' : 0.0,
+                   'poison_vacuole_max' : 0.2,
+                   'generosity' : 0.5,
+                   'attacker' : 0.5,
+                   'generosity_mag' : 0.5,
+                   'attack_mag' : 0.5,
+                   'vulnerability_to_poison' : 2.0,
+                   'trusting' : 0.5,
+                   'trusting_mag' : 0.5,
+                   'split_thrs' : 0.9}
+
+SCAFFOLD_INIT_W = {'surface_profile' : 'wwwww',
+                   'molecule_A' : 0.0,
+                   'molecule_B' : 1.0,
+                   'molecule_C' : 0.0,
+                   'poison' : 0.0,
+                   'poison_vacuole' : 0.0,
+                   'poison_vacuole_max' : 0.2,
+                   'generosity' : 0.5,
+                   'attacker' : 0.5,
+                   'generosity_mag' : 0.5,
+                   'attack_mag' : 0.5,
+                   'vulnerability_to_poison' : 2.0,
+                   'trusting' : 0.5,
+                   'trusting_mag' : 0.5,
+                   'split_thrs' : 0.9}
+
 def parse_(argv):
 
     parser = argparse.ArgumentParser()
@@ -40,11 +72,12 @@ def main(args):
 
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
-        bacterial_agents.append(Bacteria('bacteria_1_%s' %(str(k_bacteria)),
-                                         'aaaaa', [1.0, 1.0, 1.0, 0.0, 0.0]))
+        bacterial_agents.append(Bacteria('bacteria_A_%s' %(str(k_bacteria)),
+                                         SCAFFOLD_INIT_A))
+
     for k_bacteria in range(n_bacteria_2):
-        bacterial_agents.append(Bacteria('bacteria_2_%s' %(str(k_bacteria)),
-                                         'wwwww', [0.0, 1.0, 0.0, 0.0, 0.0]))
+        bacterial_agents.append(Bacteria('bacteria_W_%s' %(str(k_bacteria)),
+                                         SCAFFOLD_INIT_W))
 
     force_ = RandomMutator('bacterial_drift')
     force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.1,
@@ -61,7 +94,7 @@ def main(args):
                           {'increment' : 1.0})
     force_.set_force_func('molecule_C', 'force_func_delta', 0.05,
                           {'increment' : 1.0})
-    force_.set_force_func('surface_profile', 'force_func_flip_one_char', 0.5,
+    force_.set_force_func('surface_profile', 'force_func_flip_one_char', 0.05,
                           {'alphabet' : ['a', 'w']})
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
@@ -70,7 +103,8 @@ def main(args):
 
     cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
 
-    for k in range(100):
+    for k in range(1000):
+        print ('MNBMNBMNB', k)
         for bacteria, env in cell_space:
             print ('PING')
             print ('PING')
@@ -81,7 +115,11 @@ def main(args):
             print ('PING', bacteria.agent_id_system)
             print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
             print ('Before', bacteria.scaffold)
-            bacteria()
+            ret = bacteria()
+            if not ret:
+                print ('death!')
+                continue
+
             print ('After', bacteria.scaffold)
             print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
             print ('ZZZZZ', [n.agent_content for n in cell_space.agents_graph.nodes])
