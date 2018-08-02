@@ -5,9 +5,10 @@ import sys
 import argparse
 import random
 
+from infection.beaker_simulator import BeakerSimulator
 from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
-from core.naturallaw import RandomMutator 
+from core.naturallaw import RandomMutator, ObjectForce 
 
 SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
                    'molecule_A' : 1.0,
@@ -90,42 +91,49 @@ def main(args):
         bacterial_agents.append(Bacteria('bacteria_W_%s' %(str(k_bacteria)),
                                          SCAFFOLD_INIT_W))
 
-    force_ = RandomMutator('bacterial_drift')
-    force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.05,
-                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('attacker', 'force_func_wiener_bounded', 0.05,
-                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('trusting', 'force_func_wiener_bounded', 0.05,
-                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('generosity_mag', 'force_func_wiener_bounded', 0.05,
-                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('attack_mag', 'force_func_wiener_bounded', 0.05,
-                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('trusting_mag', 'force_func_wiener_bounded', 0.05,
-                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('molecule_A', 'force_func_delta', 0.05,
-                          {'increment' : 1.0})
-    force_.set_force_func('molecule_B', 'force_func_delta', 0.05,
-                          {'increment' : 1.0})
-    force_.set_force_func('molecule_C', 'force_func_delta', 0.05,
-                          {'increment' : 1.0})
-    force_.set_force_func('surface_profile', 'force_func_flip_one_char', 0.01,
-                          {'alphabet' : ['a', 'w']})
+    force = RandomMutator('bacterial_drift')
+    force.set_force_func('generosity', 'force_func_wiener_bounded', 0.05,
+                         {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force.set_force_func('attacker', 'force_func_wiener_bounded', 0.05,
+                         {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force.set_force_func('trusting', 'force_func_wiener_bounded', 0.05,
+                         {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force.set_force_func('generosity_mag', 'force_func_wiener_bounded', 0.05,
+                         {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force.set_force_func('attack_mag', 'force_func_wiener_bounded', 0.05,
+                         {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force.set_force_func('trusting_mag', 'force_func_wiener_bounded', 0.05,
+                         {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force.set_force_func('molecule_A', 'force_func_delta', 0.05,
+                         {'increment' : 1.0})
+    force.set_force_func('molecule_B', 'force_func_delta', 0.05,
+                         {'increment' : 1.0})
+    force.set_force_func('molecule_C', 'force_func_delta', 0.05,
+                         {'increment' : 1.0})
+    force.set_force_func('surface_profile', 'force_func_flip_one_char', 0.01,
+                         {'alphabet' : ['a', 'w']})
 
     extracellular = ExtracellEnvironment('extracellular_fluid', SCAFFOLD_ENV)
 
-    age_force_ = ObjectForce('environmental_time')
-    age_force_.set_force_func('molecule_A', 'force_func_exponential_decay',
-                              {'loss' : 0.5})
-    age_force_.set_force_func('molecule_B', 'force_func_exponential_decay',
-                              {'loss' : 0.5})
-    age_force_.set_force_func('molecule_C', 'force_func_exponential_decay',
-                              {'loss' : 0.5})
-    age_force_.set_force_func('poison', 'force_func_exponential_decay',
-                              {'loss' : 0.5})
+    age_force = ObjectForce('environmental_time')
+    age_force.set_force_func('molecule_A', 'force_func_exponential_decay',
+                             {'loss' : 0.5})
+    age_force.set_force_func('molecule_B', 'force_func_exponential_decay',
+                             {'loss' : 0.5})
+    age_force.set_force_func('molecule_C', 'force_func_exponential_decay',
+                             {'loss' : 0.5})
+    age_force.set_force_func('poison', 'force_func_exponential_decay',
+                             {'loss' : 0.5})
 
     cell_space = Goo('cell_space', bacterial_agents, extracellular,
                      cell_length, newborn_compete)
+
+    simulator = BeakerSimulator(1000, 100, 'dummy.csv',
+                                ['scaffold_molecule_A','scaffold_trusting']) 
+
+    simulator(cell_space, force, age_force)
+
+    raise Exception('dummy')
 
     for k in range(10000):
         print ('MNBMNBMNB', k)

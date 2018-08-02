@@ -7,7 +7,7 @@ class BeakerSimulator(Runner):
     '''Bla bla
 
     '''
-    def __call__(self, system):
+    def __call__(self, system, agent_mutator, aux_objectforce):
         '''Bla bla
 
         '''
@@ -22,18 +22,19 @@ class BeakerSimulator(Runner):
                     agent_survived = agent()
 
                 if agent_survived:
-                    self.agent_mutator(agent)
+                    agent_mutator(agent)
 
             for agent, aux_object in system:
 
-                self.aux_objectforce(aux_object) 
+                aux_objectforce(aux_object) 
 
             if self.time_to_sample(k_iter):
                 self.write_state_of_(system)
 
-    def __init__(self, n_iter, n_sample_steps, sample_file_name, agent_mutator, aux_objectforce):
+    def __init__(self, n_iter, n_sample_steps, sample_file_name,
+                 imprint_sample):
 
-        super.__init__(n_iter, n_sample_steps, sample_file_name)
+        super().__init__(n_iter, n_sample_steps, sample_file_name, imprint_sample)
 
 
 
