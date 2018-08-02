@@ -118,6 +118,8 @@ class Goo(AgentManagementSystem):
         '''
         if do_it:
 
+            split_failed = False
+
             #
             # Obtain an empty neighbouring node, if available. If not available
             # take any neighbouring node.
@@ -126,34 +128,24 @@ class Goo(AgentManagementSystem):
             empty_nodes = [x for x in neighbours if x.agent_content is None]
             if len(empty_nodes) > 0:
                 node_to_populate = random.choice(empty_nodes)
-                print ('POP1')
-                uuuuu=False
 
             else:
-                print ('POP2', self.agents_in_scope)
-                uuuuu=True
-                node_to_populate = random.choice(list(neighbours))
-                del self[node_to_populate.agent_content.agent_id_system]
+                if random.random() < self.newborn_compete:
+                    node_to_populate = random.choice(list(neighbours))
+                    del self[node_to_populate.agent_content.agent_id_system]
+
+                else:
+                    split_failed = True
 
             #
             # Create agent child and add to system and node selected above
             #
-            print ('POP3', self.agents_in_scope)
-            print ('POPA', node_to_populate.agent_content) 
-            print ('POPB', self.agents_graph[agent_index].agent_content)
-            parent_agent = self.agents_graph[agent_index].agent_content
-            agent_child = parent_agent.__class__('bacteria_child', parent_agent.scaffold)
-            agent_child.set_organ_bulk(self.make_affordances())
-            # ADD ADDITION TO AGENT_MS
-#            agent_child = copy.deepcopy(self.agents_graph[agent_index].agent_content) 
-            self.situate(agent_child, node_to_populate)
-            print ('POPC', agent_child)
-            print ('POPD', dir(agent_child))
-
-            print ('POP4', self.agents_in_scope)
-
-          #  if uuuuu:
-          #      raise Exception('shart')
+            if not split_failed:
+                print ('new_addition')
+                parent_agent = self.agents_graph[agent_index].agent_content
+                agent_child = parent_agent.__class__('bacteria_child', parent_agent.scaffold)
+                agent_child.set_organ_bulk(self.make_affordances())
+                self.situate(agent_child, node_to_populate)
 
         else:
             pass
@@ -170,6 +162,7 @@ class Goo(AgentManagementSystem):
 
         '''
         if do_it:
+            print ('death')
             del self[agent_index]
 
         else:
@@ -203,7 +196,8 @@ class Goo(AgentManagementSystem):
 
         return organs
 
-    def __init__(self, name, beaker_length, bacterial_agents, env_object):
+    def __init__(self, name, bacterial_agents, env_object, beaker_length,
+                 newborn_compete):
 
         #
         # Create agent graph as cubic grid and initialize base agent management
@@ -213,6 +207,11 @@ class Goo(AgentManagementSystem):
         matrix_size = len(matrix)
 
         super().__init__(name, bacterial_agents, matrix)
+
+        #
+        # Special constants of the bacterial goo
+        #
+        self.newborn_compete = newborn_compete
 
         #
         # Assign content to the nodes of the grid

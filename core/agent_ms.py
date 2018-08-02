@@ -246,6 +246,12 @@ class AgentManagementSystem(object):
         for agent in agents:
             self.bookkeep(agent)
 
+        #
+        # The Agent system can itself have natural constants. These are
+        # assigned in child classes, the container declared here.
+        #
+        self.system_constants = {}
+
 class AgentSystemSummarizer(object):
     '''Bla bla
 

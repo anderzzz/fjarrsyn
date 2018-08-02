@@ -57,18 +57,24 @@ def parse_(argv):
                         default='10',
                         help='Number of grid points along any one dimension ' + \
                              'of the cubic grid of the cell space')
+    parser.add_argument('--newborn-compete',
+                        dest='newborn_compete',
+                        default='0.25',
+                        help='In case no empty spot available, how likely ' + \
+                             'a newborn bacteria can push away established one')
 
     args = parser.parse_args(argv)
 
     n_bacteria_1 = int(args.n_bacteria_1)
     n_bacteria_2 = int(args.n_bacteria_2)
     cell_length = int(args.cell_length)
+    newborn_compete = float(args.newborn_compete)
 
-    return n_bacteria_1, n_bacteria_2, cell_length
+    return n_bacteria_1, n_bacteria_2, cell_length, newborn_compete
 
 def main(args):
 
-    n_bacteria_1, n_bacteria_2, cell_length = parse_(args)
+    n_bacteria_1, n_bacteria_2, cell_length, newborn_compete = parse_(args)
 
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
@@ -80,13 +86,17 @@ def main(args):
                                          SCAFFOLD_INIT_W))
 
     force_ = RandomMutator('bacterial_drift')
-    force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.1,
+    force_.set_force_func('generosity', 'force_func_wiener_bounded', 0.05,
                           {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('attacker', 'force_func_wiener_bounded', 0.1,
+    force_.set_force_func('attacker', 'force_func_wiener_bounded', 0.05,
                           {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('generosity_mag', 'force_func_wiener_bounded', 0.1,
+    force_.set_force_func('trusting', 'force_func_wiener_bounded', 0.05,
                           {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force_.set_force_func('attack_mag', 'force_func_wiener_bounded', 0.1,
+    force_.set_force_func('generosity_mag', 'force_func_wiener_bounded', 0.05,
+                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force_.set_force_func('attack_mag', 'force_func_wiener_bounded', 0.05,
+                          {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+    force_.set_force_func('trusting_mag', 'force_func_wiener_bounded', 0.05,
                           {'std' : 0.1, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
     force_.set_force_func('molecule_A', 'force_func_delta', 0.05,
                           {'increment' : 1.0})
@@ -94,14 +104,15 @@ def main(args):
                           {'increment' : 1.0})
     force_.set_force_func('molecule_C', 'force_func_delta', 0.05,
                           {'increment' : 1.0})
-    force_.set_force_func('surface_profile', 'force_func_flip_one_char', 0.05,
+    force_.set_force_func('surface_profile', 'force_func_flip_one_char', 0.01,
                           {'alphabet' : ['a', 'w']})
 
     extracellular = ExtracellEnvironment('extracellular_fluid',
                               {'molecule_A' : 0.1, 'molecule_B' : 0.1,
                                'molecule_C' : 0.1, 'poison' : 0.0})
 
-    cell_space = Goo('cell_space', 2, bacterial_agents, extracellular)
+    cell_space = Goo('cell_space', bacterial_agents, extracellular,
+                     cell_length, newborn_compete)
 
     for k in range(1000):
         print ('MNBMNBMNB', k)
