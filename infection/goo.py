@@ -68,12 +68,12 @@ class Goo(AgentManagementSystem):
 
         node_with_agent = self.agents_graph[agent_index]
         environment = node_with_agent.aux_content
-        molecules = environment.molecule_content 
+        molecules = environment.scaffold
 
         for molecule_name, molecule_amount in molecules.items():
             gulped_amount = how_much * float(molecule_amount)
             remaining_amount = float(molecule_amount) - gulped_amount
-            environment.molecule_content[molecule_name] = remaining_amount
+            environment.scaffold[molecule_name] = remaining_amount
 
             reaction.set_force_func(molecule_name, 'force_func_delta', 
                                     {'increment' : gulped_amount})
@@ -99,9 +99,9 @@ class Goo(AgentManagementSystem):
         for neighbour_node in neighbour_nodes:
             environment = neighbour_node.aux_content
             for molecule, dx in dx_molecules_poison.items():
-                x = environment.molecule_content[molecule] 
+                x = environment.scaffold[molecule] 
                 x_new = x + dx / float(n_neighbours)
-                environment.molecule_content[molecule] = x_new 
+                environment.scaffold[molecule] = x_new 
 
     def _act_new_cell_into_matrix(self, agent_index, do_it):
         '''Actuator method to duplicate an agent and add its child to the agent

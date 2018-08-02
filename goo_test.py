@@ -41,6 +41,11 @@ SCAFFOLD_INIT_W = {'surface_profile' : 'wwwww',
                    'trusting_mag' : 0.5,
                    'split_thrs' : 0.9}
 
+SCAFFOLD_ENV = {'molecule_A' : 0.1,
+                'molecule_B' : 0.1,
+                'molecule_C' : 0.1,
+                'poison' : 0.0}
+
 def parse_(argv):
 
     parser = argparse.ArgumentParser()
@@ -107,14 +112,22 @@ def main(args):
     force_.set_force_func('surface_profile', 'force_func_flip_one_char', 0.01,
                           {'alphabet' : ['a', 'w']})
 
-    extracellular = ExtracellEnvironment('extracellular_fluid',
-                              {'molecule_A' : 0.1, 'molecule_B' : 0.1,
-                               'molecule_C' : 0.1, 'poison' : 0.0})
+    extracellular = ExtracellEnvironment('extracellular_fluid', SCAFFOLD_ENV)
+
+    age_force_ = ObjectForce('environmental_time')
+    age_force_.set_force_func('molecule_A', 'force_func_exponential_decay',
+                              {'loss' : 0.5})
+    age_force_.set_force_func('molecule_B', 'force_func_exponential_decay',
+                              {'loss' : 0.5})
+    age_force_.set_force_func('molecule_C', 'force_func_exponential_decay',
+                              {'loss' : 0.5})
+    age_force_.set_force_func('poison', 'force_func_exponential_decay',
+                              {'loss' : 0.5})
 
     cell_space = Goo('cell_space', bacterial_agents, extracellular,
                      cell_length, newborn_compete)
 
-    for k in range(1000):
+    for k in range(10000):
         print ('MNBMNBMNB', k)
         for bacteria, env in cell_space:
             print ('PING')
@@ -133,7 +146,7 @@ def main(args):
 
             print ('After', bacteria.scaffold)
             print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
-            print ('ZZZZZ', [n.agent_content for n in cell_space.agents_graph.nodes])
+            print ('ZZZZZ', len([n.agent_content for n in cell_space.agents_graph.nodes if not n.agent_content is None]))
             force_(bacteria)
             print ('Mutated', bacteria.scaffold)
     raise Exception('dummy')

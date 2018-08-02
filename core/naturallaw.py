@@ -126,7 +126,7 @@ class ObjectForce(object):
                 new_value = force.function(old_value, **force.kwargs)
                 agent.scaffold[scaffold_name] = new_value
 
-            elif force_scaffold_overlap:
+            elif self.force_scaffold_overlap:
                 raise RuntimeError('The object force for scaffold %s ' %(scaffold_name) + \
                                    'not matched to any scaffold of agent')
 
@@ -134,7 +134,7 @@ class ObjectForce(object):
 
         self.name = name 
         self.scaffold_force_func = {}
-
+        self.force_scaffold_overlap = force_scaffold_overlap
         self.forcefunctions = _ForceFunctions()
 
 class _ForceFunctions(object):

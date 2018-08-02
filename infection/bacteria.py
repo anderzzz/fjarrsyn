@@ -87,7 +87,7 @@ class ExtracellEnvironment(object):
     '''Bla bla
 
     '''
-    def __init__(self, name, molecules):
+    def __init__(self, name, scaffold_init):
 
         self.name = name 
-        self.molecule_content = molecules
+        self.scaffold = scaffold_init
