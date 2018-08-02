@@ -143,6 +143,19 @@ class Agent(object):
         else:
             raise TypeError('Unknown organ type: %s' %str(type(organ)))
 
+    def set_organ_bulk(self, organs):
+        '''Add organs to the agent
+
+        Parameters
+        ----------
+        organs
+            Container of elements of the organ class instance to add to 
+            the agent in bulk. The organ must be one of the known organ classes
+
+        '''
+        for organ in organs:
+            self.set_organ(organ)
+
     def tickle(self, itch):
         '''Method to tickle the cortex of the agent
 
@@ -382,7 +395,7 @@ class Agent(object):
         defined in specific classes that uses the present class as parent.
 
         '''
-        raise RuntimeError('Basic Agent class has not executive function. ' + \
+        raise RuntimeError('Basic Agent class has no executive function. ' + \
                            'That should be implemented in specific agent classes.')
 
     def __init__(self, name):

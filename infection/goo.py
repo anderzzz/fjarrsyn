@@ -143,10 +143,10 @@ class Goo(AgentManagementSystem):
             print ('POPB', self.agents_graph[agent_index].agent_content)
             parent_agent = self.agents_graph[agent_index].agent_content
             agent_child = parent_agent.__class__('bacteria_child', parent_agent.scaffold)
+            agent_child.set_organ_bulk(self.make_affordances())
             # ADD ADDITION TO AGENT_MS
 #            agent_child = copy.deepcopy(self.agents_graph[agent_index].agent_content) 
-            self.append(agent_child)
-            node_to_populate.agent_content = agent_child
+            self.situate(agent_child, node_to_populate)
             print ('POPC', agent_child)
             print ('POPD', dir(agent_child))
 
@@ -174,6 +174,34 @@ class Goo(AgentManagementSystem):
 
         else:
             pass
+
+    def make_affordances(self):
+        '''Bla bla
+
+        '''
+        organs = []
+        organs.append(Actuator('molecules_to_environment',
+                               'share_molecules',
+                               self._act_add_molecules_to_env,
+                               ['dx_molecules_poison']))
+        organs.append(Actuator('agent_suicide',
+                               'contemplate_suicide',
+                               self._act_suicide,
+                               ['do_it']))
+        organs.append(Actuator('environment_gulper',
+                               'gulp_environment',
+                               self._act_gulp_my_environment,
+                               ['how_much']))
+        organs.append(Actuator('agent_splitter',
+                               'split_in_two',
+                               self._act_new_cell_into_matrix,
+                               ['do_it']))
+        organs.append(Sensor('random_neighbour_surface', 
+                             'neighbour_surface',
+                             self._sense_random_neighbour_surface,
+                             ['surface_profile', 'neighbour']))
+
+        return organs
 
     def __init__(self, name, beaker_length, bacterial_agents, env_object):
 
@@ -209,34 +237,5 @@ class Goo(AgentManagementSystem):
         # Equip agents with organs to interact with the World
         #
         for bacteria in bacterial_agents:
-            actuator = Actuator('molecules_to_environment',
-                                'share_molecules',
-                                self._act_add_molecules_to_env,
-                                ['dx_molecules_poison'])
-            bacteria.set_organ(actuator)
-
-            actuator = Actuator('agent_suicide',
-                                'contemplate_suicide',
-                                self._act_suicide,
-                                ['do_it']) 
-            bacteria.set_organ(actuator)
-
-            actuator = Actuator('environment_gulper',
-                                'gulp_environment',
-                                self._act_gulp_my_environment,
-                                ['how_much'])
-            bacteria.set_organ(actuator)
-
-            actuator = Actuator('agent_splitter',
-                                'split_in_two',
-                                self._act_new_cell_into_matrix,
-                                ['do_it'])
-            bacteria.set_organ(actuator)
-
-            sensor = Sensor('random_neighbour_surface', 
-                            'neighbour_surface',
-                            self._sense_random_neighbour_surface,
-                            ['surface_profile', 'neighbour'])
-            bacteria.set_organ(sensor)
-                                       
+            bacteria.set_organ_bulk(self.make_affordances()) 
 

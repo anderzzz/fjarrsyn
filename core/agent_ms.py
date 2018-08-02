@@ -188,33 +188,39 @@ class AgentManagementSystem(object):
 
         del self.agents_in_scope[key]
 
-    def append(self, agent):
-        '''Append an agent to the system. This assigns a new agent ID
+    def bookkeep(self, agent):
+        '''Add an agent to the book keeping of the agent management system
 
         Parameters
         ----------
         agent : Agent
-            Agent to append to system
+            Agent to add to system
 
         '''
         if not isinstance(agent, Agent):
             raise TypeError('Only instances of the Agent class can be ' + \
-                            'appended to an Agent System')
+                            'in Agent System book keeping')
 
         agent.agent_id_system = str(uuid4())
         self.agents_in_scope[agent.agent_id_system] = agent
 
+    def situate(self, agent, node):
+        '''Join an agent to a node and add it to the system book keeping
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent to add to system
+        node : Node
+            Node of graph in which to situate the agent to
+
+        '''
+        self.bookkeep(agent)
+        node.agent_content = agent
+
     def __init__(self, name, agents, full_agents_graph=None):
 
         self.name = name
-
-        #
-        # Agents in scope are put into an ordered dictionary keyed on a random
-        # and unique string identifier.
-        #
-        self.agents_in_scope = OrderedDict() 
-        for agent in agents:
-            self.append(agent)
 
         #
         # The agent to agent network relation is defined, which is a complete
@@ -232,6 +238,13 @@ class AgentManagementSystem(object):
             else:
                 raise TypeError('Agent Management System given graph not ' + \
                                 'of the Graph class')
+
+        #
+        # The agents are added to the system book keeping
+        #
+        self.agents_in_scope = OrderedDict()
+        for agent in agents:
+            self.bookkeep(agent)
 
 class AgentSystemSummarizer(object):
     '''Bla bla
