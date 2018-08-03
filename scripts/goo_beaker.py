@@ -12,7 +12,7 @@ from core.naturallaw import RandomMutator, ObjectForce
 from simulator.runner import FiniteSystemRunner
 
 SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
-                   'molecule_A' : 1.0,
+                   'molecule_A' : 0.0,
                    'molecule_B' : 0.0,
                    'molecule_C' : 0.0,
                    'poison' : 0.0,
@@ -29,7 +29,7 @@ SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
 
 SCAFFOLD_INIT_W = {'surface_profile' : 'wwwww',
                    'molecule_A' : 0.0,
-                   'molecule_B' : 1.0,
+                   'molecule_B' : 0.0,
                    'molecule_C' : 0.0,
                    'poison' : 0.0,
                    'poison_vacuole' : 0.0,
@@ -43,27 +43,37 @@ SCAFFOLD_INIT_W = {'surface_profile' : 'wwwww',
                    'trusting_mag' : 0.5,
                    'split_thrs' : 0.9}
 
-SCAFFOLD_ENV = {'molecule_A' : 0.1,
-                'molecule_B' : 0.1,
-                'molecule_C' : 0.1,
-                'poison' : 0.0}
-
 def parse_(argv):
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n-bacteria-1',
-                         dest='n_bacteria_1',
-                         default='4',
-                         help='Number of initial bacteria of type 1 in cell space')
-    parser.add_argument('--n-bacteria-2',
-                         dest='n_bacteria_2',
-                         default='4',
-                         help='Number of initial bacteria of type 2 in cell space')
-    parser.add_argument('--cell-length',
-                        dest='cell_length',
-                        default='10',
-                        help='Number of grid points along any one dimension ' + \
-                             'of the cubic grid of the cell space')
+
+    group_start = parser.add_argument_group('Initial System Setup')
+    group_start.add_argument('--n-bacteria-1',
+                             dest='n_bacteria_1',
+                             default='4',
+                             help='Number of initial bacteria of type 1 in cell space')
+    group_start.add_argument('--n-bacteria-2',
+                             dest='n_bacteria_2',
+                             default='4',
+                             help='Number of initial bacteria of type 2 in cell space')
+    group_start.add_argument('--cell-length',
+                             dest='cell_length',
+                             default='10',
+                             help='Number of grid points along any one dimension ' + \
+                                  'of the cubic grid of the cell space')
+    group_start.add_argument('--equilibrium-A-B-C',
+                             dest='equilibrium',
+                             default='0.1',
+                             help='Equilibrium content of molecules A, B and C ' + \
+                                  'in environment')
+
+    group_force = parser.add_argument_group('Object and Random Force Parameters')
+    group_force.add_argument('--env-equilibrate-frac',
+                             dest='env_loss',
+                             default='0.5',
+                             help='Fraction adjustment towards environmental ' + \
+                                  'equilibrium per time-step (0.0-1.0)')
+
     parser.add_argument('--newborn-compete',
                         dest='newborn_compete',
                         default='0.25',
@@ -75,13 +85,18 @@ def parse_(argv):
     n_bacteria_1 = int(args.n_bacteria_1)
     n_bacteria_2 = int(args.n_bacteria_2)
     cell_length = int(args.cell_length)
+    equilibrium_env = float(args.equilibrium)
+
+    env_loss = float(args.env_loss)
+
     newborn_compete = float(args.newborn_compete)
 
-    return n_bacteria_1, n_bacteria_2, cell_length, newborn_compete
+    return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, env_loss, newborn_compete
 
 def main(args):
 
-    n_bacteria_1, n_bacteria_2, cell_length, newborn_compete = parse_(args)
+    n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
+        env_loss, newborn_compete = parse_(args)
 
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
@@ -114,17 +129,21 @@ def main(args):
     force.set_force_func('surface_profile', 'force_func_flip_one_char', 0.01,
                          {'alphabet' : ['a', 'w']})
 
+    SCAFFOLD_ENV = {'molecule_A' : equilibrium_env,
+                    'molecule_B' : equilibrium_env,
+                    'molecule_C' : equilibrium_env,
+                    'poison' : 0.0}
     extracellular = ExtracellEnvironment('extracellular_fluid', SCAFFOLD_ENV)
 
     age_force = ObjectForce('environmental_time')
-    age_force.set_force_func('molecule_A', 'force_func_exponential_decay',
-                             {'loss' : 0.5})
-    age_force.set_force_func('molecule_B', 'force_func_exponential_decay',
-                             {'loss' : 0.5})
-    age_force.set_force_func('molecule_C', 'force_func_exponential_decay',
-                             {'loss' : 0.5})
-    age_force.set_force_func('poison', 'force_func_exponential_decay',
-                             {'loss' : 0.5})
+    age_force.set_force_func('molecule_A', 'force_func_exponential_convergence',
+                             {'loss' : env_loss, 'target' : equilibrium_env})
+    age_force.set_force_func('molecule_B', 'force_func_exponential_convergence',
+                             {'loss' : env_loss, 'target' : equilibrium_env})
+    age_force.set_force_func('molecule_C', 'force_func_exponential_convergence',
+                             {'loss' : env_loss, 'target' : equilibrium_env})
+    age_force.set_force_func('poison', 'force_func_exponential_convergence',
+                             {'loss' : env_loss, 'target' : 0.0})
 
     cell_space = Goo('cell_space', bacterial_agents, extracellular,
                      cell_length, newborn_compete)
@@ -135,46 +154,6 @@ def main(args):
                                    system_propagator=propagator,
                                    graph_file_name='graph.csv')
     simulator(cell_space)
-
-    raise Exception('dummy')
-
-    for k in range(10000):
-        print ('MNBMNBMNB', k)
-        for bacteria, env in cell_space:
-            print ('PING')
-            print ('PING')
-            # WRITE OVER AGENT WHILE RUNNING BUG
-            if bacteria is None:
-                continue
-
-            print ('PING', bacteria.agent_id_system)
-            print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
-            print ('Before', bacteria.scaffold)
-            ret = bacteria()
-            if not ret:
-                print ('death!')
-                continue
-
-            print ('After', bacteria.scaffold)
-            print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
-            print ('ZZZZZ', len([n.agent_content for n in cell_space.agents_graph.nodes if not n.agent_content is None]))
-            force_(bacteria)
-            print ('Mutated', bacteria.scaffold)
-    raise Exception('dummy')
-
-    #raise Exception('dummy')
-    print ('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-    for bacteria in cell_space.shuffle_agents(4):
-        print ('PING')
-        print ('PING')
-        print ('PING', bacteria.agent_id_system)
-        print (cell_space.agents_graph[bacteria.agent_id_system])
-        print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
-        print (bacteria.scaffold)
-        bacteria()
-        print (bacteria.scaffold)
-        print (cell_space.agents_graph[bacteria.agent_id_system].aux_content.molecule_content)
-        print ('ZZZZZ', [n.agent_content for n in cell_space.agents_graph.nodes])
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
