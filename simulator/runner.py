@@ -5,6 +5,8 @@ the system. The classes contain standard sampling methods.
 import csv
 import pandas as pd
 
+from core.agent_ms import AgentManagementSystem
+
 class FiniteSystemRunner(object):
     '''Class to create an object that runs a simulation of an agent system
     using a system specific propagator. The class handles sampling of data at

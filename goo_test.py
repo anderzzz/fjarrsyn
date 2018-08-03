@@ -130,7 +130,7 @@ def main(args):
                      cell_length, newborn_compete)
 
     propagator = BeakerPropagator(force, age_force)
-    simulator = FiniteSystemRunner(1000, n_sample_steps=100,
+    simulator = FiniteSystemRunner(10000, n_sample_steps=500,
                                    imprints_sample=['scaffold_molecule_A', 'scaffold_trusting'],
                                    system_propagator=propagator,
                                    graph_file_name='graph.csv')
