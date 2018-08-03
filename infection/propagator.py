@@ -14,7 +14,6 @@ class BeakerPropagator(object):
         '''
         for agent, aux_object in system:
 
-            print (agent)
             if not agent is None:
 
                 agent_survived = agent()
