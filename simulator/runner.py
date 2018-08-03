@@ -3,7 +3,7 @@
 '''
 import csv
 
-class Runner(object):
+class FiniteSystemRunner(object):
     '''Bla bla
 
     '''
@@ -32,23 +32,54 @@ class Runner(object):
 
         self.write_count += 1
 
+    def write_graph_state(self, system):
+        '''Bla bla
+
+        '''
+        pass
+
     def time_to_sample(self, k_iter):
         '''Bla bla
 
         '''
-        return (k_iter % self.n_sample_steps) == 0
+        if self.n_sample_steps < 0:
+            return False
+        else:
+            return (k_iter % self.n_sample_steps) == 0
 
-    def __init__(self, n_iter, n_sample_steps, sample_file_name,
-                 imprints_sample):
+    def __call__(self, system):
+        '''Bla bla
+
+        '''
+        for k_iter in range(self.n_iter):
+
+            self.propagate_(system, **self.propagate_kwargs)
+
+            if self.time_to_sample(k_iter):
+                self.write_state_of_(system)
+
+    def __init__(self, n_iter, 
+                 n_sample_steps=-1, sample_file_name='sample.csv',
+                 imprints_sample=[], 
+                 graph_file_name='graph.csv', 
+                 system_propagator=None, system_propagator_kwargs={}):
 
         self.n_iter = n_iter
         self.n_sample_steps = n_sample_steps
 
         self.sample_file_name = sample_file_name
-        self.file_handle = open(self.sample_file_name, 'w')
-        fieldnames = ['agent_id'] + ['write_count'] + imprints_sample
-        self.writer = csv.DictWriter(self.file_handle, 
-                                     fieldnames=fieldnames,
-                                     extrasaction='ignore')
-        self.writer.writeheader()
+        self.graph_file_name = graph_file_name
         self.write_count = 0
+        if not self.n_sample_steps < 0:
+            self.file_handle = open(self.sample_file_name, 'w')
+            fieldnames = ['agent_id'] + ['write_count'] + imprints_sample
+            self.writer = csv.DictWriter(self.file_handle, 
+                                         fieldnames=fieldnames,
+                                         extrasaction='ignore')
+            self.writer.writeheader()
+
+            self.graph_handle = open(self.graph_file_name, 'w')
+            # ADD GRAPH CSV PRINTER
+
+        self.propagate_ = system_propagator
+        self.propagate_kwargs = system_propagator_kwargs

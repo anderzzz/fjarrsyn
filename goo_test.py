@@ -5,10 +5,11 @@ import sys
 import argparse
 import random
 
-from infection.beaker_simulator import BeakerSimulator
+from infection.propagator import BeakerPropagator
 from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
 from core.naturallaw import RandomMutator, ObjectForce 
+from simulator.runner import FiniteSystemRunner
 
 SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
                    'molecule_A' : 1.0,
@@ -128,10 +129,11 @@ def main(args):
     cell_space = Goo('cell_space', bacterial_agents, extracellular,
                      cell_length, newborn_compete)
 
-    simulator = BeakerSimulator(1000, 100, 'dummy.csv',
-                                ['scaffold_molecule_A','scaffold_trusting']) 
-
-    simulator(cell_space, force, age_force)
+    propagator = BeakerPropagator(force, age_force)
+    simulator = FiniteSystemRunner(10000, n_sample_steps=-1,
+                                   imprints_sample=['scaffold_molecule_A', 'scaffold_trusting'],
+                                   system_propagator=propagator)
+    simulator(cell_space)
 
     raise Exception('dummy')
 

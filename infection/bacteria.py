@@ -20,13 +20,17 @@ class Bacteria(Agent):
         plan and experiences an object force
 
         '''
+        print ('+++++++++', self.agent_id_system)
+        print ('bb1',self.scaffold)
         # Ascertain if there is a neighbour and how similar it is
         self.perceive('neighbour_surface', 'similar_hood')
         if not self.belief['my_neighbour'] is None:
             self.engage('share_molecules')
 
+        print ('bb2',self.scaffold)
         # Gulp molecules from the nearby environment
         self.engage('gulp_environment')
+        print ('bb3',self.scaffold)
 
         # Contemplate suicide
         self.engage('contemplate_suicide')
@@ -35,9 +39,11 @@ class Bacteria(Agent):
 
         # Make poison. Internal action only, hence no actuator employed
         self.mould('make_poison')
+        print ('bb4',self.scaffold)
 
         # Determine if to split in two
         self.engage('split_in_two')
+        print ('bb5',self.scaffold)
 
         return True
 
