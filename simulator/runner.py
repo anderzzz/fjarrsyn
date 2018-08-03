@@ -2,6 +2,7 @@
 
 '''
 import csv
+import pandas as pd
 
 class FiniteSystemRunner(object):
     '''Bla bla
@@ -30,13 +31,29 @@ class FiniteSystemRunner(object):
             
             self.writer.writerow(data_dict)
 
-        self.write_count += 1
-
-    def write_graph_state(self, system):
+    def write_graph_state_of_(self, system):
         '''Bla bla
 
         '''
-        pass
+        adjacency_data = system.agents_graph.get_adjacency_list()
+        agents1 = []
+        agents2 = []
+        for index, row in adjacency_data.iteritems():
+            agent_ind = (not row[0].agent_content is None, 
+                         not row[1].agent_content is None)
+            if all(agent_ind):
+                agents1.append(row[0].agent_content.agent_id_system)
+                agents2.append(row[1].agent_content.agent_id_system)
+            elif agent_ind[0]:
+                agents1.append(row[0].agent_content.agent_id_system)
+                agents2.append(None)
+            elif agent_ind[1]:
+                agents1.append(None)
+                agents2.append(row[1].agent_content.agent_id_system)
+
+        df = pd.DataFrame({'agent_1':agents1, 'agent_2':agents2,
+                           'write_count': str(self.write_count)})
+        df.to_csv(self.graph_handle, header=False, index=False, mode='a')
 
     def time_to_sample(self, k_iter):
         '''Bla bla
@@ -58,10 +75,15 @@ class FiniteSystemRunner(object):
             if self.time_to_sample(k_iter):
                 self.write_state_of_(system)
 
+                if not self.graph_file_name is None:
+                    self.write_graph_state_of_(system)
+
+                self.write_count += 1
+
     def __init__(self, n_iter, 
                  n_sample_steps=-1, sample_file_name='sample.csv',
                  imprints_sample=[], 
-                 graph_file_name='graph.csv', 
+                 graph_file_name=None, 
                  system_propagator=None, system_propagator_kwargs={}):
 
         self.n_iter = n_iter
@@ -78,8 +100,9 @@ class FiniteSystemRunner(object):
                                          extrasaction='ignore')
             self.writer.writeheader()
 
-            self.graph_handle = open(self.graph_file_name, 'w')
-            # ADD GRAPH CSV PRINTER
+            if not self.graph_file_name is None:
+                self.graph_handle = open(self.graph_file_name, 'w')
+                self.graph_handle.write('agent_1,agent_2,write_count\n')
 
         self.propagate_ = system_propagator
         self.propagate_kwargs = system_propagator_kwargs

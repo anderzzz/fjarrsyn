@@ -63,14 +63,15 @@ class AgentManagementSystem(object):
 
         return set(ret_neighbours)
             
-    def shuffle_agents(self, max_iter):
-        '''Iterator over agents in system in random order. 
+    def shuffle_iter(self, max_iter):
+        '''Iterator over node content in system in random order. 
 
         Notes
         -----
         The element is generated in each iteration from the current set of
-        agents in scope. Therefore, this iterator is stable to additions or
-        deletions of agents of the system during the iteration.
+        nodes. Therefore, this iterator is stable to additions or
+        deletions of nodes or agents contained in nodes of the system 
+        during the iteration.
 
         Parameters
         ----------
@@ -80,13 +81,15 @@ class AgentManagementSystem(object):
 
         Yields
         ------
-        entry : Agent
-            Random agent from the system
+        agent_content : Agent
+            Agent of node. Is `None` in case no agent occupies the node
+        aux_content 
+            Any auxiliary content of the node
 
         Raises
         ------
         StopIteration
-            In case the system is void of agents
+            In case the system is void of nodes
 
         '''
         def _terminator(counter):
@@ -99,13 +102,13 @@ class AgentManagementSystem(object):
         while _terminator(counter): 
             counter += 1
 
-            if len(self.agents_in_scope.values()) > 0:
-                entry = random.choice(list(self.agents_in_scope.values()))
+            if len(self.agents_graph.nodes) > 0:
+                entry = random.choice(self.agents_graph.nodes)
 
             else:
-                raise StopIteration('No agents left in system')
+                raise StopIteration('No nodes left in system')
 
-            yield entry
+            yield entry.agent_content, entry.aux_content
 
     def __len__(self):
 
