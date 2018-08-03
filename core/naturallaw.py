@@ -174,18 +174,17 @@ class _ForceFunctions(object):
         '''Bla bla
 
         '''
+        return self.force_func_exponential_convergence(old_value, loss, 0.0) 
+
+    def force_func_exponential_convergence(self, old_value, loss, target):
+        '''Bla bla
+
+        '''
         if loss > 1.0 or loss < 0.0:
             raise ValueError('The loss factor should be between 0.0 and 1.0, ' + \
                              'not %s' %(str(loss)))
 
-        new_value = old_value * loss
-        return new_value
-
-    def force_func_noisy_exponential_decay(self, old_value, loss_mu, loss_std):
-        '''Bla bla
-
-        '''
-        raise NotImplementedError('Noisy exponential decay not implemented yet') 
+        return target + loss * (old_value - target) 
 
     def force_func_flip_one_char(self, old_value, alphabet, selector=None):
         '''Bla bla
