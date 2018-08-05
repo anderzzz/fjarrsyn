@@ -1,9 +1,16 @@
 '''Specific objects, agents included, for the infection scenario
 
 '''
+import logging
+
 from core.agent import Agent
 from core.organs import Interpreter, Moulder, Cortex
 from infection.bacteria_brain import BacteriaBrain
+
+def pretty_print(dd):
+    l = ['(%s : %s)' %(key, str(dd[key])) for key in sorted(dd.keys())]
+    j = ' ; '.join(l)
+    return j
 
 class Bacteria(Agent):
     '''Bla bla
@@ -20,30 +27,37 @@ class Bacteria(Agent):
         plan and experiences an object force
 
         '''
-        print ('+++++++++', self.agent_id_system)
-        print ('bb1',self.scaffold)
+        logging.debug('----> AGENT ID: %s' %(self.agent_id_system))
+        logging.debug('Scaffold upon entry')
+        logging.debug(pretty_print(self.scaffold))
         # Ascertain if there is a neighbour and how similar it is
         self.perceive('neighbour_surface', 'similar_hood')
         if not self.belief['my_neighbour'] is None:
             self.engage('share_molecules')
 
-        print ('bb2',self.scaffold)
+        logging.debug('Scaffold after sharing')
+        logging.debug(pretty_print(self.scaffold))
+
         # Gulp molecules from the nearby environment
         self.engage('gulp_environment')
-        print ('bb3',self.scaffold)
+        logging.debug('Scaffold after gulping')
+        logging.debug(pretty_print(self.scaffold))
 
         # Contemplate suicide
         self.engage('contemplate_suicide')
         if not self.hooked_up():
+            logging.debug('Agent death')
             return False
 
         # Make poison. Internal action only, hence no actuator employed
         self.mould('make_poison')
-        print ('bb4',self.scaffold)
+        logging.debug('Scaffold after making poison')
+        logging.debug(pretty_print(self.scaffold))
 
         # Determine if to split in two
         self.engage('split_in_two')
-        print ('bb5',self.scaffold)
+        logging.debug('Scaffold after attempted splitting')
+        logging.debug(pretty_print(self.scaffold))
 
         return True
 

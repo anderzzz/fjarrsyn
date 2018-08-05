@@ -141,7 +141,6 @@ class Goo(AgentManagementSystem):
             # Create agent child and add to system and node selected above
             #
             if not split_failed:
-                print ('new_addition')
                 parent_agent = self.agents_graph[agent_index].agent_content
                 agent_child = parent_agent.__class__('bacteria_child', parent_agent.scaffold)
                 agent_child.set_organ_bulk(self.make_affordances())
@@ -162,7 +161,6 @@ class Goo(AgentManagementSystem):
 
         '''
         if do_it:
-            print ('death')
             del self[agent_index]
 
         else:

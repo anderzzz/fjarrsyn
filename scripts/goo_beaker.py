@@ -3,7 +3,8 @@
 '''
 import sys
 import argparse
-import random
+import numpy.random
+import logging
 
 from infection.propagator import BeakerPropagator
 from infection.goo import Goo
@@ -127,6 +128,16 @@ def parse_(argv):
                                   default='',
                                   help='Comma-separated list of agent ' + \
                                        'features to sample')
+    group_simulation.add_argument('--seed',
+                                  dest='seed',
+                                  default='791204',
+                                  help='Random seed')
+
+    parser.add_argument('--debug',
+                        default=False,
+                        dest='debug_runner',
+                        action='store_true',
+                        help='Flag to activate debugger printing')
 
     args = parser.parse_args(argv)
 
@@ -149,18 +160,29 @@ def parse_(argv):
     sample_file_name = args.sample_file_name
     graph_file_name = args.graph_file_name
     sample_features = args.sample_features.split(',')
+    seed = int(args.seed)
+
+    debug_runner = args.debug_runner
 
     return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, env_loss, \
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
-           n_sample, sample_file_name, graph_file_name, sample_features
+           n_sample, sample_file_name, graph_file_name, sample_features, \
+           seed, debug_runner
 
 def main(args):
 
     n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
         env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
-        n_sample, sample_file_name, graph_file_name, sample_features = parse_(args)
+        n_sample, sample_file_name, graph_file_name, sample_features, \
+        seed, debug_runner = parse_(args)
+
+    numpy.random.seed(seed)
+
+    if debug_runner:
+        logging.basicConfig(filename='logger.log', filemode='w', 
+                            level=logging.DEBUG)
 
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
