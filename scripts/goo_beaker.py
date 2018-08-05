@@ -5,11 +5,11 @@ import sys
 import argparse
 import random
 
-from fjarrsyn.infection.propagator import BeakerPropagator
-from fjarrsyn.infection.goo import Goo
-from fjarrsyn.infection.bacteria import Bacteria, ExtracellEnvironment
-from fjarrsyn.core.naturallaw import RandomMutator, ObjectForce 
-from fjarrsyn.simulator.runner import FiniteSystemRunner
+from infection.propagator import BeakerPropagator
+from infection.goo import Goo
+from infection.bacteria import Bacteria, ExtracellEnvironment
+from core.naturallaw import RandomMutator, ObjectForce 
+from simulator.runner import FiniteSystemRunner
 
 SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
                    'molecule_A' : 0.0,
@@ -45,7 +45,10 @@ SCAFFOLD_INIT_W = {'surface_profile' : 'wwwww',
 
 def parse_(argv):
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Script to simulate a ' + \
+        'beaker of bacteria that divide to reproduce and which optionally ' + \
+        'can evolve strategies to be more fit. There can be two distinct ' + \
+        'seed populations, which are differentiated on a superficial feature.')
 
     group_start = parser.add_argument_group('Initial System Setup')
     group_start.add_argument('--n-bacteria-1',
@@ -96,12 +99,12 @@ def parse_(argv):
                              help='Chance of mutating surface of agent')
 
     group_assembly_dynamics = parser.add_argument_group('Assembly Dynamics Parameters')
-    group_assembly_dnamics.add_argument('--newborn-compete',
-                                        dest='newborn_compete',
-                                        default='0.25',
-                                        help='In event no empty node to grow ' + \
-                                        'into, how likely the newly born ' + \
-                                        'wins over incumbent')
+    group_assembly_dynamics.add_argument('--newborn-compete',
+                                         dest='newborn_compete',
+                                         default='0.25',
+                                         help='In event no empty node to grow ' + \
+                                         'into, how likely the newly born ' + \
+                                         'wins over incumbent')
 
     group_simulation = parser.add_argument_group('Simulation Parameters')
     group_simulation.add_argument('--n-steps',
@@ -117,8 +120,13 @@ def parse_(argv):
                                   help='File name of state sampling')
     group_simulation.add_argument('--graph-file-name',
                                   dest='graph_file_name',
-                                  default='grps.csv',
+                                  default='graph.csv',
                                   help='File name of graph sampling')
+    group_simulation.add_argument('--sample-features',
+                                  dest='sample_features',
+                                  default='',
+                                  help='Comma-separated list of agent ' + \
+                                       'features to sample')
 
     args = parser.parse_args(argv)
 
@@ -140,18 +148,19 @@ def parse_(argv):
     n_sample = int(args.n_sample)
     sample_file_name = args.sample_file_name
     graph_file_name = args.graph_file_name
+    sample_features = args.sample_features.split(',')
 
     return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, env_loss, \
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
-           n_sample, sample_file_name, graph_file_name
+           n_sample, sample_file_name, graph_file_name, sample_features
 
 def main(args):
 
     n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
         env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
-        n_sample, sample_file_name, graph_file_name = parse_(args)
+        n_sample, sample_file_name, graph_file_name, sample_features = parse_(args)
 
     bacterial_agents = []
     for k_bacteria in range(n_bacteria_1):
@@ -216,7 +225,7 @@ def main(args):
     propagator = BeakerPropagator(force, age_force)
     simulator = FiniteSystemRunner(n_steps, n_sample_steps=n_sample,
                                    sample_file_name=sample_file_name,
-                                   imprints_sample=['scaffold_molecule_A', 'scaffold_trusting'],
+                                   imprints_sample=sample_features,
                                    system_propagator=propagator,
                                    graph_file_name=graph_file_name)
     simulator(cell_space)
