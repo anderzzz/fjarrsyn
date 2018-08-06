@@ -84,7 +84,7 @@ class BacteriaBrain(object):
         scaffold_shift = ObjectForce('shift_broth')
 
         share_percentage = sigmoid_10(self.scaffold['generosity_mag'], 
-                                      self.scaffold['generosity'], False, 
+                                      1.0 - self.scaffold['generosity'], False, 
                                       my_neighbour)
         poison_percentage = sigmoid_10(self.scaffold['attack_mag'],
                                        self.scaffold['attacker'], True,
@@ -166,7 +166,7 @@ class BacteriaBrain(object):
             trust = my_neighbour
 
         gulp_percentage = linear_step_10(self.scaffold['trusting_mag'], 0.0,
-                                         self.scaffold['trusting'], False,
+                                         1.0 - self.scaffold['trusting'], False,
                                          trust)
 
         ret = {'how_much' : gulp_percentage}
