@@ -65,9 +65,16 @@ class BacteriaBrain(object):
 
         Returns
         -------
-        params : dict
-            Dictionary of parameter values needed to populate the relevant
-            actuator
+        mould_output : MoulderReturn
+            Named tuple with output from moulding. Actuator parameters to
+            push onto the surrounding molecules and poison, as well as an
+            object force to adjust internal amounts of same compounds
+
+        Raises
+        ------
+        RuntimeError
+            In case the moulder is called without a belief about the
+            neighbourhood
 
         '''
         if my_neighbour is None:
@@ -118,9 +125,10 @@ class BacteriaBrain(object):
 
         Returns
         -------
-        params : dict
-            Dictionary of parameter values needed to populate the relevant
-            actuator
+        mould_output : MoulderReturn
+            Named tuple with output from moulding. Actuator parameters to
+            instruct death of agent, no object force reaction onto the agent
+            otherwise
 
         '''
         x_poison = self.scaffold['poison']
@@ -136,7 +144,19 @@ class BacteriaBrain(object):
         return MoulderReturn(ret, None)
 
     def _mould_gulp_molecules_from_env(self, my_neighbour):
-        '''Bla bla
+        '''Take a fraction of environemtn content into bacteria, based on the
+        current belief about the environment
+
+        Parameters
+        ----------
+        my_neighbour : float
+            Belief about similarity of neighbour
+
+        Returns
+        -------
+        mould_output : MoulderReturn
+            Named tuple with output from moulding. Actuator parameters for how
+            much to gulp, No object force from this moulding
 
         '''
         if my_neighbour is None:
@@ -173,7 +193,7 @@ class BacteriaBrain(object):
         p = self.scaffold['poison_vacuole']
         p_max = self.scaffold['poison_vacuole_max']
         d = self.scaffold['attacker']
-        f = min(1.0, max(0.0, d - p * d / p_max))
+        f = min(1.0, max(0.0, d * (p_max - p) / p_max))
 
         #
         # Generate the ObjectForce to apply to adjust compound content
@@ -195,7 +215,16 @@ class BacteriaBrain(object):
         return MoulderReturn(None, scaffold_shift)
 
     def _mould_cell_division(self):
-        '''Bla bla
+        '''Method to attempt cell division and if successful instruct how
+        resources are to be divided
+
+        Returns
+        -------
+        mould_output : MoulderReturn
+            Named tuple with output from moulding. The actuator is one Boolean
+            to instruct if division should be done. The object force is present
+            only in case division is done, in which relevant resources are cut
+            in half
 
         '''
         compounds = [name for name in self.scaffold if 'molecule_' in name]

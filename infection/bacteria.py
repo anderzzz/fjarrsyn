@@ -33,6 +33,9 @@ class Bacteria(Agent):
         # Ascertain if there is a neighbour and how similar it is
         self.perceive('neighbour_surface', 'similar_hood')
         if not self.belief['my_neighbour'] is None:
+            logging.debug('Belief after sensing neighbourhood')
+            logging.debug(pretty_print(self.belief))
+
             self.engage('share_molecules')
 
         logging.debug('Scaffold after sharing')
