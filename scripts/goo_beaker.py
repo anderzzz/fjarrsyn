@@ -5,6 +5,7 @@ import sys
 import argparse
 import numpy.random
 import logging
+import pickle
 
 from infection.propagator import BeakerPropagator
 from infection.goo import Goo
@@ -133,6 +134,19 @@ def parse_(argv):
                                   default='791204',
                                   help='Random seed')
 
+    group_disk = parser.add_argument_group('Agent System Pickle Save/Load')
+    group_disk.add_argument('--pickle-save',
+                            dest='pickle_save',
+                            default=None,
+                            help='Path to output pickle file of the agent ' + \
+                                 'system at the end of the simulation')
+    group_disk.add_argument('--pickle-load',
+                            dest='pickle_load',
+                            default=None,
+                            help='Path to input pickle file of the agent ' + \
+                                 'system to start the simulation with. ' + \
+                                 'Overrides all other system definitions')
+
     parser.add_argument('--debug',
                         default=False,
                         dest='debug_runner',
@@ -162,37 +176,66 @@ def parse_(argv):
     sample_features = args.sample_features.split(',')
     seed = int(args.seed)
 
+    pickle_save = args.pickle_save
+    pickle_load = args.pickle_load
+
     debug_runner = args.debug_runner
 
     return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, env_loss, \
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
            n_sample, sample_file_name, graph_file_name, sample_features, \
-           seed, debug_runner
+           seed, pickle_save, pickle_load, debug_runner
 
 def main(args):
 
+    #
+    # Parse the command-line
+    #
     n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
         env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
         n_sample, sample_file_name, graph_file_name, sample_features, \
-        seed, debug_runner = parse_(args)
+        seed, pickle_save, pickle_load, debug_runner = parse_(args)
 
+    #
+    # Rudimentary initializations
+    #
     numpy.random.seed(seed)
-
     if debug_runner:
         logging.basicConfig(filename='logger.log', filemode='w', 
                             level=logging.DEBUG)
 
-    bacterial_agents = []
-    for k_bacteria in range(n_bacteria_1):
-        bacterial_agents.append(Bacteria('bacteria_A_%s' %(str(k_bacteria)),
-                                         SCAFFOLD_INIT_A))
+    #
+    # Set up the agent management system
+    #
+    if pickle_load is None:
+        bacterial_agents = []
+        for k_bacteria in range(n_bacteria_1):
+            bacterial_agents.append(Bacteria('bacteria_A_%s' %(str(k_bacteria)),
+                                             SCAFFOLD_INIT_A))
 
-    for k_bacteria in range(n_bacteria_2):
-        bacterial_agents.append(Bacteria('bacteria_W_%s' %(str(k_bacteria)),
-                                         SCAFFOLD_INIT_W))
+        for k_bacteria in range(n_bacteria_2):
+            bacterial_agents.append(Bacteria('bacteria_W_%s' %(str(k_bacteria)),
+                                             SCAFFOLD_INIT_W))
 
+        SCAFFOLD_ENV = {'molecule_A' : equilibrium_env,
+                        'molecule_B' : equilibrium_env,
+                        'molecule_C' : equilibrium_env,
+                        'poison' : 0.0}
+        extracellular = ExtracellEnvironment('extracellular_fluid', SCAFFOLD_ENV)
+
+        cell_space = Goo('cell_space', bacterial_agents, extracellular,
+                         cell_length, newborn_compete)
+
+    else:
+        with open(pickle_load, 'rb') as fin:
+            cell_space = pickle.load(fin)
+
+    #
+    # Set up the object forces to apply from above onto the agent management
+    # system, random and deterministic
+    #
     force = RandomMutator('bacterial_drift')
     force.set_force_func('generosity', 
                          'force_func_wiener_bounded', mutate_type_chance,
@@ -225,12 +268,6 @@ def main(args):
                          'force_func_flip_one_char', mutate_surface,
                          {'alphabet' : ['a', 'w']})
 
-    SCAFFOLD_ENV = {'molecule_A' : equilibrium_env,
-                    'molecule_B' : equilibrium_env,
-                    'molecule_C' : equilibrium_env,
-                    'poison' : 0.0}
-    extracellular = ExtracellEnvironment('extracellular_fluid', SCAFFOLD_ENV)
-
     age_force = ObjectForce('environmental_time')
     age_force.set_force_func('molecule_A', 'force_func_exponential_convergence',
                              {'loss' : env_loss, 'target' : equilibrium_env})
@@ -241,16 +278,28 @@ def main(args):
     age_force.set_force_func('poison', 'force_func_exponential_convergence',
                              {'loss' : env_loss, 'target' : 0.0})
 
-    cell_space = Goo('cell_space', bacterial_agents, extracellular,
-                     cell_length, newborn_compete)
-
     propagator = BeakerPropagator(force, age_force)
+
+    #
+    # Define the simulator
+    #
     simulator = FiniteSystemRunner(n_steps, n_sample_steps=n_sample,
                                    sample_file_name=sample_file_name,
                                    imprints_sample=sample_features,
                                    system_propagator=propagator,
                                    graph_file_name=graph_file_name)
+
+    #
+    # Simulate the propagation of the agent management system
+    #
     simulator(cell_space)
+
+    #
+    # Optional save of agent manageent system
+    #
+    if not pickle_save is None:
+        with open(pickle_save, 'wb') as fout:
+            pickle.dump(cell_space, fout)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
