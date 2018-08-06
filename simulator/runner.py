@@ -144,6 +144,17 @@ class FiniteSystemRunner(object):
             If the input object is not an agent management system
 
         '''
+        def _sample():
+            '''Print sampling data to disk
+
+            '''
+            self.write_state_of_(system)
+            self.file_handle.flush()
+
+            if not self.graph_file_name is None:
+                self.write_graph_state_of_(system)
+                self.graph_handle.flush()
+
         if not isinstance(system, AgentManagementSystem):
             raise TypeError('The system runner can only handle a an object ' + \
                             'that inherets AgentManagementSystem')
@@ -153,14 +164,11 @@ class FiniteSystemRunner(object):
             self.propagate_(system, **self.propagate_kwargs)
 
             if self.time_to_sample(k_iter):
-                self.write_state_of_(system)
-                self.file_handle.flush()
-
-                if not self.graph_file_name is None:
-                    self.write_graph_state_of_(system)
-                    self.graph_handle.flush()
-
+                _sample()
                 self.write_count += 1
+
+        if self.time_to_sample(0):
+            _sample()
 
     def __init__(self, n_iter, 
                  n_sample_steps=-1, sample_file_name='sample.csv',

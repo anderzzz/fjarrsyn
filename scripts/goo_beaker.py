@@ -12,7 +12,7 @@ from infection.bacteria import Bacteria, ExtracellEnvironment
 from core.naturallaw import RandomMutator, ObjectForce 
 from simulator.runner import FiniteSystemRunner
 
-SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
+SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaaaaa',
                    'molecule_A' : 0.0,
                    'molecule_B' : 0.0,
                    'molecule_C' : 0.0,
@@ -28,7 +28,7 @@ SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaa',
                    'trusting_mag' : 0.5,
                    'split_thrs' : 0.9}
 
-SCAFFOLD_INIT_W = {'surface_profile' : 'wwwww',
+SCAFFOLD_INIT_W = {'surface_profile' : 'wwwwwwww',
                    'molecule_A' : 0.0,
                    'molecule_B' : 0.0,
                    'molecule_C' : 0.0,
