@@ -5,11 +5,35 @@ import networkx as nx
 import json
 
 class GraphIO(object):
-    '''Bla bla
+    '''Class to handle reading from and writing to disk of graph data
+
+    Parameters
+    ----------
+    file_name_body : str
+        Body of the name of file to handle. The actual file on disk can contain
+        additional suffixes
+    file_format : str
+        Specify the format of file to handle. Currently limited to `json` and
+        `gml`.
+    mode : str, optional
+        The mode in which to engage with the file
 
     '''
     def _make_agent_label_graph(self, network):
-        '''Bla bla
+        '''Create a new network of identical topology, but with the nodes
+        swapped for the agent label. This is needed to create a representation
+        that can be serialized as a string
+
+        Parameters
+        ----------
+        network 
+            The reference network, from `networkx` library
+
+        Returns
+        -------
+        network_agent_labels
+            The new network with the label substitution, all else the same as
+            the input network
 
         '''
         empty_counter = 0
@@ -29,18 +53,34 @@ class GraphIO(object):
         return network_agent_labels
 
     def write_graph_state(self, network, generation_counter=None):
-        '''bla bla
+        '''Write a network to disk such that agents are represented by their
+        agent ID and unoccupied nodes by a generic label
+
+        Parameters
+        ----------
+        network
+            A network of agents and possibly unoccupied nodes. The network is
+            from the `networkx` library
+        generation_counter : int, optional
+            A counter that is used to track which sampled generation that is
+            printed
 
         '''
-        print ('aaa')
         network_agent_labels = self._make_agent_label_graph(network)
         
+        #
+        # Some writers require pre-processing of the network data
+        #
         if not self.preprocessor is None:
             write_data = self.preprocessor(network_agent_labels)
 
         else:
             write_data = network_agent_labels
 
+        #
+        # Construct the file name, which can include the appending of
+        # generation counter
+        #
         if not generation_counter is None:
             pos = [p for p, c in enumerate(self.file_name) if c == '.']
             pos_last_dot = pos[-1]

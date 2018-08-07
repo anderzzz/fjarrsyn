@@ -82,7 +82,6 @@ class FiniteSystemRunner(object):
             '''Print sampling data to disk
 
             '''
-            print ('SAMPLE')
             #
             # Sample state of agent system
             #
