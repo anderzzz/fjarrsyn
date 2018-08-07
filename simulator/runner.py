@@ -85,25 +85,25 @@ class FiniteSystemRunner(object):
             The agent management system
 
         '''
-        adjacency_data = system.agents_graph.get_adjacency_list()
+        adjacency_data = system.agents_graph.edges()
 
         agents1 = []
         agents2 = []
-        for index, row in adjacency_data.iteritems():
-            agent_ind = (not row[0].agent_content is None, 
-                         not row[1].agent_content is None)
+        for node1, node2 in adjacency_data:
+            agent_ind = (not node1.agent_content is None, 
+                         not node2.agent_content is None)
 
             if all(agent_ind):
-                agents1.append(row[0].agent_content.agent_id_system)
-                agents2.append(row[1].agent_content.agent_id_system)
+                agents1.append(node1.agent_content.agent_id_system)
+                agents2.append(node2.agent_content.agent_id_system)
 
             elif agent_ind[0]:
-                agents1.append(row[0].agent_content.agent_id_system)
+                agents1.append(node1.agent_content.agent_id_system)
                 agents2.append(None)
 
             elif agent_ind[1]:
                 agents1.append(None)
-                agents2.append(row[1].agent_content.agent_id_system)
+                agents2.append(node2.agent_content.agent_id_system)
 
         df = pd.DataFrame({'agent_1':agents1, 'agent_2':agents2,
                            'write_count': str(self.write_count)})

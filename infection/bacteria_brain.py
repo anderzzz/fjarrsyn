@@ -2,7 +2,8 @@
 
 '''
 import copy
-import random
+import numpy as np
+import numpy.random
 
 from core.helper_funcs import sigmoid, sigmoid_10, linear_step_10
 from core.naturallaw import ObjectForce
@@ -135,7 +136,7 @@ class BacteriaBrain(object):
         m_point = self.scaffold['vulnerability_to_poison']
         probability = sigmoid(1.0, 5.0, m_point, False, x_poison)
 
-        if probability > random.random():
+        if probability > np.random.random():
             ret = {'do_it' : True}
         
         else:

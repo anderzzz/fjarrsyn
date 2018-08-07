@@ -1,8 +1,6 @@
 '''Agent 
 
 '''
-import random
-
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
 
 class Agent(object):

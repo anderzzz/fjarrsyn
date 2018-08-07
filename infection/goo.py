@@ -2,10 +2,12 @@
 
 '''
 import copy
-import random
+import numpy as np
+import numpy.random
+import networkx as nx
 
 from core.agent_ms import AgentManagementSystem
-from core.graph import CubicGrid
+from core.graph import Node, node_by_agent_id
 
 from core.organs import Sensor, Actuator
 from core.naturallaw import ObjectForce
@@ -34,7 +36,7 @@ class Goo(AgentManagementSystem):
         '''
         neighbour_agents = self.neighbours_to(agent_index)
 
-        bacteria = random.choice(list(neighbour_agents))
+        bacteria = np.random.choice(list(neighbour_agents))
         if bacteria is None:
             ret = {'surface_profile' : None, 'neighbour' : None} 
 
@@ -66,7 +68,7 @@ class Goo(AgentManagementSystem):
         '''
         reaction = ObjectForce('scaffold_reaction')
 
-        node_with_agent = self.agents_graph[agent_index]
+        node_with_agent = node_by_agent_id(agent_index, self.agents_graph)
         environment = node_with_agent.aux_content
         molecules = environment.scaffold
 
@@ -127,11 +129,11 @@ class Goo(AgentManagementSystem):
             neighbours = self.neighbours_to(agent_index, agents_only=False)
             empty_nodes = [x for x in neighbours if x.agent_content is None]
             if len(empty_nodes) > 0:
-                node_to_populate = random.choice(empty_nodes)
+                node_to_populate = np.random.choice(empty_nodes)
 
             else:
-                if random.random() < self.newborn_compete:
-                    node_to_populate = random.choice(list(neighbours))
+                if np.random.random() < self.newborn_compete:
+                    node_to_populate = np.random.choice(list(neighbours))
                     del self[node_to_populate.agent_content.agent_id_system]
 
                 else:
@@ -141,7 +143,7 @@ class Goo(AgentManagementSystem):
             # Create agent child and add to system and node selected above
             #
             if not split_failed:
-                parent_agent = self.agents_graph[agent_index].agent_content
+                parent_agent = node_by_agent_id(agent_index, self.agents_graph).agent_content
                 agent_child = parent_agent.__class__('bacteria_child', parent_agent.scaffold)
                 agent_child.set_organ_bulk(self.make_affordances())
                 self.situate(agent_child, node_to_populate)
@@ -198,41 +200,57 @@ class Goo(AgentManagementSystem):
                  newborn_compete):
 
         #
-        # Create agent graph as cubic grid and initialize base agent management
-        # system
+        # Create agent graph as cubic grid 
         #
-        matrix = CubicGrid(n_slots=beaker_length) 
-        matrix_size = len(matrix)
-
-        super().__init__(name, bacterial_agents, matrix)
+        matrix = nx.grid_graph([beaker_length, beaker_length, beaker_length])
+        matrix_size = matrix.number_of_nodes() 
 
         #
-        # Special constants of the bacterial goo
-        #
-        self.newborn_compete = newborn_compete
-
-        #
-        # Assign content to the nodes of the grid
+        # Make random assignment of where to place bacterial nodes
         #
         env_objects = [copy.deepcopy(env_object) for k in range(matrix_size)]
-        random_index = random.sample(range(matrix_size), 
-                                     len(bacterial_agents))
+        random_index = np.random.choice(range(matrix_size), 
+                                        len(bacterial_agents), replace=False)
 
+        #
+        # Create the nodes to insert into the cubic grid
+        #
         k_bacteria = 0 
+        nodes = []
         for grid_index, env_object in enumerate(env_objects):
-            matrix.nodes[grid_index].aux_content = env_object
 
             if grid_index in random_index:
                 bact_agent = bacterial_agents[k_bacteria]
                 k_bacteria += 1
-                matrix.nodes[grid_index].agent_content = bact_agent
+
+                node = Node('node_%s' %(str(grid_index)), bact_agent, env_object)
 
             else:
-                matrix.nodes[grid_index].agent_content = None 
+                node = Node('node_%s' %(str(grid_index)), None, env_object)
+
+            nodes.append(node)
+        
+        #
+        # Insert the nodes into the grid
+        #
+        mapping = {}
+        for grid_coordinate in matrix.nodes():
+            mapping[grid_coordinate] = nodes.pop(0)
+        matrix = nx.relabel_nodes(matrix, mapping)
+
+        #
+        # Initialize parent
+        #
+        super().__init__(name, bacterial_agents, matrix)
 
         #
         # Equip agents with organs to interact with the World
         #
         for bacteria in bacterial_agents:
             bacteria.set_organ_bulk(self.make_affordances()) 
+
+        #
+        # Special constants of the bacterial goo
+        #
+        self.newborn_compete = newborn_compete
 

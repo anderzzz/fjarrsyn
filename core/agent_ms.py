@@ -3,9 +3,11 @@
 '''
 from uuid import uuid4
 from collections import OrderedDict
-import random
+import numpy as np
+import numpy.random
+import networkx as nx
 
-from core.graph import Graph, Node
+from core.graph import node_by_agent_id 
 from core.agent import Agent
 
 class AgentManagementSystem(object):
@@ -52,9 +54,9 @@ class AgentManagementSystem(object):
             Set of agents directly adjacent to the given agent
 
         '''
-        node_with_agent = self.agents_graph[agent_index]
-        node_neighbours = self.agents_graph.get_neighbours(node_with_agent)
-        node_neighbours = node_neighbours.tolist()
+        node_with_agent = node_by_agent_id(agent_index, self.agents_graph)
+        node_neighbours = self.agents_graph.neighbors(node_with_agent)
+        node_neighbours = list(node_neighbours)
         if agents_only:
             ret_neighbours = [x.agent_content for x in node_neighbours]
 
@@ -102,8 +104,8 @@ class AgentManagementSystem(object):
         while _terminator(counter): 
             counter += 1
 
-            if len(self.agents_graph.nodes) > 0:
-                entry = random.choice(self.agents_graph.nodes)
+            if len(self.agents_graph.number_of_nodes()) > 0:
+                entry = np.random.choice(self.agents_graph.nodes)
 
             else:
                 raise StopIteration('No nodes left in system')
@@ -183,7 +185,7 @@ class AgentManagementSystem(object):
         if not key in self.agents_in_scope:
             raise KeyError('Unknown agent id: %s' %(key))
 
-        node = self.agents_graph[key]
+        node = node_by_agent_id(key, self.agents_graph)
         node.agent_content = None
 
         agent = self.agents_in_scope[key]
@@ -230,17 +232,18 @@ class AgentManagementSystem(object):
         # graph in case nothing specific is given.
         #
         if full_agents_graph is None:
-            self.agents_graph = Graph()
             nodes = [Node('agent_%s'%(str(k)), agent) for k, agent in enumerate(agents)]
-            self.agents_graph.build_complete_nondirectional(nodes)
+            self.agents_graph = nx.complete_graph(nodes)
 
         else:
-            if isinstance(full_agents_graph, Graph):
+            if isinstance(full_agents_graph, nx.Graph):
                 self.agents_graph = full_agents_graph
 
             else:
                 raise TypeError('Agent Management System given graph not ' + \
                                 'of the Graph class')
+
+        self.agents_graph.name = 'Agents Graph of System %s' %(self.name)
 
         #
         # The agents are added to the system book keeping
