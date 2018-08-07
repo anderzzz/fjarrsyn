@@ -122,8 +122,8 @@ def parse_(argv):
                                   help='File name of state sampling')
     group_simulation.add_argument('--graph-file-name',
                                   dest='graph_file_name',
-                                  default='graph.csv',
-                                  help='File name of graph sampling')
+                                  default='graph',
+                                  help='Body of file name of graph sampling')
     group_simulation.add_argument('--sample-features',
                                   dest='sample_features',
                                   default='',
@@ -287,7 +287,7 @@ def main(args):
                                    sample_file_name=sample_file_name,
                                    imprints_sample=sample_features,
                                    system_propagator=propagator,
-                                   graph_file_name=graph_file_name)
+                                   graph_file_name_body=graph_file_name)
 
     #
     # Simulate the propagation of the agent management system

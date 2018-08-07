@@ -2,15 +2,15 @@
 the system. The classes contain standard sampling methods.
 
 '''
-import csv
-import pandas as pd
-
 from core.agent_ms import AgentManagementSystem
+from writeread.graph_io import GraphIO
+from writeread.agent_io import AgentSystemIO
 
 class FiniteSystemRunner(object):
     '''Class to create an object that runs a simulation of an agent system
     using a system specific propagator. The class handles sampling of data at
-    a set interval, including agent state and agent graph relations.
+    a set interval, including agent state and agent graph relations. The
+    simulation involves a finite number of steps
 
     Parameters
     ----------
@@ -23,13 +23,19 @@ class FiniteSystemRunner(object):
         a negative number, no sampling is done
     sample_file_name : str, optional
         File name to write agent state data to during sampling
+    sample_file_format : str, optional
+        File format of file that samples the agent system state
     imprints_sample : list, optional
         List of strings that specify a subset of imprints of agent to sample.
         The format is `<imprint_type>_<label>`, for example, `scaffold_money`
         or `belief_friendly`.
-    graph_file_name : str, optional
-        File name to write agent graph connection data to during sampling. If
-        not specified, no graph data is sampled.
+    graph_file_name_body : str, optional
+        Body of the file name to which agent graph connection data is written
+        during sampling. If not specified, no graph data is sampled. Note that
+        suffixes denoting file format and sampling iteration are added to the 
+        files written to disk
+    graph_file_format : str, optional
+        File format to use for the file with sampled graph data
     system_propagator : callable
         A callable object, such as a function or class instance, that specifies
         how the agent system is propagated
@@ -37,78 +43,6 @@ class FiniteSystemRunner(object):
         Named argument dictionary to the `system_propagator`
 
     '''
-    def flatten_imprint(self, imprint):
-        '''Rename imprint data by merging scaffold and beliefs with their
-        respective labels. Typical label can be `scaffold_money`.
-
-        Parameters
-        ----------
-        imprint : dict
-            The imprint of an agent
-
-        Returns
-        -------
-        flat_imprint : dict
-            The dictionary where keys have been flattened
-
-        '''
-        flat_imprint = {}
-        for imprint_type, imprint_data in imprint.items():
-            for unit_name, unit_value in imprint_data.items():
-                key_union = imprint_type + '_' + unit_name
-                flat_imprint[key_union] = unit_value
-
-        return flat_imprint
-
-    def write_state_of_(self, system):
-        '''Write the agent states of the system
-
-        Parameters
-        ----------
-        system
-            The agent management system
-
-        '''
-        for agent_id, agent in system.agents_in_scope.items(): 
-            data_dict = self.flatten_imprint(agent.imprint)
-            data_dict['agent_id'] = agent_id
-            data_dict['write_count'] = str(self.write_count)
-            
-            self.writer.writerow(data_dict)
-
-    def write_graph_state_of_(self, system):
-        '''Write agent adjacencies of the system graph
-
-        Parameters
-        ----------
-        system 
-            The agent management system
-
-        '''
-        adjacency_data = system.agents_graph.edges()
-
-        agents1 = []
-        agents2 = []
-        for node1, node2 in adjacency_data:
-            agent_ind = (not node1.agent_content is None, 
-                         not node2.agent_content is None)
-
-            if all(agent_ind):
-                agents1.append(node1.agent_content.agent_id_system)
-                agents2.append(node2.agent_content.agent_id_system)
-
-            elif agent_ind[0]:
-                agents1.append(node1.agent_content.agent_id_system)
-                agents2.append(None)
-
-            elif agent_ind[1]:
-                agents1.append(None)
-                agents2.append(node2.agent_content.agent_id_system)
-
-        df = pd.DataFrame({'agent_1':agents1, 'agent_2':agents2,
-                           'write_count': str(self.write_count)})
-        df.to_csv(self.graph_handle, header=False, index=False, mode='a')
-
     def time_to_sample(self, k_iter):
         '''Test if this iteration should be sampled
 
@@ -148,17 +82,27 @@ class FiniteSystemRunner(object):
             '''Print sampling data to disk
 
             '''
-            self.write_state_of_(system)
-            self.file_handle.flush()
+            print ('SAMPLE')
+            #
+            # Sample state of agent system
+            #
+            self.sampler.write_state_of_(system, self.write_count)
+            self.sampler.flush()
 
-            if not self.graph_file_name is None:
-                self.write_graph_state_of_(system)
-                self.graph_handle.flush()
+            #
+            # If requested, sample agent graph
+            #
+            if not self.grapher is None:
+                self.grapher.write_graph_state(system.agents_graph, 
+                                               self.write_count)
 
         if not isinstance(system, AgentManagementSystem):
             raise TypeError('The system runner can only handle a an object ' + \
                             'that inherets AgentManagementSystem')
 
+        #
+        # Outermost loop for simulation
+        #
         for k_iter in range(self.n_iter):
 
             self.propagate_(system, **self.propagate_kwargs)
@@ -167,33 +111,43 @@ class FiniteSystemRunner(object):
                 _sample()
                 self.write_count += 1
 
+        #
+        # After simulation, take one last sample
+        #
         if self.time_to_sample(0):
             _sample()
 
     def __init__(self, n_iter, 
-                 n_sample_steps=-1, sample_file_name='sample.csv',
+                 n_sample_steps=-1, 
+                 sample_file_name='sample.csv', sample_file_format='csv',
                  imprints_sample=[], 
-                 graph_file_name=None, 
+                 graph_file_name_body=None, graph_file_format='json',
                  system_propagator=None, system_propagator_kwargs={}):
 
+        #
+        # The step data of simulation and sampling
+        #
         self.n_iter = n_iter
         self.n_sample_steps = n_sample_steps
 
-        self.sample_file_name = sample_file_name
-        self.graph_file_name = graph_file_name
-        self.write_count = 0
+        #
+        # If sampling has been requested, initialize relevant IO classes
+        #
         if not self.n_sample_steps < 0:
-            self.file_handle = open(self.sample_file_name, 'w')
-            fieldnames = ['agent_id'] + ['write_count'] + imprints_sample
-            self.writer = csv.DictWriter(self.file_handle, 
-                                         fieldnames=fieldnames,
-                                         extrasaction='ignore')
-            self.writer.writeheader()
+            self.write_count = 0
+            self.sampler = AgentSystemIO(sample_file_name, 
+                                         sample_file_format,
+                                         imprints_sample)
 
-            if not self.graph_file_name is None:
-                self.graph_handle = open(self.graph_file_name, 'w')
-                self.graph_handle.write('agent_1,agent_2,write_count\n')
+            if not graph_file_name_body is None:
+                self.grapher = GraphIO(graph_file_name_body,
+                                       graph_file_format)
+            else:
+                self.grapher = None
 
+        #
+        # Check the system propagator 
+        #
         if system_propagator is None:
             raise TypeError("The system_propagator is not defined")
 
