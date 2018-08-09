@@ -239,13 +239,13 @@ def main(args):
     force = RandomMutator('bacterial_drift')
     force.set_force_func('generosity', 
                          'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+                         {'std' : mutate_type_std})
     force.set_force_func('attacker', 
                          'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+                         {'std' : mutate_type_std})
     force.set_force_func('trusting', 
                          'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
+                         {'std' : mutate_type_std})
     force.set_force_func('generosity_mag', 
                          'force_func_wiener_bounded', mutate_type_chance,
                          {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
@@ -287,7 +287,8 @@ def main(args):
                                    sample_file_name=sample_file_name,
                                    imprints_sample=sample_features,
                                    system_propagator=propagator,
-                                   graph_file_name_body=graph_file_name)
+                                   graph_file_name_body=graph_file_name,
+                                   graph_file_format='csv')
 
     #
     # Simulate the propagation of the agent management system

@@ -52,6 +52,25 @@ class GraphIO(object):
 
         return network_agent_labels
 
+    def _write_csv(self, data, fout):
+        '''Bla bla
+
+        '''
+        for edge in data.edges:
+            if 'unoccupied' in edge[0]:
+                out_0 = ''
+            else:
+                out_0 = edge[0]
+            if 'unoccupied' in edge[1]:
+                out_1 = ''
+            else:
+                out_1 = edge[1]
+
+            if len(out_0) == 0 and len(out_1) == 0:
+                pass
+            else:
+                fout.write('%s,%s\n' %(out_0, out_1))
+
     def write_graph_state(self, network, generation_counter=None):
         '''Write a network to disk such that agents are represented by their
         agent ID and unoccupied nodes by a generic label
@@ -104,6 +123,10 @@ class GraphIO(object):
         if self.file_format == 'json':
             self.preprocessor = nx.readwrite.json_graph.node_link_data
             self.writer = json.dump
+
+        elif self.file_format == 'csv':
+            self.preprocessor = None
+            self.writer = self._write_csv
 
         elif self.file_format == 'gml':
             self.preprocessor = None
