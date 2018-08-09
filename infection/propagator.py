@@ -1,12 +1,12 @@
 '''Bla bla
 
 '''
-import logging
+#import logging
 
-def pretty_print(dd):
-    l = ['(%s : %s)' %(key, str(dd[key])) for key in sorted(dd.keys())]
-    j = ';'.join(l)
-    return j
+#def pretty_print(dd):
+#    l = ['(%s : %s)' %(key, str(dd[key])) for key in sorted(dd.keys())]
+#    j = ';'.join(l)
+#    return j
 
 class BeakerPropagator(object):
     '''Bla bla
@@ -22,21 +22,21 @@ class BeakerPropagator(object):
 
                 agent_survived = agent()
                 if agent_survived:
-                    logging.debug('Agent scaffold after intentional action')
-                    logging.debug(pretty_print(agent.scaffold))
+#                    logging.debug('Agent scaffold after intentional action')
+#                    logging.debug(pretty_print(agent.scaffold))
 
                     self.agent_mutator(agent)
 
-                    logging.debug('Agent scaffold after random mutation')
-                    logging.debug(pretty_print(agent.scaffold))
+#                    logging.debug('Agent scaffold after random mutation')
+#                    logging.debug(pretty_print(agent.scaffold))
 
-            logging.debug('Environment scaffold before force')
-            logging.debug(pretty_print(aux_object.scaffold))
+#            logging.debug('Environment scaffold before force')
+#            logging.debug(pretty_print(aux_object.scaffold))
 
             self.aux_objectforce(aux_object)
 
-            logging.debug('Environment scaffold after force')
-            logging.debug(pretty_print(aux_object.scaffold))
+#            logging.debug('Environment scaffold after force')
+#            logging.debug(pretty_print(aux_object.scaffold))
 
     def __init__(self, agent_mutator, aux_objectforce):
 
