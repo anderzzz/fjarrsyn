@@ -7,7 +7,7 @@ import numpy.random
 import networkx as nx
 
 from core.agent_ms import AgentManagementSystem
-from core.graph import Node, node_by_agent_id
+from core.graph import Node
 
 from core.organs import Sensor, Actuator
 from core.naturallaw import ObjectForce
@@ -68,7 +68,7 @@ class Goo(AgentManagementSystem):
         '''
         reaction = ObjectForce('scaffold_reaction')
 
-        node_with_agent = node_by_agent_id(agent_index, self.agents_graph)
+        node_with_agent = self.node_from_agent_id_[agent_index]
         environment = node_with_agent.aux_content
         molecules = environment.scaffold
 
@@ -143,7 +143,7 @@ class Goo(AgentManagementSystem):
             # Create agent child and add to system and node selected above
             #
             if not split_failed:
-                parent_agent = node_by_agent_id(agent_index, self.agents_graph).agent_content
+                parent_agent = self.node_from_agent_id_[agent_index].agent_content
                 agent_child = parent_agent.__class__('bacteria_child', parent_agent.scaffold)
                 agent_child.set_organ_bulk(self.make_affordances())
                 self.situate(agent_child, node_to_populate)

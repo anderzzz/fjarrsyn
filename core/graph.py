@@ -23,17 +23,3 @@ class Node(object):
         self.agent_content = agent_content
         self.aux_content = aux_content
 
-def node_by_agent_id(agent_id, network):
-    '''Bla bla
-
-    '''
-    for node in network.nodes():
-        if node.agent_content is None:
-            pass
-        else:
-            if node.agent_content.agent_id_system == agent_id:
-                return node
-
-    else:
-        return KeyError('Agent with ID %s not found in graph' %(key))
-

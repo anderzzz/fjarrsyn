@@ -7,7 +7,6 @@ import numpy as np
 import numpy.random
 import networkx as nx
 
-from core.graph import node_by_agent_id 
 from core.agent import Agent
 
 class AgentManagementSystem(object):
@@ -54,7 +53,7 @@ class AgentManagementSystem(object):
             Set of agents directly adjacent to the given agent
 
         '''
-        node_with_agent = node_by_agent_id(agent_index, self.agents_graph)
+        node_with_agent = self.node_from_agent_id_[agent_index]
         node_neighbours = self.agents_graph.neighbors(node_with_agent)
         node_neighbours = list(node_neighbours)
         if agents_only:
@@ -185,12 +184,12 @@ class AgentManagementSystem(object):
         if not key in self.agents_in_scope:
             raise KeyError('Unknown agent id: %s' %(key))
 
-        node = node_by_agent_id(key, self.agents_graph)
+        node = self.node_from_agent_id_[key]
         node.agent_content = None
+        del self.node_from_agent_id_[key]
 
         agent = self.agents_in_scope[key]
         agent.agent_id_system = None
-
         del self.agents_in_scope[key]
 
     def bookkeep(self, agent):
@@ -222,6 +221,7 @@ class AgentManagementSystem(object):
         '''
         self.bookkeep(agent)
         node.agent_content = agent
+        self.node_from_agent_id_[agent.agent_id_system] = node
 
     def __init__(self, name, agents, full_agents_graph=None):
 
@@ -251,6 +251,15 @@ class AgentManagementSystem(object):
         self.agents_in_scope = OrderedDict()
         for agent in agents:
             self.bookkeep(agent)
+
+        #
+        # Initialize the look-up table for agent index and node. Provides
+        # considerable speed up
+        #
+        self.node_from_agent_id_ = {}
+        for node in self.agents_graph:
+            if not node.agent_content is None:
+                self.node_from_agent_id_[node.agent_content.agent_id_system] = node
 
         #
         # The Agent system can itself have natural constants. These are
