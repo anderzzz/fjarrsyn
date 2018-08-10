@@ -13,38 +13,6 @@ from infection.bacteria import Bacteria, ExtracellEnvironment
 from core.naturallaw import RandomMutator, ObjectForce 
 from simulator.runner import FiniteSystemRunner
 
-SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaaaaa',
-                   'molecule_A' : 0.0,
-                   'molecule_B' : 0.0,
-                   'molecule_C' : 0.0,
-                   'poison' : 0.0,
-                   'poison_vacuole' : 0.0,
-                   'poison_vacuole_max' : 2.0,
-                   'generosity' : 0.5,
-                   'attacker' : 0.5,
-                   'generosity_mag' : 0.5,
-                   'attack_mag' : 0.5,
-                   'vulnerability_to_poison' : 2.0,
-                   'trusting' : 0.5,
-                   'trusting_mag' : 0.5,
-                   'split_thrs' : 0.9}
-
-SCAFFOLD_INIT_W = {'surface_profile' : 'wwwwwwww',
-                   'molecule_A' : 0.0,
-                   'molecule_B' : 0.0,
-                   'molecule_C' : 0.0,
-                   'poison' : 0.0,
-                   'poison_vacuole' : 0.0,
-                   'poison_vacuole_max' : 2.0,
-                   'generosity' : 0.5,
-                   'attacker' : 0.5,
-                   'generosity_mag' : 0.5,
-                   'attack_mag' : 0.5,
-                   'vulnerability_to_poison' : 2.0,
-                   'trusting' : 0.5,
-                   'trusting_mag' : 0.5,
-                   'split_thrs' : 0.9}
-
 def parse_(argv):
 
     parser = argparse.ArgumentParser(description='Script to simulate a ' + \
@@ -76,6 +44,14 @@ def parse_(argv):
                              default='random',
                              help='How to initialize the placement of bacterial ' + \
                                   'agents in the grid')
+    group_start.add_argument('--vulnerable-poison',
+                             dest='vulnerable_poison',
+                             default='2.0',
+                             help='Vulnerability to poison parameter')
+    group_start.add_argument('--split-thrs',
+                             dest='split_thrs',
+                             default='0.9',
+                             help='Threshold above which bacteria splits')
 
     group_force = parser.add_argument_group('Object and Random Force Parameters')
     group_force.add_argument('--env-equilibrate-frac',
@@ -165,6 +141,8 @@ def parse_(argv):
     cell_length = int(args.cell_length)
     equilibrium_env = float(args.equilibrium)
     coord_init = args.coord_init
+    vulnerable_poison = float(args.vulnerable_poison)
+    split_thrs = float(args.split_thrs)
 
     env_loss = float(args.env_loss)
     mutate_type_std = float(args.mutate_type_std)
@@ -188,7 +166,7 @@ def parse_(argv):
     debug_runner = args.debug_runner
 
     return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
-           coord_init, env_loss, \
+           coord_init, vulnerable_poison, split_thrs, env_loss, \
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
            n_sample, sample_file_name, graph_file_name, sample_features, \
@@ -200,6 +178,7 @@ def main(args):
     # Parse the command-line
     #
     n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, coord_init, \
+        vulnerable_poison, split_thrs, \
         env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
         n_sample, sample_file_name, graph_file_name, sample_features, \
@@ -216,6 +195,38 @@ def main(args):
     #
     # Set up the agent management system
     #
+    SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaaaaa',
+                       'molecule_A' : 0.0,
+                       'molecule_B' : 0.0,
+                       'molecule_C' : 0.0,
+                       'poison' : 0.0,
+                       'poison_vacuole' : 0.0,
+                       'poison_vacuole_max' : 2.0,
+                       'generosity' : 0.5,
+                       'attacker' : 0.5,
+                       'generosity_mag' : 0.5,
+                       'attack_mag' : 0.5,
+                       'vulnerability_to_poison' : vulnerable_poison,
+                       'trusting' : 0.5,
+                       'trusting_mag' : 0.5,
+                       'split_thrs' : split_thrs}
+
+    SCAFFOLD_INIT_W = {'surface_profile' : 'wwwwwwww',
+                       'molecule_A' : 0.0,
+                       'molecule_B' : 0.0,
+                       'molecule_C' : 0.0,
+                       'poison' : 0.0,
+                       'poison_vacuole' : 0.0,
+                       'poison_vacuole_max' : 2.0,
+                       'generosity' : 0.5,
+                       'attacker' : 0.5,
+                       'generosity_mag' : 0.5,
+                       'attack_mag' : 0.5,
+                       'vulnerability_to_poison' : vulnerable_poison,
+                       'trusting' : 0.5,
+                       'trusting_mag' : 0.5,
+                       'split_thrs' : split_thrs}
+
     if pickle_load is None:
         bacterial_agents = []
         for k_bacteria in range(n_bacteria_1):
@@ -254,7 +265,6 @@ def main(args):
             coords.append((cell_length - 1, 0,cell_length - 1))
             coords.append((0, cell_length - 1, cell_length - 1))
 
-        print (coords)
         cell_space = Goo('cell_space', bacterial_agents, extracellular,
                          cell_length, newborn_compete, coords)
 
