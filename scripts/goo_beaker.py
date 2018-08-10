@@ -257,13 +257,13 @@ def main(args):
 
         elif coord_init == 'corners':
             coords.append((0,0,0))
-            coords.append((0,0,cell_length - 1))
-            coords.append((0,cell_length - 1,0))
-            coords.append((cell_length - 1,0,0))
+            coords.append((0, 0, cell_length - 1))
+            coords.append((0, cell_length - 1, 0))
+            coords.append((0, cell_length - 1, cell_length - 1))
+            coords.append((cell_length - 1, 0, 0))
             coords.append((cell_length - 1, cell_length - 1, cell_length - 1))
             coords.append((cell_length - 1, cell_length -1, 0))
-            coords.append((cell_length - 1, 0,cell_length - 1))
-            coords.append((0, cell_length - 1, cell_length - 1))
+            coords.append((cell_length - 1, 0, cell_length - 1))
 
         cell_space = Goo('cell_space', bacterial_agents, extracellular,
                          cell_length, newborn_compete, coords)
