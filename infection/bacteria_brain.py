@@ -134,9 +134,8 @@ class BacteriaBrain(object):
         '''
         x_poison = self.scaffold['poison']
         m_point = self.scaffold['vulnerability_to_poison']
-        probability = sigmoid(1.0, 20.0, m_point, False, x_poison)
 
-        if probability > np.random.random():
+        if x_poison > m_point:
             ret = {'do_it' : True}
         
         else:
