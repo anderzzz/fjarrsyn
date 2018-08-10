@@ -197,7 +197,7 @@ class Goo(AgentManagementSystem):
         return organs
 
     def __init__(self, name, bacterial_agents, env_object, beaker_length,
-                 newborn_compete):
+                 newborn_compete, coord_agents):
 
         #
         # Create agent graph as cubic grid 
@@ -206,20 +206,30 @@ class Goo(AgentManagementSystem):
         matrix_size = matrix.number_of_nodes() 
 
         #
-        # Make random assignment of where to place bacterial nodes
+        # Make assignment of where to place bacterial nodes
         #
-        env_objects = [copy.deepcopy(env_object) for k in range(matrix_size)]
-        random_index = np.random.choice(range(matrix_size), 
-                                        len(bacterial_agents), replace=False)
+        if len(bacterial_agents) != len(coord_agents):
+            raise ValueError('Agent coordinates not identical in number ' + \
+                             'to number of agents')
+
+        index_match = []
+        for kount, node_coord in enumerate(matrix.nodes()):
+            if node_coord in coord_agents:
+                index_match.append(kount)
+
+        if len(index_match) != len(bacterial_agents):
+            raise ValueError('Grid coordinates unmatched to matrix')
 
         #
         # Create the nodes to insert into the cubic grid
         #
+        env_objects = [copy.deepcopy(env_object) for k in range(matrix_size)]
+
         k_bacteria = 0 
         nodes = []
         for grid_index, env_object in enumerate(env_objects):
 
-            if grid_index in random_index:
+            if grid_index in index_match:
                 bact_agent = bacterial_agents[k_bacteria]
                 k_bacteria += 1
 

@@ -71,6 +71,11 @@ def parse_(argv):
                              default='0.1',
                              help='Equilibrium content of molecules A, B and C ' + \
                                   'in environment')
+    group_start.add_argument('--coord-init',
+                             dest='coord_init',
+                             default='random',
+                             help='How to initialize the placement of bacterial ' + \
+                                  'agents in the grid')
 
     group_force = parser.add_argument_group('Object and Random Force Parameters')
     group_force.add_argument('--env-equilibrate-frac',
@@ -159,6 +164,7 @@ def parse_(argv):
     n_bacteria_2 = int(args.n_bacteria_2)
     cell_length = int(args.cell_length)
     equilibrium_env = float(args.equilibrium)
+    coord_init = args.coord_init
 
     env_loss = float(args.env_loss)
     mutate_type_std = float(args.mutate_type_std)
@@ -181,7 +187,8 @@ def parse_(argv):
 
     debug_runner = args.debug_runner
 
-    return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, env_loss, \
+    return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
+           coord_init, env_loss, \
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
            n_sample, sample_file_name, graph_file_name, sample_features, \
@@ -192,7 +199,7 @@ def main(args):
     #
     # Parse the command-line
     #
-    n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
+    n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, coord_init, \
         env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
         n_sample, sample_file_name, graph_file_name, sample_features, \
@@ -225,8 +232,31 @@ def main(args):
                         'poison' : 0.0}
         extracellular = ExtracellEnvironment('extracellular_fluid', SCAFFOLD_ENV)
 
+        coords = []
+        if coord_init == 'random':
+            for k_agent in range(len(bacterial_agents)):
+                tup = (np.random.randint(cell_length), \
+                       np.random.randint(cell_length), \
+                       np.random.randint(cell_length))
+                coords.append(tup)
+
+        elif coord_init == 'diagonal':
+            coords.append((0,0,0))
+            coords.append((cell_length - 1, cell_length - 1, cell_length - 1))
+
+        elif coord_init == 'corners':
+            coords.append((0,0,0))
+            coords.append((0,0,cell_length - 1))
+            coords.append((0,cell_length - 1,0))
+            coords.append((cell_length - 1,0,0))
+            coords.append((cell_length - 1, cell_length - 1, cell_length - 1))
+            coords.append((cell_length - 1, cell_length -1, 0))
+            coords.append((cell_length - 1, 0,cell_length - 1))
+            coords.append((0, cell_length - 1, cell_length - 1))
+
+        print (coords)
         cell_space = Goo('cell_space', bacterial_agents, extracellular,
-                         cell_length, newborn_compete)
+                         cell_length, newborn_compete, coords)
 
     else:
         with open(pickle_load, 'rb') as fin:
