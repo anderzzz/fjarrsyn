@@ -117,10 +117,21 @@ class BacteriaBrain(object):
             scaffold_shift.set_force_func(molecule, 'force_func_delta', 
                                           {'increment' : -1.0 * dx_amount})
 
-        actuator_pop = {'dx_molecules_poison' : ret_env,
-                        'give_to_id' : my_neighbour_id}
+        actuator_pop = {'dx_molecules_poison' : ret_env}
 
         return MoulderReturn(actuator_pop, scaffold_shift)
+
+    def _mould_supply_molecules_to_one(self, my_neighbour, my_neighbour_id):
+        '''Bla bla
+
+        '''
+        share_data = self._mould_supply_molecules_to_env(my_neighbour, my_neighbour_id)
+        
+        param_plus = {'dx_molecules_poison' : 
+                      share_data.actuator_params['dx_molecules_poison'],
+                      'give_to_id' : my_neighbour_id}
+
+        return MoulderReturn(param_plus, share_data.object_force)
 
     def _mould_contemplate_suicide(self):
         '''Determine if the bacteria should kill itself or not

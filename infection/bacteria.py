@@ -89,7 +89,7 @@ class Bacteria(Agent):
 
         moulder = Moulder('share_molecules_one',
                           ['my_neighbour', 'my_neighbour_id'],
-                          brain._mould_supply_molecules_to_env)
+                          brain._mould_supply_molecules_to_one)
         self.set_organ(moulder)
 
         moulder = Moulder('contemplate_suicide', 
