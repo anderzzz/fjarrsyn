@@ -13,7 +13,8 @@ class BacteriaBrain(object):
     '''Bla bla
 
     '''
-    def _interpret_selfsimilarity_neighbourhood(self, surface_profile):
+    def _interpret_selfsimilarity_neighbourhood(self, surface_profile,
+                                                neighbour_id):
         '''Interpret how similar a neighbour surface profile is to the current
         agent's own surface profile.
 
@@ -21,6 +22,8 @@ class BacteriaBrain(object):
         ----------
         surface_profile : str
             The string of characters defining the surface profile
+        neighbour_id : str
+            The neighbour id of agent that was sensed and created the buzz
 
         Returns
         -------
@@ -37,6 +40,7 @@ class BacteriaBrain(object):
         '''
         if surface_profile is None:
             self.belief['my_neighbour'] = None
+            self.belief['my_neighbour_id'] = None
 
         else:
             my_profile = self.scaffold['surface_profile']
@@ -53,10 +57,11 @@ class BacteriaBrain(object):
 
             frac_same = float(n_same) / float(len(my_profile))
             self.belief['my_neighbour'] = frac_same
+            self.belief['my_neighbour_id'] = neighbour_id
 
-        return ('my_neighbour',)
+        return ('my_neighbour', 'my_neighbour_id')
 
-    def _mould_supply_molecules_to_env(self, my_neighbour):
+    def _mould_supply_molecules_to_env(self, my_neighbour, my_neighbour_id):
         '''Determine amount of various molecules to add to environment
 
         Parameters
@@ -112,7 +117,8 @@ class BacteriaBrain(object):
             scaffold_shift.set_force_func(molecule, 'force_func_delta', 
                                           {'increment' : -1.0 * dx_amount})
 
-        actuator_pop = {'dx_molecules_poison' : ret_env}
+        actuator_pop = {'dx_molecules_poison' : ret_env,
+                        'give_to_id' : my_neighbour_id}
 
         return MoulderReturn(actuator_pop, scaffold_shift)
 

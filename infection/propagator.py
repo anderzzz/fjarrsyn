@@ -1,7 +1,7 @@
 '''Bla bla
 
 '''
-#import logging
+import logging
 
 #def pretty_print(dd):
 #    l = ['(%s : %s)' %(key, str(dd[key])) for key in sorted(dd.keys())]
@@ -18,7 +18,12 @@ class BeakerPropagator(object):
         '''
         for agent, aux_object in system:
 
+#            logging.debug('---> NEW NODE')
+
             if not agent is None:
+
+#                logging.debug('Environment scaffold before agent interaction')
+#                logging.debug(pretty_print(aux_object.scaffold))
 
                 agent_survived = agent()
                 if agent_survived:

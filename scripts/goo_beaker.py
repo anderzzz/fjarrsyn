@@ -3,6 +3,7 @@
 '''
 import sys
 import argparse
+import numpy as np
 import numpy.random
 import logging
 import pickle
@@ -202,13 +203,13 @@ def main(args):
                        'poison' : 0.0,
                        'poison_vacuole' : 0.0,
                        'poison_vacuole_max' : 2.0,
-                       'generosity' : 0.5,
-                       'attacker' : 0.5,
-                       'generosity_mag' : 0.5,
-                       'attack_mag' : 0.5,
+                       'generosity' : 0.0,
+                       'attacker' : 0.0,
+                       'generosity_mag' : 0.0,
+                       'attack_mag' : 0.0,
                        'vulnerability_to_poison' : vulnerable_poison,
-                       'trusting' : 0.5,
-                       'trusting_mag' : 0.5,
+                       'trusting' : 0.0,
+                       'trusting_mag' : 0.0,
                        'split_thrs' : split_thrs}
 
     SCAFFOLD_INIT_W = {'surface_profile' : 'wwwwwwww',
@@ -218,13 +219,13 @@ def main(args):
                        'poison' : 0.0,
                        'poison_vacuole' : 0.0,
                        'poison_vacuole_max' : 2.0,
-                       'generosity' : 0.5,
-                       'attacker' : 0.5,
-                       'generosity_mag' : 0.5,
-                       'attack_mag' : 0.5,
+                       'generosity' : 0.0,
+                       'attacker' : 0.0,
+                       'generosity_mag' : 0.0,
+                       'attack_mag' : 0.0,
                        'vulnerability_to_poison' : vulnerable_poison,
-                       'trusting' : 0.5,
-                       'trusting_mag' : 0.5,
+                       'trusting' : 0.0,
+                       'trusting_mag' : 0.0,
                        'split_thrs' : split_thrs}
 
     if pickle_load is None:
@@ -245,11 +246,12 @@ def main(args):
 
         coords = []
         if coord_init == 'random':
-            for k_agent in range(len(bacterial_agents)):
+            while len(set(coords)) < len(bacterial_agents):
                 tup = (np.random.randint(cell_length), \
                        np.random.randint(cell_length), \
                        np.random.randint(cell_length))
                 coords.append(tup)
+            coords = list(set(coords))
 
         elif coord_init == 'diagonal':
             coords.append((0,0,0))

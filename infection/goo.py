@@ -38,11 +38,11 @@ class Goo(AgentManagementSystem):
 
         bacteria = np.random.choice(list(neighbour_agents))
         if bacteria is None:
-            ret = {'surface_profile' : None, 'neighbour' : None} 
+            ret = {'surface_profile' : None, 'neighbour_id' : None} 
 
         else:
             ret = {'surface_profile' : bacteria.tickle('surface_profile'), 
-                   'neighbour' : bacteria.agent_id_system}
+                   'neighbour_id' : bacteria.agent_id_system}
 
         return ret
 
@@ -104,6 +104,30 @@ class Goo(AgentManagementSystem):
                 x = environment.scaffold[molecule] 
                 x_new = x + dx / float(n_neighbours)
                 environment.scaffold[molecule] = x_new 
+
+    def _act_add_molecules_to_one(self, agent_index, dx_molecules_poison,
+                                  give_to_id):
+        '''Actuator method to add molecules from one agent to all neighbouring
+        agent environments
+
+        Parameters
+        ----------
+        agent_index : str
+            Agent index to agent to which's environment molecules are to be
+            added
+        dx_molecules_poison : dict
+            Amount of molecules and poison to add based on its key
+        give_to_id : str
+            Agent ID for the neighbour to which to add the molecules
+
+        '''
+        one_node = self.node_from_agent_id_[give_to_id]
+
+        environment = one_node.aux_content
+        for molecule, dx in dx_molecules_poison.items():
+            x = environment.scaffold[molecule] 
+            x_new = x + dx 
+            environment.scaffold[molecule] = x_new 
 
     def _act_new_cell_into_matrix(self, agent_index, do_it):
         '''Actuator method to duplicate an agent and add its child to the agent
@@ -177,6 +201,10 @@ class Goo(AgentManagementSystem):
                                'share_molecules',
                                self._act_add_molecules_to_env,
                                ['dx_molecules_poison']))
+        organs.append(Actuator('molecules_to_one_environment',
+                               'share_molecules_one',
+                               self._act_add_molecules_to_one,
+                               ['dx_molecules_poison', 'give_to_id']))
         organs.append(Actuator('agent_suicide',
                                'contemplate_suicide',
                                self._act_suicide,
@@ -192,7 +220,7 @@ class Goo(AgentManagementSystem):
         organs.append(Sensor('random_neighbour_surface', 
                              'neighbour_surface',
                              self._sense_random_neighbour_surface,
-                             ['surface_profile', 'neighbour']))
+                             ['surface_profile', 'neighbour_id']))
 
         return organs
 
