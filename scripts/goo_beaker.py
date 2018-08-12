@@ -53,6 +53,12 @@ def parse_(argv):
                              dest='split_thrs',
                              default='0.9',
                              help='Threshold above which bacteria splits')
+    group_start.add_argument('--share-generally',
+                             default=False,
+                             dest='share_general',
+                             action='store_true',
+                             help='Flag to activate sharing of molecules ' + \
+                                  'across all neighbours')
 
     group_force = parser.add_argument_group('Object and Random Force Parameters')
     group_force.add_argument('--env-equilibrate-frac',
@@ -144,6 +150,7 @@ def parse_(argv):
     coord_init = args.coord_init
     vulnerable_poison = float(args.vulnerable_poison)
     split_thrs = float(args.split_thrs)
+    share_general = args.share_general
 
     env_loss = float(args.env_loss)
     mutate_type_std = float(args.mutate_type_std)
@@ -171,7 +178,7 @@ def parse_(argv):
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
            n_sample, sample_file_name, graph_file_name, sample_features, \
-           seed, pickle_save, pickle_load, debug_runner
+           seed, pickle_save, pickle_load, debug_runner, share_general
 
 def main(args):
 
@@ -183,7 +190,8 @@ def main(args):
         env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
         n_sample, sample_file_name, graph_file_name, sample_features, \
-        seed, pickle_save, pickle_load, debug_runner = parse_(args)
+        seed, pickle_save, pickle_load, debug_runner, \
+        share_general = parse_(args)
 
     #
     # Rudimentary initializations
@@ -203,6 +211,7 @@ def main(args):
                        'poison' : 0.0,
                        'poison_vacuole' : 0.0,
                        'poison_vacuole_max' : 2.0,
+                       'share_generally' : share_general,
                        'generosity' : 0.0,
                        'attacker' : 0.0,
                        'generosity_mag' : 0.0,
@@ -219,6 +228,7 @@ def main(args):
                        'poison' : 0.0,
                        'poison_vacuole' : 0.0,
                        'poison_vacuole_max' : 2.0,
+                       'share_generally' : share_general,
                        'generosity' : 0.0,
                        'attacker' : 0.0,
                        'generosity_mag' : 0.0,

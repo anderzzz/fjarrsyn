@@ -36,8 +36,10 @@ class Bacteria(Agent):
 #            logging.debug('Belief after sensing neighbourhood')
 #            logging.debug(pretty_print(self.belief))
 
-#            self.engage('share_molecules')
-            self.engage('share_molecules_one')
+            if self.scaffold['share_generally']:
+                self.engage('share_molecules')
+            else:
+                self.engage('share_molecules_one')
 
 #        logging.debug('Scaffold after sharing')
 #        logging.debug(pretty_print(self.scaffold))
