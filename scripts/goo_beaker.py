@@ -83,6 +83,14 @@ def parse_(argv):
                              dest='mutate_resource_chance',
                              default='0.05',
                              help='Chance of agent resource increment')
+    group_force.add_argument('--mutate-poison-increment',
+                             dest='poison_increment',
+                             default='5.0',
+                             help='Increment of internal poison')
+    group_force.add_argument('--mutate-poison-chance',
+                             dest='mutate_poison_chance',
+                             default='0.01',
+                             help='Chance of agent poison leading to death')
     group_force.add_argument('--mutate-surface',
                              dest='mutate_surface',
                              default='0.01',
@@ -157,6 +165,8 @@ def parse_(argv):
     mutate_type_chance = float(args.mutate_type_chance)
     mutate_increment = float(args.mutate_increment)
     mutate_resource_chance = float(args.mutate_resource_chance)
+    poison_increment = float(args.poison_increment)
+    mutate_poison_chance = float(args.mutate_poison_chance)
     mutate_surface = float(args.mutate_surface)
 
     newborn_compete = float(args.newborn_compete)
@@ -178,7 +188,8 @@ def parse_(argv):
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
            n_sample, sample_file_name, graph_file_name, sample_features, \
-           seed, pickle_save, pickle_load, debug_runner, share_general
+           seed, pickle_save, pickle_load, debug_runner, share_general, \
+           poison_increment, mutate_poison_chance
 
 def main(args):
 
@@ -191,7 +202,7 @@ def main(args):
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
         n_sample, sample_file_name, graph_file_name, sample_features, \
         seed, pickle_save, pickle_load, debug_runner, \
-        share_general = parse_(args)
+        share_general, poison_increment, mutate_poison_chance = parse_(args)
 
     #
     # Rudimentary initializations
@@ -316,6 +327,9 @@ def main(args):
     force.set_force_func('molecule_C', 
                          'force_func_delta', mutate_resource_chance,
                          {'increment' : mutate_increment})
+    force.set_force_func('poison',
+                         'force_func_delta', mutate_poison_chance,
+                         {'increment' : poison_increment})
     force.set_force_func('surface_profile', 
                          'force_func_flip_one_char', mutate_surface,
                          {'alphabet' : ['a', 'w']})
