@@ -10,7 +10,7 @@ from core.agent_ms import AgentManagementSystem
 from core.graph import Node
 
 from core.organs import Sensor, Actuator
-from core.naturallaw import ObjectForce
+from core.naturallaw import ObjectMapCollection
 
 class Goo(AgentManagementSystem):
     '''Bla bla
@@ -46,7 +46,7 @@ class Goo(AgentManagementSystem):
 
         return ret
 
-    def _act_gulp_my_environment(self, agent_index, how_much):
+    def _act_gulp_my_environment(self, agent_index, how_much, reaction):
         '''Actuator method to collect a fraction of the content of the
         environment and push that content back as a reaction to the agent
 
@@ -60,14 +60,12 @@ class Goo(AgentManagementSystem):
 
         Returns
         -------
-        reaction : ObjectForce instance
+        reaction : ObjectMapCollection instance
             The reaction the environment provides as a fraction of it is gulped
             by the agent. The reaction must subsequently be executed in order
             to update the internal state of the agent
 
         '''
-        reaction = ObjectForce('scaffold_reaction')
-
         node_with_agent = self.node_from_agent_id_[agent_index]
         environment = node_with_agent.aux_content
         molecules = environment.scaffold
@@ -77,8 +75,8 @@ class Goo(AgentManagementSystem):
             remaining_amount = float(molecule_amount) - gulped_amount
             environment.scaffold[molecule_name] = remaining_amount
 
-            reaction.set_force_func(molecule_name, 'force_func_delta', 
-                                    {'increment' : gulped_amount})
+            reaction.set_map_func(molecule_name, 'force_func_delta', 
+                                  {'increment' : gulped_amount})
 
         return reaction 
 
@@ -197,26 +195,59 @@ class Goo(AgentManagementSystem):
 
         '''
         organs = []
+
+        #
+        # Actuator to push an amount of molecules to all neighbouring
+        # environments
+        #
         organs.append(Actuator('molecules_to_environment',
                                'share_molecules',
                                self._act_add_molecules_to_env,
                                ['dx_molecules_poison']))
+
+        #
+        # Actuator to push an amount of molecules to a specific neighbouring
+        # environment
+        #
         organs.append(Actuator('molecules_to_one_environment',
                                'share_molecules_one',
                                self._act_add_molecules_to_one,
                                ['dx_molecules_poison', 'give_to_id']))
+
+        #
+        # Actuator to terminate the present agent, which requires its removal
+        # from the management system
+        #
         organs.append(Actuator('agent_suicide',
                                'contemplate_suicide',
                                self._act_suicide,
                                ['do_it']))
+
+        #
+        # Actuator to gulp some fraction of the environment. This leads to a
+        # reaction of a scaffold force
+        #
+        scaffold_force = ObjectMapCollection(['molecule_A', 'molecule_B',
+                                              'molecule_C', 'poison'],
+                                              standard_funcs=True)
         organs.append(Actuator('environment_gulper',
                                'gulp_environment',
                                self._act_gulp_my_environment,
-                               ['how_much']))
+                               ['how_much'],
+                               {'reaction' : scaffold_force}))
+
+        #
+        # Actuator to split current agent in two, which requires one to be
+        # added to the management system
+        #
         organs.append(Actuator('agent_splitter',
                                'split_in_two',
                                self._act_new_cell_into_matrix,
                                ['do_it']))
+
+        #
+        # Sensor to probe a neighbours surface profile and generate a buzz
+        #
         organs.append(Sensor('random_neighbour_surface', 
                              'neighbour_surface',
                              self._sense_random_neighbour_surface,

@@ -4,7 +4,7 @@
 import copy
 from collections import namedtuple
 
-from core.naturallaw import ObjectForce
+from core.naturallaw import ObjectMapCollection 
 
 class Organ(object):
 
@@ -110,7 +110,7 @@ class Actuator(object):
             parameter names defined during initialization.
 
         '''
-        self.kwargs = {}
+        self.kwargs = copy.copy(self.kwargs_base)
 
         keys = set(keyvalue.keys())
         key_reference = set(self.keys2populate)
@@ -154,20 +154,21 @@ class Actuator(object):
         reaction = self.actuator_func(**self.kwargs)
 
         if not reaction is None:
-            if not isinstance(reaction, ObjectForce):
+            if not isinstance(reaction, ObjectMapCollection):
                 raise TypeError('Actuator organ is only allowed to return ' + \
-                                'instance of ObjectForce')
+                                'instance of ObjectMapCollection')
 
         return reaction
 
-    def __init__(self, name, action_name, actuator_func, keys2populate):
+    def __init__(self, name, action_name, actuator_func, keys2populate,
+                 kwargs={}):
 
         self.name = name
         self.action_name = action_name
         self.actuator_func = actuator_func
         self.keys2populate = keys2populate
 
-        self.kwargs = None
+        self.kwargs_base = kwargs
 
 class Interpreter(object):
     '''Interpreter class, which defines how buzz from a sensor is made into
@@ -219,7 +220,7 @@ class Interpreter(object):
         self.interpreter_func = interpreter_func
         self.kwargs = kwargs
 
-MoulderReturn = namedtuple('MoulderReturn', ['actuator_params', 'object_force'])
+MoulderReturn = namedtuple('MoulderReturn', ['actuator_params', 'object_map'])
 
 class Moulder(object):
     '''Moulder class, which defines how beliefs are turned into an executable
@@ -275,7 +276,7 @@ class Moulder(object):
 
             actuator.populate(output.actuator_params)
 
-        return output.object_force
+        return output.object_map
 
     def __init__(self, name, belief_names, moulder_func, kwargs={}):
 

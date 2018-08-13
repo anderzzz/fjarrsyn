@@ -1,12 +1,10 @@
 '''All internal cognition of bacteria agent contained here
 
 '''
-import copy
 import numpy as np
 import numpy.random
 
 from core.helper_funcs import sigmoid, sigmoid_10, linear_step_10
-from core.naturallaw import ObjectForce
 from core.organs import MoulderReturn
 
 class BacteriaBrain(object):
@@ -61,7 +59,8 @@ class BacteriaBrain(object):
 
         return ('my_neighbour', 'my_neighbour_id')
 
-    def _mould_supply_molecules_to_env(self, my_neighbour, my_neighbour_id):
+    def _mould_supply_molecules_to_env(self, my_neighbour, my_neighbour_id,
+                                       induction):
         '''Determine amount of various molecules to add to environment
 
         Parameters
@@ -87,8 +86,6 @@ class BacteriaBrain(object):
             raise RuntimeError('The supply moulder should only be ' + \
                                'executed with belief about neighbours')
 
-        scaffold_shift = ObjectForce('shift_broth')
-
         share_percentage = sigmoid_10(self.scaffold['generosity_mag'], 
                                       1.0 - self.scaffold['generosity'], False, 
                                       my_neighbour)
@@ -102,36 +99,39 @@ class BacteriaBrain(object):
         ret_env = {}
         for molecule in compounds:
             current_amount = self.scaffold[molecule]
-            dx_amount = share_percentage * current_amount
 
             # Poison is taken from the vacuole of the agent, but put into
             # general poison category of environment
             if molecule == 'poison_vacuole':
+                dx_amount = poison_percentage * current_amount
                 env_compound_key = 'poison'
 
             else:
+                dx_amount = share_percentage * current_amount
                 env_compound_key = molecule
 
             ret_env[env_compound_key] = dx_amount
 
-            scaffold_shift.set_force_func(molecule, 'force_func_delta', 
-                                          {'increment' : -1.0 * dx_amount})
+            induction.set_map_func(molecule, 'force_func_delta', 
+                                   {'increment' : -1.0 * dx_amount})
 
         actuator_pop = {'dx_molecules_poison' : ret_env}
 
-        return MoulderReturn(actuator_pop, scaffold_shift)
+        return MoulderReturn(actuator_pop, induction)
 
-    def _mould_supply_molecules_to_one(self, my_neighbour, my_neighbour_id):
+    def _mould_supply_molecules_to_one(self, my_neighbour, my_neighbour_id,
+                                       induction):
         '''Bla bla
 
         '''
-        share_data = self._mould_supply_molecules_to_env(my_neighbour, my_neighbour_id)
+        share_data = self._mould_supply_molecules_to_env(my_neighbour,
+                                             my_neighbour_id, induction)
         
         param_plus = {'dx_molecules_poison' : 
                       share_data.actuator_params['dx_molecules_poison'],
                       'give_to_id' : my_neighbour_id}
 
-        return MoulderReturn(param_plus, share_data.object_force)
+        return MoulderReturn(param_plus, share_data.object_map)
 
     def _mould_contemplate_suicide(self):
         '''Determine if the bacteria should kill itself or not
@@ -190,7 +190,7 @@ class BacteriaBrain(object):
         
         return MoulderReturn(ret, None)
 
-    def _mould_make_poison(self):
+    def _mould_make_poison(self, induction):
         '''Convert a certain amount of useful molecules to poison to store in
         the vacuole. The method generates no actuator population instruction
 
@@ -202,8 +202,6 @@ class BacteriaBrain(object):
             poison content upon execution
 
         '''
-        scaffold_shift = ObjectForce('shift_broth')
-
         #
         # Compute fraction of molecules to turn into poison
         #
@@ -213,7 +211,7 @@ class BacteriaBrain(object):
         f = min(1.0, max(0.0, d * (p_max - p) / p_max))
 
         #
-        # Generate the ObjectForce to apply to adjust compound content
+        # Compute the object map that is induced to apply to adjust compound content
         #
         ret_delta = {}
         total_molecule = 0.0
@@ -223,15 +221,15 @@ class BacteriaBrain(object):
             deduct_compound = self.scaffold[compound] * f / float(n_compounds)
             total_molecule += deduct_compound
 
-            scaffold_shift.set_force_func(compound, 'force_func_delta', 
-                                          {'increment' : -1.0 * deduct_compound})
+            induction.set_map_func(compound, 'force_func_delta', 
+                                   {'increment' : -1.0 * deduct_compound})
 
-        scaffold_shift.set_force_func('poison_vacuole', 'force_func_delta',
-                                      {'increment' : total_molecule})
+        induction.set_map_func('poison_vacuole', 'force_func_delta',
+                               {'increment' : total_molecule})
 
-        return MoulderReturn(None, scaffold_shift)
+        return MoulderReturn(None, induction)
 
-    def _mould_cell_division(self):
+    def _mould_cell_division(self, induction):
         '''Method to attempt cell division and if successful instruct how
         resources are to be divided
 
@@ -250,18 +248,17 @@ class BacteriaBrain(object):
         ret_params = {'do_it' : do_it}
 
         if not do_it:
-            scaffold_shift = None
+            induction = None
 
         else:
-            scaffold_shift = ObjectForce('cell_divide')
 
             for compound in compounds:
-                scaffold_shift.set_force_func(compound, 'force_func_scale', {'factor' : 0.5})
+                induction.set_map_func(compound, 'force_func_scale', {'factor' : 0.5})
 
-            scaffold_shift.set_force_func('poison_vacuole', 'force_func_scale', {'factor' : 0.5})
-            scaffold_shift.set_force_func('poison', 'force_func_scale', {'factor' : 0.5})
+            induction.set_map_func('poison_vacuole', 'force_func_scale', {'factor' : 0.5})
+            induction.set_map_func('poison', 'force_func_scale', {'factor' : 0.5})
 
-        return MoulderReturn(ret_params, scaffold_shift)
+        return MoulderReturn(ret_params, induction)
             
 
     def __init__(self, scaffold, belief):

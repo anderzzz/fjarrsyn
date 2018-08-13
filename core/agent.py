@@ -317,13 +317,13 @@ class Agent(object):
             the_moulder = self.moulder[action]
 
         if action in self.actuator:
-            force = the_moulder(self.belief, self.actuator[action])
+            induction = the_moulder(self.belief, self.actuator[action])
         else:
-            force = the_moulder(self.belief)
+            induction = the_moulder(self.belief)
 
-        if not force is None:
-            force(self)
-            force.empty_force_func()
+        if not induction is None:
+            induction(self)
+            induction.empty_map()
 
     def act(self, action):
         '''Method for agent to act a populated actuator.
@@ -357,7 +357,7 @@ class Agent(object):
         reaction = the_actuator(self.agent_id_system)
         if not reaction is None:
             reaction(self)
-            reaction.empty_force_func()
+            reaction.empty_map()
                 
         the_actuator.depopulate()
 

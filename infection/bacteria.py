@@ -5,6 +5,7 @@ import logging
 
 from core.agent import Agent
 from core.organs import Interpreter, Moulder, Cortex
+from core.naturallaw import ObjectMapCollection, ObjectMapManyMany
 from infection.bacteria_brain import BacteriaBrain
 
 #def pretty_print(dd):
@@ -16,6 +17,12 @@ class Bacteria(Agent):
     '''Bla bla
 
     '''
+    def _force_surface_profile(self, old_value):
+        '''Bla bla
+
+        '''
+        pass
+
     def _tickle_surface_profile(self):
         '''Bla bla
 
@@ -71,49 +78,110 @@ class Bacteria(Agent):
 
         super().__init__(name)
 
+        #
+        # Initialize the scaffold scalar values
+        #
         self.set_imprint_bulk('scaffold', scaffold_init)
 
+        #
+        # Add constraing force for derived scaffold scalars
+        #
+        #derived_scaffold = ObjectMapManyMany('derived_scaffold')
+        #derived_scaffold.set_force_func('surface_profile',
+        #                                self._force_surface_profile)
+
+        #
+        # Add cortex organs
+        #
         cortex = Cortex('surface_signal', 
                         'surface_profile',
                         self._tickle_surface_profile)
         self.set_organ(cortex)
-                        
+        
+        #
+        # Add organs part of the executive function
+        #
         brain = BacteriaBrain(self.scaffold, self.belief)
+
+        #
+        # Interpret the buzz from sensing a neighbour's surface profile
+        #
         interpreter = Interpreter('similar_hood', 
                                   ['surface_profile', 'neighbour_id'],
                                   brain._interpret_selfsimilarity_neighbourhood)
         self.set_organ(interpreter)
 
+        #
+        # Mould the action to share molecules with all neighbour environments.
+        # This induces a scaffold force
+        #
+        scaffold_force = ObjectMapCollection(['molecule_A', 'molecule_B', 
+                                              'molecule_C', 'poison_vacuole'], 
+                                              standard_funcs=True)
         moulder = Moulder('share_molecules',
                           ['my_neighbour', 'my_neighbour_id'],
-                          brain._mould_supply_molecules_to_env)
+                          brain._mould_supply_molecules_to_env,
+                          {'induction' : scaffold_force})
         self.set_organ(moulder)
 
+        #
+        # Mould the action to share molecules with a specified environment.
+        # This induces a scaffold force
+        #
+        scaffold_force = ObjectMapCollection(['molecule_A', 'molecule_B', 
+                                              'molecule_C', 'poison_vacuole'], 
+                                              standard_funcs=True)
         moulder = Moulder('share_molecules_one',
                           ['my_neighbour', 'my_neighbour_id'],
-                          brain._mould_supply_molecules_to_one)
+                          brain._mould_supply_molecules_to_one,
+                          {'induction' : scaffold_force})
         self.set_organ(moulder)
 
+        #
+        # Mould the action of agent killing itself
+        #
         moulder = Moulder('contemplate_suicide', 
                           [],
                           brain._mould_contemplate_suicide)
         self.set_organ(moulder)
 
+        #
+        # Mould the action to gulp a fraction of the environment. This induces
+        # no scaffold force, rather changes to scaffold follows as a reaction
+        # from the corresponding actuator
+        #
         moulder = Moulder('gulp_environment', 
                           ['my_neighbour'],
                           brain._mould_gulp_molecules_from_env)
         self.set_organ(moulder)
 
+        #
+        # Mould the internal change of creating poison. This populates no
+        # actuator, rather it only induces a scaffold force
+        #
+        scaffold_force = ObjectMapCollection(['molecule_A', 'molecule_B', 
+                                              'molecule_C', 'poison_vacuole'], 
+                                              standard_funcs=True)
         moulder = Moulder('make_poison',
                           [],
-                          brain._mould_make_poison)
+                          brain._mould_make_poison,
+                          {'induction' : scaffold_force})
         self.set_organ(moulder)
 
+        #
+        # Mould the splitting of the agent in two identical agents. This
+        # induces a scaffold force
+        #
+        scaffold_force = ObjectMapCollection(['molecule_A', 'molecule_B', 
+                                              'molecule_C', 'poison_vacuole',
+                                              'poison'], 
+                                              standard_funcs=True)
         moulder = Moulder('split_in_two',
                           [],
-                          brain._mould_cell_division)
+                          brain._mould_cell_division,
+                          {'induction' : scaffold_force})
         self.set_organ(moulder)
-
+        
 class ExtracellEnvironment(object):
     '''Bla bla
 

@@ -49,4 +49,3 @@ class BeakerPropagator(object):
         self.aux_objectforce = aux_objectforce
 
 
-

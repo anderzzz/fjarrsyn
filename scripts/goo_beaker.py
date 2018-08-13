@@ -11,7 +11,7 @@ import pickle
 from infection.propagator import BeakerPropagator
 from infection.goo import Goo
 from infection.bacteria import Bacteria, ExtracellEnvironment
-from core.naturallaw import RandomMutator, ObjectForce 
+from core.naturallaw import ObjectMapCollection 
 from simulator.runner import FiniteSystemRunner
 
 def parse_(argv):
@@ -89,7 +89,7 @@ def parse_(argv):
                              help='Increment of internal poison')
     group_force.add_argument('--mutate-poison-chance',
                              dest='mutate_poison_chance',
-                             default='0.01',
+                             default='0.0',
                              help='Chance of agent poison leading to death')
     group_force.add_argument('--mutate-surface',
                              dest='mutate_surface',
@@ -223,13 +223,13 @@ def main(args):
                        'poison_vacuole' : 0.0,
                        'poison_vacuole_max' : 2.0,
                        'share_generally' : share_general,
-                       'generosity' : 0.0,
-                       'attacker' : 0.0,
-                       'generosity_mag' : 0.0,
-                       'attack_mag' : 0.0,
+                       'generosity' : 0.5,
+                       'attacker' : 0.5,
+                       'generosity_mag' : 0.5,
+                       'attack_mag' : 0.5,
                        'vulnerability_to_poison' : vulnerable_poison,
-                       'trusting' : 0.0,
-                       'trusting_mag' : 0.0,
+                       'trusting' : 0.5,
+                       'trusting_mag' : 0.5,
                        'split_thrs' : split_thrs}
 
     SCAFFOLD_INIT_W = {'surface_profile' : 'wwwwwwww',
@@ -240,13 +240,13 @@ def main(args):
                        'poison_vacuole' : 0.0,
                        'poison_vacuole_max' : 2.0,
                        'share_generally' : share_general,
-                       'generosity' : 0.0,
-                       'attacker' : 0.0,
-                       'generosity_mag' : 0.0,
-                       'attack_mag' : 0.0,
+                       'generosity' : 0.5,
+                       'attacker' : 0.5,
+                       'generosity_mag' : 0.5,
+                       'attack_mag' : 0.5,
                        'vulnerability_to_poison' : vulnerable_poison,
-                       'trusting' : 0.0,
-                       'trusting_mag' : 0.0,
+                       'trusting' : 0.5,
+                       'trusting_mag' : 0.5,
                        'split_thrs' : split_thrs}
 
     if pickle_load is None:
@@ -299,50 +299,66 @@ def main(args):
     # Set up the object forces to apply from above onto the agent management
     # system, random and deterministic
     #
-    force = RandomMutator('bacterial_drift')
-    force.set_force_func('generosity', 
-                         'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std})
-    force.set_force_func('attacker', 
-                         'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std})
-    force.set_force_func('trusting', 
-                         'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std})
-    force.set_force_func('generosity_mag', 
-                         'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force.set_force_func('attack_mag', 
-                         'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force.set_force_func('trusting_mag', 
-                         'force_func_wiener_bounded', mutate_type_chance,
-                         {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0})
-    force.set_force_func('molecule_A', 
-                         'force_func_delta', mutate_resource_chance,
-                         {'increment' : mutate_increment})
-    force.set_force_func('molecule_B', 
-                         'force_func_delta', mutate_resource_chance,
-                         {'increment' : mutate_increment})
-    force.set_force_func('molecule_C', 
-                         'force_func_delta', mutate_resource_chance,
-                         {'increment' : mutate_increment})
-    force.set_force_func('poison',
-                         'force_func_delta', mutate_poison_chance,
-                         {'increment' : poison_increment})
-    force.set_force_func('surface_profile', 
-                         'force_func_flip_one_char', mutate_surface,
-                         {'alphabet' : ['a', 'w']})
+    force = ObjectMapCollection(['generosity', 'attacker', \
+                                'trusting', 'generosity_mag', 'attack_mag', \
+                                'trusting_mag', 'molecule_A', 'molecule_B', \
+                                'molecule_C', 'poison'], 
+                                standard_funcs=True, stochastic_decoration=True)
+    force.set_map_func('generosity', 
+                       'force_func_wiener_bounded', 
+                       {'std' : mutate_type_std}, 
+                       apply_p=mutate_type_chance)
+    force.set_map_func('attacker', 
+                       'force_func_wiener_bounded', 
+                       {'std' : mutate_type_std},
+                       apply_p=mutate_type_chance)
+    force.set_map_func('trusting', 
+                       'force_func_wiener_bounded', 
+                       {'std' : mutate_type_std},
+                       apply_p=mutate_type_chance)
+    force.set_map_func('generosity_mag', 
+                       'force_func_wiener_bounded',
+                       {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       apply_p=mutate_type_chance)
+    force.set_map_func('attack_mag', 
+                       'force_func_wiener_bounded',
+                       {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       apply_p=mutate_type_chance)
+    force.set_map_func('trusting_mag', 
+                       'force_func_wiener_bounded',
+                       {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       apply_p=mutate_type_chance)
+    force.set_map_func('molecule_A', 
+                       'force_func_delta',
+                       {'increment' : mutate_increment},
+                       apply_p=mutate_resource_chance)
+    force.set_map_func('molecule_B', 
+                       'force_func_delta',
+                       {'increment' : mutate_increment},
+                       apply_p=mutate_resource_chance)
+    force.set_map_func('molecule_C', 
+                       'force_func_delta',
+                       {'increment' : mutate_increment},
+                       apply_p=mutate_resource_chance)
+    force.set_map_func('poison', 
+                       'force_func_delta',
+                       {'increment' : poison_increment},
+                       apply_p=mutate_poison_chance)
 
-    age_force = ObjectForce('environmental_time')
-    age_force.set_force_func('molecule_A', 'force_func_exponential_convergence',
-                             {'loss' : env_loss, 'target' : equilibrium_env})
-    age_force.set_force_func('molecule_B', 'force_func_exponential_convergence',
-                             {'loss' : env_loss, 'target' : equilibrium_env})
-    age_force.set_force_func('molecule_C', 'force_func_exponential_convergence',
-                             {'loss' : env_loss, 'target' : equilibrium_env})
-    age_force.set_force_func('poison', 'force_func_exponential_convergence',
-                             {'loss' : env_loss, 'target' : 0.0})
+    age_force = ObjectMapCollection(['molecule_A', 'molecule_B', 'molecule_C', 'poison'], 
+                                    standard_funcs=True)
+    age_force.set_map_func('molecule_A', 
+                           'force_func_exponential_convergence',
+                           {'loss' : env_loss, 'target' : equilibrium_env})
+    age_force.set_map_func('molecule_B', 
+                           'force_func_exponential_convergence',
+                           {'loss' : env_loss, 'target' : equilibrium_env})
+    age_force.set_map_func('molecule_C', 
+                           'force_func_exponential_convergence',
+                           {'loss' : env_loss, 'target' : equilibrium_env})
+    age_force.set_map_func('poison', 
+                           'force_func_exponential_convergence',
+                           {'loss' : env_loss, 'target' : 0.0})
 
     propagator = BeakerPropagator(force, age_force)
 
