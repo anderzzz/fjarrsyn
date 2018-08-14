@@ -3,7 +3,7 @@
 '''
 import numpy as np
 
-RAPID_SHIFT_STEEPNESS = 10.0
+RAPID_SHIFT_STEEPNESS = 100.0
 HORIZONTAL_SHIFT = 0.25
 
 def sigmoid(max_height, steepness, midpoint, up_down, x_value):
@@ -108,3 +108,23 @@ def linear_step_10(max_val, min_val, mid_point, up_down, x_value):
 
     return linear_step(mid_point - HORIZONTAL_SHIFT, mid_point + HORIZONTAL_SHIFT,
                        max_val, min_val, up_down, x_value)
+
+def rectangle(max_val, min_val, critical_1, critical_2, x_value):
+    '''Bla bla
+
+    '''
+    if critical_1 > critical_2:
+        c1 = critical_2
+        c2 = critical_1
+    else:
+        c1 = critical_1
+        c2 = critical_2
+
+    if x_value < c1:
+        ret = min_val
+    elif x_value > c1 and x_value < c2:
+        ret = max_val
+    elif x_value > c2:
+        ret = min_val
+
+    return ret

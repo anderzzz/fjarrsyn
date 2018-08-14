@@ -37,8 +37,8 @@ class BacteriaBrain(object):
 
         '''
         if surface_profile is None:
-            self.belief['my_neighbour'] = None
-            self.belief['my_neighbour_id'] = None
+            self.belief['neighbour_same'] = None
+            self.belief['neighbour_id'] = None
 
         else:
             my_profile = self.scaffold['surface_profile']
@@ -49,15 +49,46 @@ class BacteriaBrain(object):
                                  'size as current profile (%s)' %(my_profile))
 
             n_same = 0
-            for char_me, char_other in zip(my_profile, surface_profile):
-                if char_me == char_other:
+            for c1, c2 in zip(my_profile, surface_profile):
+                if c1 == c2:
                     n_same += 1
 
             frac_same = float(n_same) / float(len(my_profile))
-            self.belief['my_neighbour'] = frac_same
-            self.belief['my_neighbour_id'] = neighbour_id
+            self.belief['neighbour_same'] = frac_generosity_gene
+            self.belief['neighbour_id'] = neighbour_id
 
-        return ('my_neighbour', 'my_neighbour_id')
+        return ('neighbour_same', 'neighbour_id')
+
+    def _interpret_generosity_neighbourhood(self, surface_profile,
+                                            neighbour_id):
+        '''Interpret how generous a neighbour is based on signal
+
+        Parameters
+        ----------
+        surface_profile : str
+            The string of characters defining the surface profile
+        neighbour_id : str
+            The neighbour id of agent that was sensed and created the buzz
+
+        Returns
+        -------
+        belief_label 
+            Container of labels of the beliefs the interpretation updated or
+            created.
+
+        '''
+        if surface_profile is None:
+            self.belief['neighbour_generous'] = None
+            self.belief['neighbour_id'] = None
+
+        else:
+            n_generous_gene = surface_profile.count('a')
+
+            frac_generous = float(n_generous_gene) / float(len(surface_profile))
+            self.belief['neighbour_generous'] = frac_generosity_gene
+            self.belief['neighbour_id'] = neighbour_id
+
+        return ('neighbour_generous', 'neighbour_id')
 
     def _mould_supply_molecules_to_env(self, my_neighbour, my_neighbour_id,
                                        induction):

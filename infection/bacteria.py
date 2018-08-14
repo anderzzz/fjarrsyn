@@ -45,7 +45,7 @@ class Bacteria(Agent):
 #        logging.debug(pretty_print(self.scaffold))
         # Ascertain if there is a neighbour and how similar it is
         self.perceive('neighbour_surface', 'similar_hood')
-        if not self.belief['my_neighbour'] is None:
+        if not self.belief['neighbour_id'] is None:
 #            logging.debug('Belief after sensing neighbourhood')
 #            logging.debug(pretty_print(self.belief))
 
@@ -127,7 +127,7 @@ class Bacteria(Agent):
                                               'molecule_C', 'poison_vacuole'], 
                                               standard_funcs=True)
         moulder = Moulder('share_molecules',
-                          ['my_neighbour', 'my_neighbour_id'],
+                          ['neighbour_generous', 'neighbour_id'],
                           brain._mould_supply_molecules_to_env,
                           {'induction' : scaffold_force})
         self.set_organ(moulder)
@@ -140,7 +140,7 @@ class Bacteria(Agent):
                                               'molecule_C', 'poison_vacuole'], 
                                               standard_funcs=True)
         moulder = Moulder('share_molecules_one',
-                          ['my_neighbour', 'my_neighbour_id'],
+                          ['neighbour_generous', 'neighbour_id'],
                           brain._mould_supply_molecules_to_one,
                           {'induction' : scaffold_force})
         self.set_organ(moulder)
@@ -159,7 +159,7 @@ class Bacteria(Agent):
         # from the corresponding actuator
         #
         moulder = Moulder('gulp_environment', 
-                          ['my_neighbour'],
+                          ['neighbour_generous'],
                           brain._mould_gulp_molecules_from_env)
         self.set_organ(moulder)
 
