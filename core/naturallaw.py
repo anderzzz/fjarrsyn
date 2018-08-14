@@ -25,7 +25,7 @@ class _ObjectMap(object):
         else:
             raise ValueError('Unknown mapping function encountered: %s' %(func))
 
-    def set_func(self, func, func_kwargs):
+    def set_func(self, func, func_kwargs={}):
         '''Bla bla
 
         '''

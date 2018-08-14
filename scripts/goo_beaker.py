@@ -53,6 +53,10 @@ def parse_(argv):
                              dest='split_thrs',
                              default='0.9',
                              help='Threshold above which bacteria splits')
+    group_start.add_argument('--profile-length',
+                             dest='profile_len',
+                             default='8',
+                             help='Number of characters in surface profile')
     group_start.add_argument('--share-generally',
                              default=False,
                              dest='share_general',
@@ -159,6 +163,7 @@ def parse_(argv):
     vulnerable_poison = float(args.vulnerable_poison)
     split_thrs = float(args.split_thrs)
     share_general = args.share_general
+    profile_len = int(args.profile_len)
 
     env_loss = float(args.env_loss)
     mutate_type_std = float(args.mutate_type_std)
@@ -184,7 +189,7 @@ def parse_(argv):
     debug_runner = args.debug_runner
 
     return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
-           coord_init, vulnerable_poison, split_thrs, env_loss, \
+           coord_init, vulnerable_poison, split_thrs, profile_len, env_loss, \
            mutate_type_std, mutate_type_chance, mutate_increment, \
            mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
            n_sample, sample_file_name, graph_file_name, sample_features, \
@@ -197,7 +202,7 @@ def main(args):
     # Parse the command-line
     #
     n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, coord_init, \
-        vulnerable_poison, split_thrs, \
+        vulnerable_poison, split_thrs, profile_len, \
         env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
         mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
         n_sample, sample_file_name, graph_file_name, sample_features, \
@@ -216,6 +221,7 @@ def main(args):
     # Set up the agent management system
     #
     SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaaaaa',
+                       'profile_length' : profile_len,
                        'molecule_A' : 0.0,
                        'molecule_B' : 0.0,
                        'molecule_C' : 0.0,
@@ -233,6 +239,7 @@ def main(args):
                        'split_thrs' : split_thrs}
 
     SCAFFOLD_INIT_W = {'surface_profile' : 'wwwwwwww',
+                       'profile_length' : profile_len,
                        'molecule_A' : 0.0,
                        'molecule_B' : 0.0,
                        'molecule_C' : 0.0,

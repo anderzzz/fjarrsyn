@@ -3,6 +3,7 @@
 '''
 import logging
 
+from core.helper_funcs import sigmoid_10
 from core.agent import Agent
 from core.organs import Interpreter, Moulder, Cortex
 from core.naturallaw import ObjectMapCollection, ObjectMapManyMany
@@ -17,11 +18,15 @@ class Bacteria(Agent):
     '''Bla bla
 
     '''
-    def _force_surface_profile(self, old_value):
+    def _derive_surface_profile(self, generosity, generosity_mag, profile_length):
         '''Bla bla
 
         '''
-        pass
+        share_fraction_identical = sigmoid_10(generosity_mag, 1.0 - generosity, False, 1.0)
+        n_chars = int(round(profile_length * share_fraction_identical))
+        profile = ['w'] * (profile_length - n_chars) + ['a'] * (n_chars)
+
+        return [''.join(profile)]
 
     def _tickle_surface_profile(self):
         '''Bla bla
@@ -34,6 +39,7 @@ class Bacteria(Agent):
         plan and experiences an object force
 
         '''
+        self.derived_scaffold(self)
 #        logging.debug('----> AGENT ID: %s' %(self.agent_id_system))
 #        logging.debug('Scaffold upon entry')
 #        logging.debug(pretty_print(self.scaffold))
@@ -86,9 +92,11 @@ class Bacteria(Agent):
         #
         # Add constraing force for derived scaffold scalars
         #
-        #derived_scaffold = ObjectMapManyMany('derived_scaffold')
-        #derived_scaffold.set_force_func('surface_profile',
-        #                                self._force_surface_profile)
+        self.derived_scaffold = ObjectMapManyMany(['generosity', 'generosity_mag'],
+                                             ['surface_profile'])
+        self.derived_scaffold.set_func(self._derive_surface_profile,
+                        {'profile_length' : self.scaffold['profile_length']})
+        self.derived_scaffold(self)
 
         #
         # Add cortex organs
