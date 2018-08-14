@@ -213,9 +213,9 @@ class BacteriaBrain(object):
         else:
             trust = my_neighbour
 
-        gulp_percentage = linear_step_10(self.scaffold['trusting_mag'], 0.0,
-                                         1.0 - self.scaffold['trusting'], False,
-                                         trust)
+        gulp_percentage = sigmoid_10(self.scaffold['trusting_mag'], 
+                                     1.0 - self.scaffold['trusting'], False, 
+                                     trust)
 
         ret = {'how_much' : gulp_percentage}
         
