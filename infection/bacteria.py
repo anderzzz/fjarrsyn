@@ -44,7 +44,7 @@ class Bacteria(Agent):
 #        logging.debug('Scaffold upon entry')
 #        logging.debug(pretty_print(self.scaffold))
         # Ascertain if there is a neighbour and how similar it is
-        self.perceive('neighbour_surface', 'similar_hood')
+        self.perceive('neighbour_surface', 'generous_hood')
         if not self.belief['neighbour_id'] is None:
 #            logging.debug('Belief after sensing neighbourhood')
 #            logging.debug(pretty_print(self.belief))
@@ -117,6 +117,11 @@ class Bacteria(Agent):
         interpreter = Interpreter('similar_hood', 
                                   ['surface_profile', 'neighbour_id'],
                                   brain._interpret_selfsimilarity_neighbourhood)
+        self.set_organ(interpreter)
+
+        interpreter = Interpreter('generous_hood', 
+                                  ['surface_profile', 'neighbour_id'],
+                                  brain._interpret_generosity_neighbourhood)
         self.set_organ(interpreter)
 
         #

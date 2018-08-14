@@ -5,6 +5,7 @@ import sys
 import argparse
 import numpy as np
 import numpy.random
+import pandas as pd
 import logging
 import pickle
 
@@ -22,14 +23,21 @@ def parse_(argv):
         'seed populations, which are differentiated on a superficial feature.')
 
     group_start = parser.add_argument_group('Initial System Setup')
-    group_start.add_argument('--n-bacteria-1',
-                             dest='n_bacteria_1',
-                             default='4',
-                             help='Number of initial bacteria of type 1 in cell space')
-    group_start.add_argument('--n-bacteria-2',
-                             dest='n_bacteria_2',
-                             default='4',
-                             help='Number of initial bacteria of type 2 in cell space')
+    group_start.add_argument('--bacteria-init-file',
+                             dest='bacteria_init_file',
+                             required=True,
+                             help='Path to file containing initial values ' + \
+                                  'keyed on bacterial type')
+    group_start.add_argument('--types-to-simulate',
+                             dest='types_to_simulate',
+                             required=True,
+                             help='Comma-separated string of bacterial ' + \
+                                  'types to include in simulation')
+    group_start.add_argument('--n-bacteria',
+                             dest='n_bacteria',
+                             default='1',
+                             help='Comma-separated string of number of ' + \
+                                  'each bacterial type to initialize')
     group_start.add_argument('--cell-length',
                              dest='cell_length',
                              default='10',
@@ -37,7 +45,7 @@ def parse_(argv):
                                   'of the cubic grid of the cell space')
     group_start.add_argument('--equilibrium-A-B-C',
                              dest='equilibrium',
-                             default='0.1',
+                             default='0.0',
                              help='Equilibrium content of molecules A, B and C ' + \
                                   'in environment')
     group_start.add_argument('--coord-init',
@@ -45,24 +53,6 @@ def parse_(argv):
                              default='random',
                              help='How to initialize the placement of bacterial ' + \
                                   'agents in the grid')
-    group_start.add_argument('--vulnerable-poison',
-                             dest='vulnerable_poison',
-                             default='2.0',
-                             help='Vulnerability to poison parameter')
-    group_start.add_argument('--split-thrs',
-                             dest='split_thrs',
-                             default='0.9',
-                             help='Threshold above which bacteria splits')
-    group_start.add_argument('--profile-length',
-                             dest='profile_len',
-                             default='8',
-                             help='Number of characters in surface profile')
-    group_start.add_argument('--share-generally',
-                             default=False,
-                             dest='share_general',
-                             action='store_true',
-                             help='Flag to activate sharing of molecules ' + \
-                                  'across all neighbours')
 
     group_force = parser.add_argument_group('Object and Random Force Parameters')
     group_force.add_argument('--env-equilibrate-frac',
@@ -70,22 +60,30 @@ def parse_(argv):
                              default='0.5',
                              help='Fraction adjustment towards environmental ' + \
                                   'equilibrium per time-step (0.0-1.0)')
-    group_force.add_argument('--mutate-type-std',
-                             dest='mutate_type_std',
+    group_force.add_argument('--mutate-phenotype-std',
+                             dest='mutate_phenotype_std',
                              default='0.1',
                              help='Standard deviation of Wiener process that ' + \
-                                  'encode random mutation drift of agent type')
-    group_force.add_argument('--mutate-type-chance',
-                             dest='mutate_type_chance',
-                             default='0.05',
-                             help='Chance of agent type mutation drift')
+                                  'encode random mutation drift of all agent types')
+    group_force.add_argument('--mutate-generosity-chance',
+                             dest='mutate_generosity_chance',
+                             default='0.0',
+                             help='Chance of agent generosity phenotype mutation drift')
+    group_force.add_argument('--mutate-trust-chance',
+                             dest='mutate_trust_chance',
+                             default='0.0',
+                             help='Chance of agent trust phenotype mutation drift')
+    group_force.add_argument('--mutate-attack-chance',
+                             dest='mutate_attack_chance',
+                             default='0.0',
+                             help='Chance of agent attack phenotype mutation drift')
     group_force.add_argument('--mutate-resource-increment',
                              dest='mutate_increment',
                              default='1.0',
                              help='Increment of random internal resource molecule')
     group_force.add_argument('--mutate-resource-chance',
                              dest='mutate_resource_chance',
-                             default='0.05',
+                             default='0.0',
                              help='Chance of agent resource increment')
     group_force.add_argument('--mutate-poison-increment',
                              dest='poison_increment',
@@ -95,15 +93,11 @@ def parse_(argv):
                              dest='mutate_poison_chance',
                              default='0.0',
                              help='Chance of agent poison leading to death')
-    group_force.add_argument('--mutate-surface',
-                             dest='mutate_surface',
-                             default='0.01',
-                             help='Chance of mutating surface of agent')
 
     group_assembly_dynamics = parser.add_argument_group('Assembly Dynamics Parameters')
     group_assembly_dynamics.add_argument('--newborn-compete',
                                          dest='newborn_compete',
-                                         default='0.25',
+                                         default='0.20',
                                          help='In event no empty node to grow ' + \
                                          'into, how likely the newly born ' + \
                                          'wins over incumbent')
@@ -111,9 +105,11 @@ def parse_(argv):
     group_simulation = parser.add_argument_group('Simulation Parameters')
     group_simulation.add_argument('--n-steps',
                                   dest='n_steps',
+                                  required=True,
                                   help='Number of steps in the simulation')
     group_simulation.add_argument('--n-sample',
                                   dest='n_sample',
+                                  required=True,
                                   help='Number of simulation steps between ' + \
                                        'sampling of state and graph')
     group_simulation.add_argument('--sample-file-name',
@@ -155,24 +151,25 @@ def parse_(argv):
 
     args = parser.parse_args(argv)
 
-    n_bacteria_1 = int(args.n_bacteria_1)
-    n_bacteria_2 = int(args.n_bacteria_2)
+    bacteria_init_file = args.bacteria_init_file
+    types_to_simulate = args.types_to_simulate.split(',')
+    n_bacteria = args.n_bacteria.split(',')
+    ntypes = {} 
+    for n_bact, type_bact in zip(n_bacteria, types_to_simulate):
+        ntypes[type_bact] = int(n_bact)
     cell_length = int(args.cell_length)
     equilibrium_env = float(args.equilibrium)
     coord_init = args.coord_init
-    vulnerable_poison = float(args.vulnerable_poison)
-    split_thrs = float(args.split_thrs)
-    share_general = args.share_general
-    profile_len = int(args.profile_len)
 
     env_loss = float(args.env_loss)
-    mutate_type_std = float(args.mutate_type_std)
-    mutate_type_chance = float(args.mutate_type_chance)
+    mutate_phenotype_std = float(args.mutate_phenotype_std)
+    mutate_generosity_chance = float(args.mutate_generosity_chance)
+    mutate_trust_chance = float(args.mutate_trust_chance)
+    mutate_attack_chance = float(args.mutate_attack_chance)
     mutate_increment = float(args.mutate_increment)
     mutate_resource_chance = float(args.mutate_resource_chance)
     poison_increment = float(args.poison_increment)
     mutate_poison_chance = float(args.mutate_poison_chance)
-    mutate_surface = float(args.mutate_surface)
 
     newborn_compete = float(args.newborn_compete)
 
@@ -188,26 +185,32 @@ def parse_(argv):
 
     debug_runner = args.debug_runner
 
-    return n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, \
-           coord_init, vulnerable_poison, split_thrs, profile_len, env_loss, \
-           mutate_type_std, mutate_type_chance, mutate_increment, \
-           mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
-           n_sample, sample_file_name, graph_file_name, sample_features, \
-           seed, pickle_save, pickle_load, debug_runner, share_general, \
-           poison_increment, mutate_poison_chance
+    return bacteria_init_file, ntypes, cell_length, equilibrium_env, \
+           coord_init, env_loss, \
+           mutate_phenotype_std, mutate_generosity_chance, \
+           mutate_trust_chance, mutate_attack_chance, \
+           mutate_increment, mutate_resource_chance, \
+           poison_increment, mutate_poison_chance, \
+           newborn_compete, \
+           n_steps, n_sample, sample_file_name, graph_file_name, \
+           sample_features, seed, pickle_save, pickle_load, \
+           debug_runner
 
 def main(args):
 
     #
     # Parse the command-line
     #
-    n_bacteria_1, n_bacteria_2, cell_length, equilibrium_env, coord_init, \
-        vulnerable_poison, split_thrs, profile_len, \
-        env_loss, mutate_type_std, mutate_type_chance, mutate_increment, \
-        mutate_resource_chance, mutate_surface, newborn_compete, n_steps, \
-        n_sample, sample_file_name, graph_file_name, sample_features, \
-        seed, pickle_save, pickle_load, debug_runner, \
-        share_general, poison_increment, mutate_poison_chance = parse_(args)
+    bacteria_init_file, ntypes, cell_length, equilibrium_env, \
+        coord_init, env_loss, \
+        mutate_phenotype_std, mutate_generosity_chance, \
+        mutate_trust_chance, mutate_attack_chance, \
+        mutate_increment, mutate_resource_chance, \
+        poison_increment, mutate_poison_chance, \
+        newborn_compete, \
+        n_steps, n_sample, sample_file_name, graph_file_name, \
+        sample_features, seed, pickle_save, pickle_load, \
+        debug_runner = parse_(args)
 
     #
     # Rudimentary initializations
@@ -218,53 +221,33 @@ def main(args):
                             level=logging.DEBUG)
 
     #
-    # Set up the agent management system
+    # Set up the agent management system. If a pickle file is available use it,
+    # if not initialize a system according to specification
     #
-    SCAFFOLD_INIT_A = {'surface_profile' : 'aaaaaaaa',
-                       'profile_length' : profile_len,
-                       'molecule_A' : 0.0,
-                       'molecule_B' : 0.0,
-                       'molecule_C' : 0.0,
-                       'poison' : 0.0,
-                       'poison_vacuole' : 0.0,
-                       'poison_vacuole_max' : 2.0,
-                       'share_generally' : share_general,
-                       'generosity' : 0.5,
-                       'attacker' : 0.5,
-                       'generosity_mag' : 0.5,
-                       'attack_mag' : 0.5,
-                       'vulnerability_to_poison' : vulnerable_poison,
-                       'trusting' : 0.5,
-                       'trusting_mag' : 0.5,
-                       'split_thrs' : split_thrs}
-
-    SCAFFOLD_INIT_W = {'surface_profile' : 'wwwwwwww',
-                       'profile_length' : profile_len,
-                       'molecule_A' : 0.0,
-                       'molecule_B' : 0.0,
-                       'molecule_C' : 0.0,
-                       'poison' : 0.0,
-                       'poison_vacuole' : 0.0,
-                       'poison_vacuole_max' : 2.0,
-                       'share_generally' : share_general,
-                       'generosity' : 0.5,
-                       'attacker' : 0.5,
-                       'generosity_mag' : 0.5,
-                       'attack_mag' : 0.5,
-                       'vulnerability_to_poison' : vulnerable_poison,
-                       'trusting' : 0.5,
-                       'trusting_mag' : 0.5,
-                       'split_thrs' : split_thrs}
-
     if pickle_load is None:
-        bacterial_agents = []
-        for k_bacteria in range(n_bacteria_1):
-            bacterial_agents.append(Bacteria('bacteria_A_%s' %(str(k_bacteria)),
-                                             SCAFFOLD_INIT_A))
 
-        for k_bacteria in range(n_bacteria_2):
-            bacterial_agents.append(Bacteria('bacteria_W_%s' %(str(k_bacteria)),
-                                             SCAFFOLD_INIT_W))
+        with open(bacteria_init_file) as fin:
+            df = pd.read_csv(fin)
+
+        bacterial_agents = []
+        for bact_type, n_bact in ntypes.items():
+            df_type = df.loc[df['bacteria_name'] == bact_type]
+            df_data = df_type[['scaffold_name', 'value']]
+
+            scaffold_init = {}
+            for row_id, datum in df_data.iterrows():
+                key = datum['scaffold_name']
+                if key == 'share_generally':
+                    value = bool(datum['value'])
+                elif key == 'profile_length':
+                    value = int(datum['value'])
+                else:
+                    value = float(datum['value'])
+
+                scaffold_init[key] = value
+
+            for k_bacteria in range(n_bact):
+                bacterial_agents.append(Bacteria('bacteria', scaffold_init))
 
         SCAFFOLD_ENV = {'molecule_A' : equilibrium_env,
                         'molecule_B' : equilibrium_env,
@@ -313,28 +296,28 @@ def main(args):
                                 standard_funcs=True, stochastic_decoration=True)
     force.set_map_func('generosity', 
                        'force_func_wiener_bounded', 
-                       {'std' : mutate_type_std}, 
-                       apply_p=mutate_type_chance)
+                       {'std' : mutate_phenotype_std}, 
+                       apply_p=mutate_generosity_chance)
     force.set_map_func('attacker', 
                        'force_func_wiener_bounded', 
-                       {'std' : mutate_type_std},
-                       apply_p=mutate_type_chance)
+                       {'std' : mutate_phenotype_std},
+                       apply_p=mutate_attack_chance)
     force.set_map_func('trusting', 
                        'force_func_wiener_bounded', 
-                       {'std' : mutate_type_std},
-                       apply_p=mutate_type_chance)
+                       {'std' : mutate_phenotype_std},
+                       apply_p=mutate_trust_chance)
     force.set_map_func('generosity_mag', 
                        'force_func_wiener_bounded',
-                       {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
-                       apply_p=mutate_type_chance)
+                       {'std' : mutate_phenotype_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       apply_p=mutate_generosity_chance)
     force.set_map_func('attack_mag', 
                        'force_func_wiener_bounded',
-                       {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
-                       apply_p=mutate_type_chance)
+                       {'std' : mutate_phenotype_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       apply_p=mutate_attack_chance)
     force.set_map_func('trusting_mag', 
                        'force_func_wiener_bounded',
-                       {'std' : mutate_type_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
-                       apply_p=mutate_type_chance)
+                       {'std' : mutate_phenotype_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       apply_p=mutate_trust_chance)
     force.set_map_func('molecule_A', 
                        'force_func_delta',
                        {'increment' : mutate_increment},

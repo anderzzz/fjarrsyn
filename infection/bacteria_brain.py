@@ -85,7 +85,7 @@ class BacteriaBrain(object):
             n_generous_gene = surface_profile.count('a')
 
             frac_generous = float(n_generous_gene) / float(len(surface_profile))
-            self.belief['neighbour_generous'] = frac_generosity_gene
+            self.belief['neighbour_generous'] = frac_generous
             self.belief['neighbour_id'] = neighbour_id
 
         return ('neighbour_generous', 'neighbour_id')

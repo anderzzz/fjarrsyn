@@ -167,7 +167,7 @@ class Actuator(object):
         self.action_name = action_name
         self.actuator_func = actuator_func
         self.keys2populate = keys2populate
-
+        self.kwargs = None
         self.kwargs_base = kwargs
 
 class Interpreter(object):
@@ -204,14 +204,12 @@ class Interpreter(object):
             interpretation
 
         '''
-        func_kwargs = {}
+        func_args = []
         for buzz_input in self.buzz_names:
-            func_kwargs[buzz_input] = buzz[buzz_input]
+            func_args.append(buzz[buzz_input])
+        func_args = tuple(func_args)
 
-        for kwarg, value in self.kwargs.items():
-            func_kwargs[kwarg] = value
-
-        return self.interpreter_func(**func_kwargs) 
+        return self.interpreter_func(*func_args, **self.kwargs) 
 
     def __init__(self, name, buzz_names, interpreter_func, kwargs={}):
 
@@ -258,14 +256,12 @@ class Moulder(object):
             executed expecting only to create an object force output
 
         '''
-        func_kwargs = {}
+        func_args = []
         for belief_input in self.belief_names:
-            func_kwargs[belief_input] = belief[belief_input]
+            func_args.append(belief[belief_input])
+        func_args = tuple(func_args)
 
-        for kwarg, value in self.kwargs.items():
-            func_kwargs[kwarg] = value
-
-        output = self.moulder_func(**func_kwargs)
+        output = self.moulder_func(*func_args, **self.kwargs)
 
         if not isinstance(output, MoulderReturn):
             raise TypeError('Moulder functions must return MoulderReturn objects')
