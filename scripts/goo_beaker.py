@@ -60,11 +60,16 @@ def parse_(argv):
                              default='0.5',
                              help='Fraction adjustment towards environmental ' + \
                                   'equilibrium per time-step (0.0-1.0)')
-    group_force.add_argument('--mutate-phenotype-std',
-                             dest='mutate_phenotype_std',
+    group_force.add_argument('--mutate-phenotype-midpoint',
+                             dest='mutate_phenotype_midpoint',
                              default='0.1',
                              help='Standard deviation of Wiener process that ' + \
-                                  'encode random mutation drift of all agent types')
+                                  'encode random mutation drift of midpoint')
+    group_force.add_argument('--mutate-phenotype-magnitude',
+                             dest='mutate_phenotype_magnitude',
+                             default='0.1',
+                             help='Standard deviation of Wiener process that ' + \
+                                  'encode random mutation drift of magnitude')
     group_force.add_argument('--mutate-generosity-chance',
                              dest='mutate_generosity_chance',
                              default='0.0',
@@ -162,7 +167,8 @@ def parse_(argv):
     coord_init = args.coord_init
 
     env_loss = float(args.env_loss)
-    mutate_phenotype_std = float(args.mutate_phenotype_std)
+    mutate_phenotype_midpoint = float(args.mutate_phenotype_midpoint)
+    mutate_phenotype_magnitude = float(args.mutate_phenotype_magnitude)
     mutate_generosity_chance = float(args.mutate_generosity_chance)
     mutate_trust_chance = float(args.mutate_trust_chance)
     mutate_attack_chance = float(args.mutate_attack_chance)
@@ -187,7 +193,8 @@ def parse_(argv):
 
     return bacteria_init_file, ntypes, cell_length, equilibrium_env, \
            coord_init, env_loss, \
-           mutate_phenotype_std, mutate_generosity_chance, \
+           mutate_phenotype_midpoint, mutate_phenotype_magnitude, \
+           mutate_generosity_chance, \
            mutate_trust_chance, mutate_attack_chance, \
            mutate_increment, mutate_resource_chance, \
            poison_increment, mutate_poison_chance, \
@@ -203,7 +210,8 @@ def main(args):
     #
     bacteria_init_file, ntypes, cell_length, equilibrium_env, \
         coord_init, env_loss, \
-        mutate_phenotype_std, mutate_generosity_chance, \
+        mutate_phenotype_midpoint, mutate_phenotype_magnitude, \
+        mutate_generosity_chance, \
         mutate_trust_chance, mutate_attack_chance, \
         mutate_increment, mutate_resource_chance, \
         poison_increment, mutate_poison_chance, \
@@ -238,7 +246,13 @@ def main(args):
             for row_id, datum in df_data.iterrows():
                 key = datum['scaffold_name']
                 if key == 'share_generally':
-                    value = bool(datum['value'])
+                    if datum['value'] == 'True':
+                        value = True
+                    elif datum['value'] == 'False':
+                        value = False
+                    else:
+                        raise RuntimeError('Unknown setting for ' + \
+                                'share_generally: %s' %(datum['value']))
                 elif key == 'profile_length':
                     value = int(datum['value'])
                 else:
@@ -296,27 +310,27 @@ def main(args):
                                 standard_funcs=True, stochastic_decoration=True)
     force.set_map_func('generosity', 
                        'force_func_wiener_bounded', 
-                       {'std' : mutate_phenotype_std}, 
+                       {'std' : mutate_phenotype_midpoint}, 
                        apply_p=mutate_generosity_chance)
     force.set_map_func('attacker', 
                        'force_func_wiener_bounded', 
-                       {'std' : mutate_phenotype_std},
+                       {'std' : mutate_phenotype_midpoint},
                        apply_p=mutate_attack_chance)
     force.set_map_func('trusting', 
                        'force_func_wiener_bounded', 
-                       {'std' : mutate_phenotype_std},
+                       {'std' : mutate_phenotype_midpoint},
                        apply_p=mutate_trust_chance)
     force.set_map_func('generosity_mag', 
                        'force_func_wiener_bounded',
-                       {'std' : mutate_phenotype_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       {'std' : mutate_phenotype_magnitude, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
                        apply_p=mutate_generosity_chance)
     force.set_map_func('attack_mag', 
                        'force_func_wiener_bounded',
-                       {'std' : mutate_phenotype_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       {'std' : mutate_phenotype_magnitude, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
                        apply_p=mutate_attack_chance)
     force.set_map_func('trusting_mag', 
                        'force_func_wiener_bounded',
-                       {'std' : mutate_phenotype_std, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
+                       {'std' : mutate_phenotype_magnitude, 'lower_bound' : 0.0, 'upper_bound' : 1.0},
                        apply_p=mutate_trust_chance)
     force.set_map_func('molecule_A', 
                        'force_func_delta',

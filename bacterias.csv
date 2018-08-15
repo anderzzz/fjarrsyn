@@ -18,7 +18,7 @@ nsp_g,poison_vacuole_max,2.0
 csp_g,profile_length,8
 csp_g,share_generally,True
 csp_g,generosity,1.5
-csp_g,generosity_mag,1.0
+csp_g,generosity_mag,0.5
 csp_g,trusting,0.0
 csp_g,trusting_mag,0.0
 csp_g,attacker,0.0
@@ -50,7 +50,7 @@ ntp_g,poison_vacuole_max,2.0
 ctp_g,profile_length,8
 ctp_g,share_generally,True
 ctp_g,generosity,1.5
-ctp_g,generosity_mag,1.0
+ctp_g,generosity_mag,0.5
 ctp_g,trusting,1.5
 ctp_g,trusting_mag,1.0
 ctp_g,attacker,0.0
@@ -82,7 +82,7 @@ nsb_g,poison_vacuole_max,2.0
 csb_g,profile_length,8
 csb_g,share_generally,True
 csb_g,generosity,1.5
-csb_g,generosity_mag,1.0
+csb_g,generosity_mag,0.5
 csb_g,trusting,0.0
 csb_g,trusting_mag,0.0
 csb_g,attacker,1.5
@@ -114,7 +114,7 @@ ntb_g,poison_vacuole_max,2.0
 ctb_g,profile_length,8
 ctb_g,share_generally,True
 ctb_g,generosity,1.5
-ctb_g,generosity_mag,1.0
+ctb_g,generosity_mag,0.5
 ctb_g,trusting,1.5
 ctb_g,trusting_mag,1.0
 ctb_g,attacker,1.5
@@ -146,7 +146,7 @@ nsp_s,poison_vacuole_max,2.0
 csp_s,profile_length,8
 csp_s,share_generally,False
 csp_s,generosity,1.5
-csp_s,generosity_mag,1.0
+csp_s,generosity_mag,0.5
 csp_s,trusting,0.0
 csp_s,trusting_mag,0.0
 csp_s,attacker,0.0
@@ -178,7 +178,7 @@ ntp_s,poison_vacuole_max,2.0
 ctp_s,profile_length,8
 ctp_s,share_generally,False
 ctp_s,generosity,1.5
-ctp_s,generosity_mag,1.0
+ctp_s,generosity_mag,0.5
 ctp_s,trusting,1.5
 ctp_s,trusting_mag,1.0
 ctp_s,attacker,0.0
@@ -210,7 +210,7 @@ nsb_s,poison_vacuole_max,2.0
 csb_s,profile_length,8
 csb_s,share_generally,False
 csb_s,generosity,1.5
-csb_s,generosity_mag,1.0
+csb_s,generosity_mag,0.5
 csb_s,trusting,0.0
 csb_s,trusting_mag,0.0
 csb_s,attacker,1.5
@@ -242,7 +242,7 @@ ntb_s,poison_vacuole_max,2.0
 ctb_s,profile_length,8
 ctb_s,share_generally,False
 ctb_s,generosity,1.5
-ctb_s,generosity_mag,1.0
+ctb_s,generosity_mag,0.5
 ctb_s,trusting,1.5
 ctb_s,trusting_mag,1.0
 ctb_s,attacker,1.5

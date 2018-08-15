@@ -45,17 +45,6 @@ class Bacteria(Agent):
 #        logging.debug(pretty_print(self.scaffold))
         # Ascertain if there is a neighbour and how similar it is
         self.perceive('neighbour_surface', 'generous_hood')
-        if not self.belief['neighbour_id'] is None:
-#            logging.debug('Belief after sensing neighbourhood')
-#            logging.debug(pretty_print(self.belief))
-
-            if self.scaffold['share_generally']:
-                self.engage('share_molecules')
-            else:
-                self.engage('share_molecules_one')
-
-#        logging.debug('Scaffold after sharing')
-#        logging.debug(pretty_print(self.scaffold))
 
         # Gulp molecules from the nearby environment
         self.engage('gulp_environment')
@@ -68,14 +57,28 @@ class Bacteria(Agent):
 #            logging.debug('Agent death')
             return False
 
+        # Determine if to split in two
+        self.engage('split_in_two')
+#        logging.debug('Scaffold after attempted splitting')
+#        logging.debug(pretty_print(self.scaffold))
+
         # Make poison. Internal action only, hence no actuator employed
         self.mould('make_poison')
 #        logging.debug('Scaffold after making poison')
 #        logging.debug(pretty_print(self.scaffold))
 
-        # Determine if to split in two
-        self.engage('split_in_two')
-#        logging.debug('Scaffold after attempted splitting')
+        # Ascertain if there is a neighbour and how similar it is
+        self.perceive('neighbour_surface', 'generous_hood')
+        if not self.belief['neighbour_id'] is None:
+#            logging.debug('Belief after sensing neighbourhood')
+#            logging.debug(pretty_print(self.belief))
+
+            if self.scaffold['share_generally']:
+                self.engage('share_molecules')
+            else:
+                self.engage('share_molecules_one')
+
+#        logging.debug('Scaffold after sharing')
 #        logging.debug(pretty_print(self.scaffold))
 
         return True
