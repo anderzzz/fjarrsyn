@@ -244,6 +244,12 @@ class _ForceFunctions(object):
         '''
         return old_value * factor
 
+    def force_func_delta_scale(self, old_value, increment, factor):
+        '''Bla bla
+
+        '''
+        return self.force_func_scale(self.force_func_delta(old_value, increment), factor)
+
     def force_func_wiener(self, old_value, std):
         '''Bla bla
 

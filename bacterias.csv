@@ -5,7 +5,7 @@ nsp_g,generosity,1.5
 nsp_g,generosity_mag,0.0
 nsp_g,trusting,1.5
 nsp_g,trusting_mag,0.0
-nsp_g,attacker,1.5
+nsp_g,attacker,0.0
 nsp_g,attack_mag,0.0
 nsp_g,split_thrs,1.0
 nsp_g,vulnerability_to_poison,2.0
@@ -21,7 +21,7 @@ csp_g,generosity,1.5
 csp_g,generosity_mag,1.0
 csp_g,trusting,1.5
 csp_g,trusting_mag,0.0
-csp_g,attacker,1.5
+csp_g,attacker,0.0
 csp_g,attack_mag,0.0
 csp_g,split_thrs,1.0
 csp_g,vulnerability_to_poison,2.0
@@ -37,7 +37,7 @@ ntp_g,generosity,1.5
 ntp_g,generosity_mag,0.0
 ntp_g,trusting,1.5
 ntp_g,trusting_mag,1.0
-ntp_g,attacker,1.5
+ntp_g,attacker,0.0
 ntp_g,attack_mag,0.0
 ntp_g,split_thrs,1.0
 ntp_g,vulnerability_to_poison,2.0
@@ -53,7 +53,7 @@ ctp_g,generosity,1.5
 ctp_g,generosity_mag,1.0
 ctp_g,trusting,1.5
 ctp_g,trusting_mag,1.0
-ctp_g,attacker,1.5
+ctp_g,attacker,0.0
 ctp_g,attack_mag,0.0
 ctp_g,split_thrs,1.0
 ctp_g,vulnerability_to_poison,2.0
@@ -133,7 +133,7 @@ nsp_s,generosity,1.5
 nsp_s,generosity_mag,0.0
 nsp_s,trusting,1.5
 nsp_s,trusting_mag,0.0
-nsp_s,attacker,1.5
+nsp_s,attacker,0.0
 nsp_s,attack_mag,0.0
 nsp_s,split_thrs,1.0
 nsp_s,vulnerability_to_poison,2.0
@@ -149,7 +149,7 @@ csp_s,generosity,1.5
 csp_s,generosity_mag,1.0
 csp_s,trusting,1.5
 csp_s,trusting_mag,0.0
-csp_s,attacker,1.5
+csp_s,attacker,0.0
 csp_s,attack_mag,0.0
 csp_s,split_thrs,1.0
 csp_s,vulnerability_to_poison,2.0
@@ -165,7 +165,7 @@ ntp_s,generosity,1.5
 ntp_s,generosity_mag,0.0
 ntp_s,trusting,1.5
 ntp_s,trusting_mag,1.0
-ntp_s,attacker,1.5
+ntp_s,attacker,0.0
 ntp_s,attack_mag,0.0
 ntp_s,split_thrs,1.0
 ntp_s,vulnerability_to_poison,2.0
@@ -181,7 +181,7 @@ ctp_s,generosity,1.5
 ctp_s,generosity_mag,1.0
 ctp_s,trusting,1.5
 ctp_s,trusting_mag,1.0
-ctp_s,attacker,1.5
+ctp_s,attacker,0.0
 ctp_s,attack_mag,0.0
 ctp_s,split_thrs,1.0
 ctp_s,vulnerability_to_poison,2.0

@@ -256,12 +256,13 @@ class Goo(AgentManagementSystem):
         return organs
 
     def __init__(self, name, bacterial_agents, env_object, beaker_length,
-                 newborn_compete, coord_agents):
+                 periodic, newborn_compete, coord_agents):
 
         #
         # Create agent graph as cubic grid 
         #
-        matrix = nx.grid_graph([beaker_length, beaker_length, beaker_length])
+        matrix = nx.grid_graph([beaker_length, beaker_length, beaker_length],
+                               periodic=periodic)
         matrix_size = matrix.number_of_nodes() 
 
         #

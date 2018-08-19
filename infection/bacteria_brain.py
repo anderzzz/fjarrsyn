@@ -1,6 +1,7 @@
 '''All internal cognition of bacteria agent contained here
 
 '''
+import logging
 import numpy as np
 import numpy.random
 
@@ -282,9 +283,13 @@ class BacteriaBrain(object):
             induction = None
 
         else:
+            logging.debug('ALL MOLS')
 
             for compound in compounds:
-                induction.set_map_func(compound, 'force_func_scale', {'factor' : 0.5})
+                induction.set_map_func(compound, 
+                                       'force_func_delta_scale',
+                                       {'increment' : -1.0 * self.scaffold['split_thrs'],
+                                        'factor' : 0.5})
 
             induction.set_map_func('poison_vacuole', 'force_func_scale', {'factor' : 0.5})
             induction.set_map_func('poison', 'force_func_scale', {'factor' : 0.5})

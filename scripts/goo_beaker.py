@@ -43,6 +43,12 @@ def parse_(argv):
                              default='10',
                              help='Number of grid points along any one dimension ' + \
                                   'of the cubic grid of the cell space')
+    group_start.add_argument('--periodic-grid',
+                             dest='periodic',
+                             default=False,
+                             action='store_true',
+                             help='If flag give, the grid in which agents ' + \
+                                  'operate is periodic')
     group_start.add_argument('--equilibrium-A-B-C',
                              dest='equilibrium',
                              default='0.0',
@@ -163,6 +169,7 @@ def parse_(argv):
     for n_bact, type_bact in zip(n_bacteria, types_to_simulate):
         ntypes[type_bact] = int(n_bact)
     cell_length = int(args.cell_length)
+    periodic = args.periodic
     equilibrium_env = float(args.equilibrium)
     coord_init = args.coord_init
 
@@ -191,7 +198,8 @@ def parse_(argv):
 
     debug_runner = args.debug_runner
 
-    return bacteria_init_file, ntypes, cell_length, equilibrium_env, \
+    return bacteria_init_file, ntypes, cell_length, periodic, \
+           equilibrium_env, \
            coord_init, env_loss, \
            mutate_phenotype_midpoint, mutate_phenotype_magnitude, \
            mutate_generosity_chance, \
@@ -208,7 +216,8 @@ def main(args):
     #
     # Parse the command-line
     #
-    bacteria_init_file, ntypes, cell_length, equilibrium_env, \
+    bacteria_init_file, ntypes, cell_length, periodic, \
+        equilibrium_env, \
         coord_init, env_loss, \
         mutate_phenotype_midpoint, mutate_phenotype_magnitude, \
         mutate_generosity_chance, \
@@ -260,6 +269,10 @@ def main(args):
 
                 scaffold_init[key] = value
 
+            if len(scaffold_init) == 0:
+                raise RuntimeError('Scaffold for type %s empty. ' %(bact_type) + \
+                                   'Possible key error on command-line')
+
             for k_bacteria in range(n_bact):
                 bacterial_agents.append(Bacteria('bacteria', scaffold_init))
 
@@ -293,7 +306,7 @@ def main(args):
             coords.append((cell_length - 1, 0, cell_length - 1))
 
         cell_space = Goo('cell_space', bacterial_agents, extracellular,
-                         cell_length, newborn_compete, coords)
+                         cell_length, periodic, newborn_compete, coords)
 
     else:
         with open(pickle_load, 'rb') as fin:
