@@ -266,24 +266,3 @@ class AgentManagementSystem(object):
         # assigned in child classes, the container declared here.
         #
         self.system_constants = {}
-
-class AgentSystemSummarizer(object):
-    '''Bla bla
-
-    '''
-    def nnodes(self):
-        '''Bla bla
-
-        '''
-        return len(self.system)
-
-    def graph_properties(self):
-        '''Bla bla
-
-        '''
-        # Return a namedtuple with descriptive data of graph
-        pass
-
-    def __init__(self, agent_ms):
-
-        self.system = agent_ms

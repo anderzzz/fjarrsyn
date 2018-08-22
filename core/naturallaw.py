@@ -6,11 +6,30 @@ import numpy as np
 import numpy.random
 
 class _ObjectMap(object):
-    '''Bla bla
+    '''Parent class for mapping agent object. 
+
+    Parameters
+    ----------
+    mapper : callable
+        Function that given an agent instance maps the object
+    func_map : _ForceFunctions 
+        Instance to the class of library functions for mapping object
 
     '''
     def func_to_func(self, func):
-        '''Bla bla
+        '''Map object to a callable function, where the object can be both a
+        function or a string pointing to a library function
+
+        Parameters
+        ----------
+        func 
+            The object that is to be mapped to a callable function, where the
+            mapping can be identity, in case func is callable.
+
+        Raises
+        ------
+        ValueError
+            In case a function can not be derived from the input
 
         '''
         if callable(func):
