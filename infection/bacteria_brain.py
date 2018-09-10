@@ -239,7 +239,7 @@ class BacteriaBrain(object):
         #
         p = self.scaffold['poison_vacuole']
         p_max = self.scaffold['poison_vacuole_max']
-        d = self.scaffold['attacker']
+        d = self.scaffold['attack_mag']
         f = min(1.0, max(0.0, d * (p_max - p) / p_max))
 
         #
@@ -250,9 +250,10 @@ class BacteriaBrain(object):
         compounds = [key for key in self.scaffold if 'molecule_' in key]
         n_compounds = len(compounds)
         for compound in compounds:
-            deduct_compound = self.scaffold[compound] * f / float(n_compounds)
-            total_molecule += deduct_compound
+            poison_contribution = self.scaffold[compound] * f / float(n_compounds)
+            total_molecule += poison_contribution 
 
+            deduct_compound = poison_contribution / self.scaffold['poison_stoichometry']  
             induction.set_map_func(compound, 'force_func_delta', 
                                    {'increment' : -1.0 * deduct_compound})
 
