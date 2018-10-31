@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import numpy.random
 
-from core.helper_funcs import sigmoid, sigmoid_10, linear_step_10
+from core.helper_funcs import sigmoid, sigmoid_10
 from core.organs import MoulderReturn
 
 class BacteriaBrain(object):

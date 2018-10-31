@@ -272,8 +272,8 @@ class Agent(object):
 
         Parameters
         ----------
-        buzz : dict
-            Buzz that the sensor triggers once it senses the precept
+        precept : str
+            The name of the external precept to sense
         brain_tissue : str
             The name of the interpreter to be used
 
