@@ -11,7 +11,7 @@ class _Message(object):
         '''
         if self.n_elements > 1:
             if not isinstance(value_container, Iterable):
-                raise ValueError('Message with multiple elements given ' + \
+                raise TypeError('Message with multiple elements given ' + \
                                  'non-iterable value')
 
             if len(value_container) != self.n_elements:
@@ -96,14 +96,6 @@ class _Imprint(_Message):
 
         super().__init__(imprint_name, imprint_element_names)
         
-class Scaffold(_Imprint):
-    '''Bla bla
-
-    '''
-    def __init__(self, scaffold_name, scaffold_element_names):
-
-        super().__init__(scaffold_name, scaffold_element_names)
-
 class Belief(_Imprint):
     '''Bla bla
 

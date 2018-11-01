@@ -68,7 +68,7 @@ class Agent(object):
         else:
             self._set(flash, entry_name, entry, edit_only)
 
-    def set_imprint(self, imprint, entry_name, entry, edit_only=False):
+    def set_scaffold(self, scaffold, entry_name, entry, edit_only=False):
         '''Add an imprint to the agent 
 
         Parameters
@@ -95,9 +95,9 @@ class Agent(object):
             raise TypeError('Attempt to set imprint to callable object')
 
         else:
-            self._set(imprint, entry_name, entry, edit_only)
+            self._set(scaffold, entry_name, entry, edit_only)
 
-    def set_imprint_bulk(self, imprint, entryvalue, edit_only=False):
+    def set_scaffold_bulk(self, scaffold, entryvalue, edit_only=False):
         '''Add several imprints to the agent at once
 
         Parameters
@@ -115,7 +115,7 @@ class Agent(object):
         
         '''
         for key, value in entryvalue.items():
-            self.set_imprint(imprint, key, value, edit_only)
+            self.set_scaffold(scaffold, key, value, edit_only)
 
     def set_organ(self, organ):
         '''Add an organ to the agent.

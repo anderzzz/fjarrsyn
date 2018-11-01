@@ -5,13 +5,31 @@ import copy
 from collections import namedtuple
 
 from core.naturallaw import ObjectMapCollection 
+from core.message import Buzz, Direction, Feature, Belief
 
 class _Organ(object):
-    '''Bla bla
+    '''Organ parent class, which defines common structure and method for all
+    organs. 
+
+    Parameters
+    ----------
+    organ_name : str
+        Name of the organ
+    message_input : str, or _Message
+        Instance of message the organ deals with as input 
+    organ_function : callable
+        The function that upon execution performs the operations of the organ
+    message_output : str, or _Message
+        Instance of message the organ deals with as output
+    function_kwargs : dict, optional
+        Any arguments needed for the organ_function
 
     '''
     def __init__(self, organ_name, message_input, organ_function,
                  message_output, function_kwargs={}):
+
+        if not callable(organ_function):
+            raise TypeError('Organ requires callable function for its operation')
 
         self.name = organ_name
         self.message_input = message_input
@@ -71,6 +89,12 @@ class Sensor(_Organ):
         return True
 
     def __init__(self, name, precept_label, sensor_func, buzz, sensor_func_kwargs={}):
+
+        if not isinstance(precept_label, str):
+            raise TypeError('Sensor input should be string')
+
+        if not isinstance(buzz, Buzz):
+            raise TypeError('Sensor output should be of class Buzz')
 
         super().__init__(name, precept_label, sensor_func, 
                          buzz, sensor_func_kwargs)
@@ -162,9 +186,17 @@ class Actuator(object):
 
         return reaction
 
-    def __init__(self, name, action_name, actuator_func, keys2populate,
+    def __init__(self, name, direction, actuator_func, keys2populate,
                  kwargs={}):
 
+        if not isinstance(precept_label, str):
+            raise TypeError('Sensor input should be string')
+
+        if not isinstance(buzz, Buzz):
+            raise TypeError('Sensor output should be of class Buzz')
+
+        super().__init__(name, precept_label, sensor_func, 
+                         buzz, sensor_func_kwargs)
         self.name = name
         self.action_name = action_name
         self.actuator_func = actuator_func
@@ -223,6 +255,12 @@ class Interpreter(_Organ):
 
     def __init__(self, interpreter_name, buzz, interpreter_func, belief,
                  belief_updater=False, kwargs={}):
+
+        if not isinstance(buzz, Buzz):
+            raise TypeError('Interpreter input should be of class Buzz')
+
+        if not isinstance(belief, Belief):
+            raise TypeError('Interpreter output should be of class Belief')
 
         super().__init__(interpreter_name, buzz, interpreter_func, 
                          belief, kwargs)
@@ -285,13 +323,19 @@ class Moulder(object):
 
         return output.object_map
 
-    def __init__(self, moulder_name, belief, moulder_func, direction, kwargs={}):
+    def __init__(self, moulder_name, belief, moulder_func, direction,
+                 object_map=None, kwargs={}):
 
-        self.name = moulder_name
-        self.belief = belief
-        self.moulder_func = moulder_func
-        self.direction = direction
-        self.kwargs = kwargs
+        if not isinstance(belief, Belief):
+            raise TypeError('Moulder input should be of class Belief')
+
+        if not isinstance(direction, Direction):
+            raise TypeError('Moulder output should be of class Direction')
+
+        super().__init__(moulder_name, belief, moulder_func, 
+                         direction, kwargs)
+
+        self.object_map = object_map
 
 class Cortex(object):
     '''Cortex class, which defines reaction to a certain tickle from the World.
