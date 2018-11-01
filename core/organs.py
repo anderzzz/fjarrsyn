@@ -55,23 +55,21 @@ class Sensor(object):
             not match the buzz keys defined during sensor initialization.
 
         '''
-        kwargs = copy.copy(self.kwargs)
+        kwargs = copy.copy(self.sensor_func_kwargs)
         kwargs['agent_index'] = agent_index
 
-        ret = self.sensor_func(**kwargs)
+        vals = self.sensor_func(**kwargs)
+        self.buzz.set_elements(vals)
 
-        if set(ret.keys()) != set(self.buzzkeys):
-            raise ValueError('Sensor function generated unexpected buzz keys')
+        return True
 
-        return ret 
-
-    def __init__(self, name, precept_name, sensor_func, buzzkeys, kwargs={}):
+    def __init__(self, name, precept_label, sensor_func, buzz, sensor_func_kwargs={}):
 
         self.name = name
-        self.precept_name = precept_name
+        self.precept_name = precept_label
         self.sensor_func = sensor_func
-        self.buzzkeys = buzzkeys
-        self.kwargs = kwargs
+        self.buzz = buzz
+        self.sensor_func_kwargs = sensor_func_kwargs
 
 class Actuator(object):
     '''Actuator class, which defines how an action by the agent alters the
@@ -189,7 +187,7 @@ class Interpreter(object):
         interpreter function
 
     '''
-    def __call__(self, buzz):
+    def __call__(self):
         '''Execute the interpreter function
 
         Parameters
@@ -204,18 +202,29 @@ class Interpreter(object):
             interpretation
 
         '''
-        func_args = []
-        for buzz_input in self.buzz_names:
-            func_args.append(buzz[buzz_input])
-        func_args = tuple(func_args)
+        buzz_values = self.buzz.read_value()
 
-        return self.interpreter_func(*func_args, **self.kwargs) 
+        if self.belief_updater:
+            current_beliefs = self.belief.read_value()
+            args = (current_beliefs, buzz_values)
 
-    def __init__(self, name, buzz_names, interpreter_func, kwargs={}):
+        else:
+            args = (buzz_values,)
 
-        self.name = name
-        self.buzz_names = buzz_names
+        value = self.interpreter_func(*args, **self.kwargs)
+
+        self.belief.set_elements(value)
+
+        return True 
+
+    def __init__(self, interpreter_name, buzz, interpreter_func, belief,
+                 belief_updater=False, kwargs={}):
+
+        self.name = interpreter_name
+        self.buzz = buzz
         self.interpreter_func = interpreter_func
+        self.belief = belief
+        self.belief_updater = belief_updater
         self.kwargs = kwargs
 
 MoulderReturn = namedtuple('MoulderReturn', ['actuator_params', 'object_map'])

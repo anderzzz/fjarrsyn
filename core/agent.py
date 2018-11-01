@@ -58,6 +58,16 @@ class Agent(object):
         container[key] = value
         setattr(self, object_type, container)
 
+    def set_flash(self, flash, entry_name, entry, edit_only):
+        '''Bla bla
+
+        '''
+        if callable(entry):
+            raise TypeError('Attempt to set flash to callable object')
+
+        else:
+            self._set(flash, entry_name, entry, edit_only)
+
     def set_imprint(self, imprint, entry_name, entry, edit_only=False):
         '''Add an imprint to the agent 
 
@@ -125,12 +135,14 @@ class Agent(object):
         '''
         if isinstance(organ, Sensor):
             self._set('sensor', organ.precept_name, organ)
+            self._set('buzz', organ.buzz.message_name, organ.buzz)
 
         elif isinstance(organ, Actuator):
             self._set('actuator', organ.action_name, organ)
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
+            self._set('belief', organ.belief.message_name, organ.belief)
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
@@ -220,11 +232,11 @@ class Agent(object):
         else:
             the_sensor = self.sensor[precept]
 
-        buzz = the_sensor(self.agent_id_system)
+        did_it_sense = the_sensor(self.agent_id_system)
 
-        return buzz 
+        return did_it_sense
 
-    def interpret(self, brain_tissue, buzz):
+    def interpret(self, state):
         '''Method for agent to interpret a buzz with certain brain tissue
 
         Notes
@@ -252,15 +264,15 @@ class Agent(object):
             If a brain tissue is used that is not defined for the interpreter
 
         '''
-        if not brain_tissue in self.interpreter:
-            raise KeyError('Agent lacks interpreter %s' %(brain_tissue))
+        if not state in self.interpreter:
+            raise KeyError('Agent lacks interpreter for state %s' %(state))
 
         else:
-            the_interpreter = self.interpreter[brain_tissue]
+            the_interpreter = self.interpreter[state]
 
-        updated_belief_labels = the_interpreter(buzz)
+        did_it_interpret = the_interpreter()
 
-        return updated_belief_labels
+        return did_it_interpret
 
     def perceive(self, precept, brain_tissue):
         '''Method for agent to sense and interpret a percept
@@ -405,6 +417,11 @@ class Agent(object):
         self.belief = {}
         self.imprint = {'scaffold' : self.scaffold, 
                         'belief' : self.belief}
+
+        self.buzz = {}
+        self.direction = {}
+        self.flash = {'buzz' : self.buzz,
+                      'direction' : self.direction}
 
         self.cortex = {}
         self.sensor = {}
