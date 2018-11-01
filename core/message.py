@@ -68,9 +68,17 @@ class Direction(_Flash):
     '''Bla bla
 
     '''
-    def __init__(self):
+    def __init__(self, direction_name, direction_element_names):
 
         super().__init__(direction_name, direction_element_names)
+
+class Feature(_Flash):
+    '''Bla bla
+
+    '''
+    def __init__(self, feature_name, feature_element_names):
+
+        super().__init__(feature_name, feature_element_names)
 
 class _Imprint(_Message):
     '''Bla bla

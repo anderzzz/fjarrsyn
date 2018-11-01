@@ -415,13 +415,14 @@ class Agent(object):
 
         self.scaffold = {}
         self.belief = {}
-        self.imprint = {'scaffold' : self.scaffold, 
-                        'belief' : self.belief}
-
         self.buzz = {}
         self.direction = {}
-        self.flash = {'buzz' : self.buzz,
-                      'direction' : self.direction}
+        self.feature = {}
+        self.message = {'scaffold' : self.scaffold, 
+                        'belief' : self.belief,
+                        'buzz' : self.buzz,
+                        'direction' : self.direction,
+                        'feature' : self.feature}
 
         self.cortex = {}
         self.sensor = {}
