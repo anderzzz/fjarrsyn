@@ -48,7 +48,7 @@ class _Flash(_Message):
 
         '''
         data = tuple(self.message_return.values())
-        self.message_return = self.set_empty_message
+        self.message_return = self.set_empty_message()
 
         return data
 

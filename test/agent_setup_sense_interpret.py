@@ -8,6 +8,9 @@ from core.message import Buzz, Belief
 
 import numpy as np
 from numpy.random import random_integers
+np.random.seed(79)
+
+REF_OUTCOME = [0, -1, 0, 0, 2, 3, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3] 
 
 def dice_sensor(agent_index):
     return list(random_integers(1, 6, 5))
@@ -54,8 +57,10 @@ agent = Agent('test_agent')
 agent.set_organ(sensor)
 agent.set_organ(interpreter)
 
-agent.sense('random_roll')
-agent.interpret('good_roll')
+beliefs = []
+for k in range(0, 20):
+    agent.sense('random_roll')
+    agent.interpret('good_roll')
+    beliefs.append(agent.belief['world_is_good'].read_value()[0])
 
-print (agent.belief)
-print (agent.belief['world_is_good'].read_value())
+assert (beliefs == REF_OUTCOME)
