@@ -134,15 +134,15 @@ class Agent(object):
 
         '''
         if isinstance(organ, Sensor):
-            self._set('sensor', organ.precept_name, organ)
-            self._set('buzz', organ.buzz.message_name, organ.buzz)
+            self._set('sensor', organ.name, organ)
+            self._set('buzz', organ.message_output.message_name, organ.message_output)
 
         elif isinstance(organ, Actuator):
             self._set('actuator', organ.action_name, organ)
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
-            self._set('belief', organ.belief.message_name, organ.belief)
+            self._set('belief', organ.message_output.message_name, organ.message_output)
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 

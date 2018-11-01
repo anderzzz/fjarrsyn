@@ -6,13 +6,20 @@ from collections import namedtuple
 
 from core.naturallaw import ObjectMapCollection 
 
-class Organ(object):
+class _Organ(object):
+    '''Bla bla
 
-    def __init__(self):
-        # MAKE THIS PARENT TO ALL ORGANS
-        pass
+    '''
+    def __init__(self, organ_name, message_input, organ_function,
+                 message_output, function_kwargs={}):
 
-class Sensor(object):
+        self.name = organ_name
+        self.message_input = message_input
+        self.organ_func = organ_function
+        self.message_output = message_output
+        self.kwargs = function_kwargs
+
+class Sensor(_Organ):
     '''Sensor class, which defines how a precept of the external World is
     turned into buzz within the agent.
 
@@ -36,7 +43,7 @@ class Sensor(object):
         '''Print string for sensor object
 
         '''
-        ret = 'Sensor %s for precept %s.' %(self.name, self.precept_name)
+        ret = 'Sensor %s for precept %s.' %(self.name, self.message_input)
         return ret
 
     def __call__(self, agent_index):
@@ -55,21 +62,18 @@ class Sensor(object):
             not match the buzz keys defined during sensor initialization.
 
         '''
-        kwargs = copy.copy(self.sensor_func_kwargs)
+        kwargs = copy.copy(self.kwargs)
         kwargs['agent_index'] = agent_index
 
-        vals = self.sensor_func(**kwargs)
-        self.buzz.set_elements(vals)
+        vals = self.organ_func(**kwargs)
+        self.message_output.set_elements(vals)
 
         return True
 
     def __init__(self, name, precept_label, sensor_func, buzz, sensor_func_kwargs={}):
 
-        self.name = name
-        self.precept_name = precept_label
-        self.sensor_func = sensor_func
-        self.buzz = buzz
-        self.sensor_func_kwargs = sensor_func_kwargs
+        super().__init__(name, precept_label, sensor_func, 
+                         buzz, sensor_func_kwargs)
 
 class Actuator(object):
     '''Actuator class, which defines how an action by the agent alters the
@@ -168,7 +172,7 @@ class Actuator(object):
         self.kwargs = None
         self.kwargs_base = kwargs
 
-class Interpreter(object):
+class Interpreter(_Organ):
     '''Interpreter class, which defines how buzz from a sensor is made into
     persistent beliefs of the agent.
 
@@ -202,30 +206,28 @@ class Interpreter(object):
             interpretation
 
         '''
-        buzz_values = self.buzz.read_value()
+        buzz_values = self.message_input.read_value()
 
         if self.belief_updater:
-            current_beliefs = self.belief.read_value()
+            current_beliefs = self.message_output.read_value()
             args = (current_beliefs, buzz_values)
 
         else:
             args = (buzz_values,)
 
-        value = self.interpreter_func(*args, **self.kwargs)
+        value = self.organ_func(*args, **self.kwargs)
 
-        self.belief.set_elements(value)
+        self.message_output.set_elements(value)
 
         return True 
 
     def __init__(self, interpreter_name, buzz, interpreter_func, belief,
                  belief_updater=False, kwargs={}):
 
-        self.name = interpreter_name
-        self.buzz = buzz
-        self.interpreter_func = interpreter_func
-        self.belief = belief
+        super().__init__(interpreter_name, buzz, interpreter_func, 
+                         belief, kwargs)
+
         self.belief_updater = belief_updater
-        self.kwargs = kwargs
 
 MoulderReturn = namedtuple('MoulderReturn', ['actuator_params', 'object_map'])
 
@@ -283,11 +285,12 @@ class Moulder(object):
 
         return output.object_map
 
-    def __init__(self, name, belief_names, moulder_func, kwargs={}):
+    def __init__(self, moulder_name, belief, moulder_func, direction, kwargs={}):
 
-        self.name = name
-        self.belief_names = belief_names
+        self.name = moulder_name
+        self.belief = belief
         self.moulder_func = moulder_func
+        self.direction = direction
         self.kwargs = kwargs
 
 class Cortex(object):

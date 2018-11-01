@@ -46,8 +46,8 @@ belief = Belief('world_is_good', ['joy_index'])
 #
 # Define Organs and their associated messages
 #
-sensor = Sensor('test_sensor', 'random_roll', dice_sensor, buzz)
-interpreter = Interpreter('good_roll', buzz, roll_interpreter, belief,
+sensor = Sensor('check_roll', 'random_roll', dice_sensor, buzz)
+interpreter = Interpreter('was_it_good_roll', buzz, roll_interpreter, belief,
                           belief_updater=True)
 
 #
@@ -59,8 +59,8 @@ agent.set_organ(interpreter)
 
 beliefs = []
 for k in range(0, 20):
-    agent.sense('random_roll')
-    agent.interpret('good_roll')
+    agent.sense('check_roll')
+    agent.interpret('was_it_good_roll')
     beliefs.append(agent.belief['world_is_good'].read_value()[0])
 
 assert (beliefs == REF_OUTCOME)
