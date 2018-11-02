@@ -114,9 +114,7 @@ class Agent(object):
             self._set('buzz', organ.message_output.message_name, organ.message_output)
 
         elif isinstance(organ, Actuator):
-            self._set('actuator', organ.action_name, organ)
-            self._set('action', organ.message_output.message_name,
-                                organ.message_output)
+            self._set('actuator', organ.name, organ)
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
@@ -128,7 +126,7 @@ class Agent(object):
                                    organ.message_output)
 
         elif isinstance(organ, Cortex):
-            self._set('cortex', organ.tickle_name, organ)
+            self._set('cortex', organ.name, organ)
 
         else:
             raise TypeError('Unknown organ type: %s' %str(type(organ)))
@@ -310,8 +308,9 @@ class Agent(object):
 
         did_it_mould = the_moulder()
 
-        if not the_moulder.resource_map.is_empty():
-            the_moulder.resource_map(self)
+        if not the_moulder.resource_map is None:
+            if not the_moulder.resource_map.is_empty():
+                the_moulder.resource_map(self)
 
     def act(self, action):
         '''Method for agent to act a populated actuator.
@@ -337,17 +336,16 @@ class Agent(object):
 
         '''
         if not action in self.actuator:
-            raise KeyError('Agent lacks actuator for action %s' %(action))
+            raise KeyError('Agent lacks actuator for %s' %(action))
 
         else:
             the_actuator = self.actuator[action]
 
-        reaction = the_actuator(self.agent_id_system)
-        if not reaction is None:
-            reaction(self)
-            reaction.empty_map()
-                
-        the_actuator.depopulate()
+        did_it_act = the_actuator(self.agent_id_system)
+
+        if not the_actuator.resource_map is None:
+            if not the_actuator.resource_map.is_empty():
+                the_actuator.resource_map(self)
 
     def engage(self, action):
         '''Method for agent to mould and act an action

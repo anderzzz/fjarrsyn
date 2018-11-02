@@ -100,7 +100,7 @@ class Sensor(_Organ):
         super().__init__(name, precept_label, sensor_func, 
                          buzz, sensor_func_kwargs)
 
-class Actuator(object):
+class Actuator(_Organ):
     '''Actuator class, which defines how an action by the agent alters the
     external world.
 
@@ -121,45 +121,6 @@ class Actuator(object):
         Agent index in the World onto which the action should be applied
 
     '''
-    def populate(self, keyvalue):
-        '''Populate the actuator (form) with action parameter values (content).
-
-        Parameters
-        ----------
-        keyvalue : dict
-            Dictionary with values to populate named parameters. The input is
-            typically obtained from a Moulder organ.
-
-        Raises
-        ------
-        ValueError
-            If the keys in the input `keyvalue` differs from the list of
-            parameter names defined during initialization.
-
-        '''
-        self.kwargs = copy.copy(self.kwargs_base)
-
-        keys = set(keyvalue.keys())
-        key_reference = set(self.keys2populate)
-        if keys != key_reference:
-            raise ValueError('Keys to actuator not identical to ' + \
-                             'reference list set on initialization')
-
-        for key, value in keyvalue.items():
-            self.kwargs[key] = value
-
-    def depopulate(self):
-        '''Depopulate a specific actuator to be pure form, no content.
-
-        Notes
-        -----
-        This is typically used after a specific actuator has been excecuted in
-        order to ensure proper accounting by requiring the mould method to
-        precede any single action.
-
-        '''
-        self.kwargs = None
-
     def __call__(self, agent_index):
         '''Execute the actuator function and alter the World
 
@@ -174,36 +135,35 @@ class Actuator(object):
             In case the actuator is executed prior to population
 
         '''
-        if self.kwargs is None:
-            raise RuntimeError('Actuator called prior to population')
+        kwargs = copy.copy(self.kwargs)
+        kwargs['agent_index'] = agent_index
 
-        self.kwargs['agent_index'] = agent_index
-        reaction = self.actuator_func(**self.kwargs)
+        direction_values = self.message_input.read_value()
 
-        if not reaction is None:
-            if not isinstance(reaction, ObjectMapCollection):
-                raise TypeError('Actuator organ is only allowed to return ' + \
-                                'instance of ObjectMapCollection')
+        out_values = self.organ_func(*direction_values, **kwargs)
 
-        return reaction
+        if self.resource_map is None:
+            pass
 
-    def __init__(self, name, direction, actuator_func, keys2populate,
-                 kwargs={}):
+        else:
+            self.resource_map.set_elements(out_values)
 
-        if not isinstance(precept_label, str):
-            raise TypeError('Sensor input should be string')
+        return True
 
-        if not isinstance(buzz, Buzz):
-            raise TypeError('Sensor output should be of class Buzz')
+    def __init__(self, name, direction, actuator_func, action_label,
+                 resource_map=None, actuator_func_kwargs={}):
 
-        super().__init__(name, precept_label, sensor_func, 
-                         buzz, sensor_func_kwargs)
-        self.name = name
-        self.action_name = action_name
-        self.actuator_func = actuator_func
-        self.keys2populate = keys2populate
-        self.kwargs = None
-        self.kwargs_base = kwargs
+        if not isinstance(direction, Direction):
+            raise TypeError('Actuator input should be instance of class Direction')
+
+        if not resource_map is None:
+            if not isinstance(resource_map, ResourceMap):
+                raise TypeError('Actuator resource maps should be of class ResourceMap')
+
+        super().__init__(name, direction, actuator_func, 
+                         action_label, actuator_func_kwargs)
+
+        self.resource_map = resource_map 
 
 class Interpreter(_Organ):
     '''Interpreter class, which defines how buzz from a sensor is made into
@@ -318,24 +278,6 @@ class Moulder(_Organ):
             self.resource_map.set_elements(out_values[1]) 
 
         return True
-
-#        func_args = []
-#        for belief_input in self.belief_names:
-#            func_args.append(belief[belief_input])
-#        func_args = tuple(func_args)
-#
-#        output = self.moulder_func(*func_args, **self.kwargs)
-#
-#        if not isinstance(output, MoulderReturn):
-#            raise TypeError('Moulder functions must return MoulderReturn objects')
-#
-#        if not output.actuator_params is None:
-#            if not isinstance(actuator, Actuator):
-#                raise TypeError('Moulder not given actuator organ to populate')
-#
-#            actuator.populate(output.actuator_params)
-#
-#        return output.object_map
 
     def __init__(self, moulder_name, belief, moulder_func, direction,
                  resource_map=None, moulder_func_kwargs={}):
