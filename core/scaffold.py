@@ -1,6 +1,10 @@
 '''Scaffold Class
 
 '''
+import numpy as np
+from collections import Iterable
+from collections import OrderedDict
+
 class _Scaffold(object):
     '''Bla bla
 
@@ -29,22 +33,29 @@ class _Scaffold(object):
         '''Bla bla
 
         '''
-        return {key : None for key in self.item_names}
+        return OrderedDict([(key, None) for key in self.item_names])
 
-    def transform(self, inp_vals, func):
+    def read_value(self):
         '''Bla bla
 
         '''
-        if isinstance(func, str):
+        data = self._items.values()
+        return list(data)
 
-        elif isinstance(func, callable):
-            transform_func = func
+    def __getitem__(self, key):
+        '''Bla bla
 
-        else:
-            raise TypeError('Transform func should be string or callable')
+        '''
+        return self._items[key]
 
-        new_values = transform_func(self._items.values(), inp_vals)
-        self.set_elements(new_values)
+    def __setitem__(self, key, value):
+        '''Bla bla
+
+        '''
+        if not key in self._items:
+            raise RuntimeError('New scaffold items cannot be added ' + \
+                               'after initilization')
+        self._items[key] = value
 
     def __init__(self, name, item_names):
 
@@ -141,23 +152,32 @@ class ResourceMap(_ScaffoldMap):
         '''Bla bla
 
         '''
-        resources = agent.scaffold['resources']
+        resource = agent.resource
+        if resource is None:
+            raise RuntimeError('Agent has not been assigned a resource so ' + \
+                               'nothing to transform via a map')                     
+        elif not isinstance(resource, Resource):
+            raise TypeError('Agent can only be assigned one resource of ' + \
+                            'class Resource')
+
         for item, resource_map in self.mapper.items():
             derived_adjustment = self.scaffold_map_return[item]
             if derived_adjustment is None:
                 continue
 
-            old_value = resources[item]
+            old_value = resource[item]
+            if old_value is None:
+                raise RuntimeError('Initial values of resource %s not assigned' %(item))
             new_value = resource_map(old_value, derived_adjustment)
-            resources[item] = new_value
+            resource[item] = new_value
 
             self.scaffold_map_return[item] = None
 
-        agent.scaffold['resources'] = resources
+        agent.resource = resource 
 
-    def __init__(self, name, mapper):
+    def __init__(self, name, resource_to_map_names, map_funcs):
 
-        super().__init__(name, mapper)
+        super().__init__(name, resource_to_map_names, map_funcs)
 
 class _ForceFunctions(object):
     '''Bunch of pre-defined object force functions that other classes can use
@@ -209,3 +229,30 @@ class _ForceFunctions(object):
 
         '''
         if loss > 1.0 or loss < 0.0:
+            raise ValueError('The loss factor should be between 0.0 and 1.0, ' + \
+                             'not %s' %(str(loss)))
+
+        return target + loss * (old_value - target) 
+
+    def force_func_flip_one_char(self, old_value, alphabet, selector=None):
+        '''Bla bla
+
+        '''
+        index_flip = np.random.randint(len(old_value))
+        other_chars = [x for x in alphabet if not x == old_value[index_flip]]
+
+        if selector is None:
+            _selector = lambda options : np.random.choice(options)
+
+        elif callable(selector):
+            _selector = selector
+
+        else:
+            raise TypeError('Selector must be a callable function, not %s' %(str(type(selector))))
+
+        new_value = old_value[:index_flip] + \
+                    _selector(other_chars) + \
+                    old_value[index_flip + 1:]
+
+        return new_value
+

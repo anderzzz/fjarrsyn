@@ -306,10 +306,9 @@ class Moulder(_Organ):
             executed expecting only to create an object force output
 
         '''
-        belief_values = self.message_input.read_values()
+        belief_values = self.message_input.read_value()
 
-        args = (belief_values,)
-        out_values = self.organ_func(*args, **self.kwargs)
+        out_values = self.organ_func(*belief_values, **self.kwargs)
 
         if self.resource_map is None:
             self.message_output.set_elements(out_values)

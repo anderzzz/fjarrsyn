@@ -59,29 +59,19 @@ class Agent(object):
         container[key] = value
         setattr(self, object_type, container)
 
-    def set_flash(self, flash, entry_name, entry, edit_only):
-        '''Bla bla
-
-        '''
-        if callable(entry):
-            raise TypeError('Attempt to set flash to callable object')
-
-        else:
-            self._set(flash, entry_name, entry, edit_only)
-
     def set_scaffold(self, scaffold):
         '''Add an imprint to the agent 
 
         '''
         if isinstance(scaffold, Resource):
-            scaffold_type = 'resource'
+            self.resource = scaffold
+
         elif isinstance(scaffold, Essence):
-            scaffold_type = 'essence'
+            self.essence = scaffold
+
         else:
             raise TypeError('Agent scaffold should be instance of ' + \
                             'class Resource or Essence')
-
-        self._set(scaffold, scaffold_type, scaffold, False)
 
     def set_scaffold_bulk(self, scaffold, entryvalue, edit_only=False):
         '''Add several imprints to the agent at once
@@ -399,14 +389,16 @@ class Agent(object):
         self.name = name
         self.agent_id_system = None
 
-        self.scaffold = {}
+        self.resource = None
+        self.essence = None
+        self.scaffold = {'resource' : self.resource,
+                         'essence' : self.essence}
 
         self.belief = {}
         self.buzz = {}
         self.direction = {}
         self.feature = {}
-        self.message = {'scaffold' : self.scaffold, 
-                        'belief' : self.belief,
+        self.message = {'belief' : self.belief,
                         'buzz' : self.buzz,
                         'direction' : self.direction,
                         'feature' : self.feature}

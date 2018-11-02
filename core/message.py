@@ -2,6 +2,7 @@
 
 '''
 from collections import Iterable
+from collections import OrderedDict
 
 class _Message(object):
 
@@ -9,6 +10,7 @@ class _Message(object):
         '''Bla bla
 
         '''
+        print (value_container)
         if self.n_elements > 1:
             if not isinstance(value_container, Iterable):
                 raise TypeError('Message with multiple elements given ' + \
@@ -29,13 +31,15 @@ class _Message(object):
         '''Bla bla
 
         '''
-        return {key : None for key in self.message_element_names}
+        return OrderedDict([(key, None) for key in self.message_element_names])
 
     def __init__(self, message_name, message_element_names):
 
         self.message_name = message_name
         self.message_element_names = tuple(message_element_names)
         self.n_elements = len(self.message_element_names)
+        print (self.message_element_names)
+        print (self.n_elements)
 
         self.message_return = self.set_empty_message()
 
@@ -88,6 +92,8 @@ class _Imprint(_Message):
         '''Bla bla
 
         '''
+        print (self.message_return)
+        print (self.message_return.values())
         data = tuple(self.message_return.values())
 
         return data
