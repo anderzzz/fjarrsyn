@@ -2,6 +2,7 @@
 
 '''
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
+from core.scaffold import Resource, Essence
 
 class Agent(object):
     '''Bla bla
@@ -68,34 +69,19 @@ class Agent(object):
         else:
             self._set(flash, entry_name, entry, edit_only)
 
-    def set_scaffold(self, scaffold, entry_name, entry, edit_only=False):
+    def set_scaffold(self, scaffold):
         '''Add an imprint to the agent 
 
-        Parameters
-        ----------
-        imprint : str
-            Type of imprint to set
-        entry_name : str
-            Key to the specific imprint
-        entry 
-            The value to set the imprint to. This should be a number, string or
-            similar atomic variable, not a callable function
-        edit_only : bool, optional
-            If False, `entry_name` can be non-existent in the particular
-            imprint, if True, `entry_name` must exist already. Hence, this flag
-            validates if imprints can be only edited or not.
-
-        Raises
-        ------
-        TypeError
-            If given entry is a callable function
-
         '''
-        if callable(entry):
-            raise TypeError('Attempt to set imprint to callable object')
-
+        if isinstance(scaffold, Resource):
+            scaffold_type = 'resource'
+        elif isinstance(scaffold, Essence):
+            scaffold_type = 'essence'
         else:
-            self._set(scaffold, entry_name, entry, edit_only)
+            raise TypeError('Agent scaffold should be instance of ' + \
+                            'class Resource or Essence')
+
+        self._set(scaffold, scaffold_type, scaffold, False)
 
     def set_scaffold_bulk(self, scaffold, entryvalue, edit_only=False):
         '''Add several imprints to the agent at once
@@ -139,6 +125,8 @@ class Agent(object):
 
         elif isinstance(organ, Actuator):
             self._set('actuator', organ.action_name, organ)
+            self._set('action', organ.message_output.message_name,
+                                organ.message_output)
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
@@ -146,6 +134,8 @@ class Agent(object):
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
+            self._set('direction', organ.message_output.message_name,
+                                   organ.message_output)
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.tickle_name, organ)
@@ -297,7 +287,7 @@ class Agent(object):
         '''
         return self.interpret(brain_tissue, self.sense(precept))
 
-    def mould(self, action):
+    def mould(self, potential):
         '''Method for agent to mould beliefs into a populated actuator that
         subsequently can be acted upon
 
@@ -313,7 +303,7 @@ class Agent(object):
 
         Parameters
         ----------
-        actions : str
+        potential: str
             Name of the action onto the World to mould
 
         Raises
@@ -322,20 +312,16 @@ class Agent(object):
             If an action is requested for which agent has no moulder
 
         '''
-        if not action in self.moulder:
-            raise KeyError('Agent lacks moulder for action %s' %(action))
+        if not potential in self.moulder:
+            raise KeyError('Agent lacks moulder for %s' %(potential))
 
         else:
-            the_moulder = self.moulder[action]
+            the_moulder = self.moulder[potential]
 
-        if action in self.actuator:
-            induction = the_moulder(self.belief, self.actuator[action])
-        else:
-            induction = the_moulder(self.belief)
+        did_it_mould = the_moulder()
 
-        if not induction is None:
-            induction(self)
-            induction.empty_map()
+        if not the_moulder.resource_map.is_empty():
+            the_moulder.resource_map(self)
 
     def act(self, action):
         '''Method for agent to act a populated actuator.
@@ -414,6 +400,7 @@ class Agent(object):
         self.agent_id_system = None
 
         self.scaffold = {}
+
         self.belief = {}
         self.buzz = {}
         self.direction = {}

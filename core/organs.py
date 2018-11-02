@@ -4,8 +4,9 @@
 import copy
 from collections import namedtuple
 
-from core.naturallaw import ObjectMapCollection 
+from core.naturallaw import ObjectMapCollection
 from core.message import Buzz, Direction, Feature, Belief
+from core.scaffold import Resource, ResourceMap
 
 class _Organ(object):
     '''Organ parent class, which defines common structure and method for all
@@ -269,7 +270,7 @@ class Interpreter(_Organ):
 
 MoulderReturn = namedtuple('MoulderReturn', ['actuator_params', 'object_map'])
 
-class Moulder(object):
+class Moulder(_Organ):
     '''Moulder class, which defines how beliefs are turned into an executable
     instance of an actuator.
 
@@ -287,7 +288,7 @@ class Moulder(object):
         Named arguments for the `moulder_func`
 
     '''
-    def __call__(self, belief, actuator=None):
+    def __call__(self):
         '''Execute the moulder to populate an actuator
 
         Notes
@@ -305,26 +306,40 @@ class Moulder(object):
             executed expecting only to create an object force output
 
         '''
-        func_args = []
-        for belief_input in self.belief_names:
-            func_args.append(belief[belief_input])
-        func_args = tuple(func_args)
+        belief_values = self.message_input.read_values()
 
-        output = self.moulder_func(*func_args, **self.kwargs)
+        args = (belief_values,)
+        out_values = self.organ_func(*args, **self.kwargs)
 
-        if not isinstance(output, MoulderReturn):
-            raise TypeError('Moulder functions must return MoulderReturn objects')
+        if self.resource_map is None:
+            self.message_output.set_elements(out_values)
 
-        if not output.actuator_params is None:
-            if not isinstance(actuator, Actuator):
-                raise TypeError('Moulder not given actuator organ to populate')
+        else:
+            self.message_output.set_elements(out_values[0])
+            self.resource_map.set_elements(out_values[1]) 
 
-            actuator.populate(output.actuator_params)
+        return True
 
-        return output.object_map
+#        func_args = []
+#        for belief_input in self.belief_names:
+#            func_args.append(belief[belief_input])
+#        func_args = tuple(func_args)
+#
+#        output = self.moulder_func(*func_args, **self.kwargs)
+#
+#        if not isinstance(output, MoulderReturn):
+#            raise TypeError('Moulder functions must return MoulderReturn objects')
+#
+#        if not output.actuator_params is None:
+#            if not isinstance(actuator, Actuator):
+#                raise TypeError('Moulder not given actuator organ to populate')
+#
+#            actuator.populate(output.actuator_params)
+#
+#        return output.object_map
 
     def __init__(self, moulder_name, belief, moulder_func, direction,
-                 object_map=None, kwargs={}):
+                 resource_map=None, moulder_func_kwargs={}):
 
         if not isinstance(belief, Belief):
             raise TypeError('Moulder input should be of class Belief')
@@ -332,10 +347,14 @@ class Moulder(object):
         if not isinstance(direction, Direction):
             raise TypeError('Moulder output should be of class Direction')
 
-        super().__init__(moulder_name, belief, moulder_func, 
-                         direction, kwargs)
+        if not resource_map is None:
+            if not isinstance(resource_map, ResourceMap):
+                raise TypeError('Moulder resource maps should be of class ResourceMap')
 
-        self.object_map = object_map
+        super().__init__(moulder_name, belief, moulder_func, 
+                         direction, moulder_func_kwargs)
+
+        self.resource_map = resource_map 
 
 class Cortex(object):
     '''Cortex class, which defines reaction to a certain tickle from the World.
