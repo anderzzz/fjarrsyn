@@ -42,6 +42,16 @@ class _Scaffold(object):
         data = self._items.values()
         return list(data)
 
+    def slicer(self, labels):
+        '''Bla bla
+
+        '''
+        class_slice = _Scaffold('scaffold_slice', labels)
+        value_slice = [value for key, value in self._items.items() if key in labels]
+        class_slice.set_elements(value_slice)
+
+        return class_slice
+
     def __getitem__(self, key):
         '''Bla bla
 

@@ -2,7 +2,6 @@
 
 '''
 import copy
-from collections import namedtuple
 
 from core.naturallaw import ObjectMapCollection
 from core.message import Buzz, Direction, Feature, Belief
@@ -228,8 +227,6 @@ class Interpreter(_Organ):
 
         self.belief_updater = belief_updater
 
-MoulderReturn = namedtuple('MoulderReturn', ['actuator_params', 'object_map'])
-
 class Moulder(_Organ):
     '''Moulder class, which defines how beliefs are turned into an executable
     instance of an actuator.
@@ -297,7 +294,7 @@ class Moulder(_Organ):
 
         self.resource_map = resource_map 
 
-class Cortex(object):
+class Cortex(_Organ):
     '''Cortex class, which defines reaction to a certain tickle from the World.
     The Cortex is separate from beliefs and depend only on scaffold
 
@@ -323,11 +320,15 @@ class Cortex(object):
             Return value as the cortex is tickled.
 
         '''
-        return self.cortex_func(**self.kwargs)
+        scaffold_values = self.message_input.read_value()
 
-    def __init__(self, name, tickle_name, cortex_func, kwargs={}):
+        out_values = self.organ_func(*scaffold_values, **self.kwargs)
+        self.message_output.set_elements(out_values)
 
-        self.name = name
-        self.tickle_name = tickle_name
-        self.cortex_func = cortex_func
-        self.kwargs = kwargs
+        return self.message_output
+
+    def __init__(self, cortex_name, scaffold, cortex_func, feature,
+                 cortex_func_kwargs={}):
+
+        super().__init__(cortex_name, scaffold, cortex_func, feature,
+                         cortex_func_kwargs)

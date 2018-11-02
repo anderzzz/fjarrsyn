@@ -127,6 +127,8 @@ class Agent(object):
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.name, organ)
+            self._set('feature', organ.message_output.message_name,
+                                 organ.message_output)
 
         else:
             raise TypeError('Unknown organ type: %s' %str(type(organ)))
@@ -370,6 +372,12 @@ class Agent(object):
         '''
         return (not self.agent_id_system is None)
 
+    def reveal_cortices(self):
+        '''Bla bla
+
+        '''
+        return list(self.cortex.keys())
+
     def __str__(self):
 
         return self.name + '(ID:%s)'%(str(self.agent_id_system))
@@ -411,7 +419,4 @@ class Agent(object):
                        'actuator' : self.actuator, 
                        'interpreter' : self.interpreter,
                        'moulder' : self.moulder}
-
-        cortex = Cortex('revealation_set', 'cortex_labels', self._tickle_cortex_labels)
-        self.set_organ(cortex)
 
