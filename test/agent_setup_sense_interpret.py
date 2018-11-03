@@ -64,3 +64,4 @@ for k in range(0, 20):
     beliefs.append(agent.belief['world_is_good'].values()[0])
 
 assert (beliefs == REF_OUTCOME)
+

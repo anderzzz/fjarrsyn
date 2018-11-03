@@ -1,8 +1,20 @@
-'''Bla bla
+'''Basic object to store the agents and auxiliary content in the agent system
+graph. The object should be considered to be replaced with namedtuple at some
+point, once the default field has matured
 
 '''
 class Node(object):
-    '''Bla bla
+    '''Basic object to store agent and auxiliary content in the agent system.
+
+    Parameters
+    ----------
+    name : str
+        Name of node
+    agent_content : Agent
+        An Agent object
+    aux_content : optional
+        Auxiliary content, such as an immediate environment, to the Agent of
+        the Node
     
     '''
     def __str__(self):

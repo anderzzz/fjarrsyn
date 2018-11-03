@@ -2,6 +2,7 @@
 
 '''
 import copy
+from collections import OrderedDict
 
 from core.naturallaw import ObjectMapCollection, ResourceMap
 from core.array import Buzz, Direction, Feature, Belief, Resource
@@ -14,12 +15,16 @@ class _Organ(object):
     ----------
     organ_name : str
         Name of the organ
-    message_input : str, or _Message
-        Instance of message the organ deals with as input 
+    message_input : _Array or None
+        Instance of array the organ deals with as input. If None an OrderedDict
+        is used as template, which upon execution will return empty values and
+        keys
     organ_function : callable
         The function that upon execution performs the operations of the organ
-    message_output : str, or _Message
-        Instance of message the organ deals with as output
+    message_output : _Array or None
+        Instance of message the organ deals with as output. If None and
+        OrderedDict is used as template, which upon execution will return empty
+        values and keys
     function_kwargs : dict, optional
         Any arguments needed for the organ_function
 
@@ -27,13 +32,23 @@ class _Organ(object):
     def __init__(self, organ_name, message_input, organ_function,
                  message_output, function_kwargs={}):
 
+        self.name = organ_name
         if not callable(organ_function):
             raise TypeError('Organ requires callable function for its operation')
-
-        self.name = organ_name
-        self.message_input = message_input
         self.organ_func = organ_function
-        self.message_output = message_output
+
+        if not message_input is None:
+            self.message_input = message_input
+
+        else:
+            self.message_input = OrderedDict()
+
+        if not message_output is None:
+            self.message_output = message_output
+
+        else:
+            self.message_output = OrderedDict()
+
         self.kwargs = function_kwargs
 
 class Sensor(_Organ):

@@ -262,8 +262,3 @@ class AgentManagementSystem(object):
             if not node.agent_content is None:
                 self.node_from_agent_id_[node.agent_content.agent_id_system] = node
 
-        #
-        # The Agent system can itself have natural constants. These are
-        # assigned in child classes, the container declared here.
-        #
-        self.system_constants = {}

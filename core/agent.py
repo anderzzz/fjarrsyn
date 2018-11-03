@@ -1,11 +1,23 @@
-'''Agent 
+'''The fundamental Agent parent class
 
 '''
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.array import Resource, Essence
+from core.array import Resource, Essence, Feature
 
 class Agent(object):
-    '''Bla bla
+    '''The parent Agent class. In applications a custom agent class is created,
+    which inherits the current class.
+
+    Notes
+    -----
+    The parent agent can be initialized as an almost empty template, where only
+    the name is required. All content of the Agent, such as organs, messages,
+    scaffolds, are added after initialization with the appropriate set-methods.
+
+    Parameters
+    ----------
+    name : str
+        Name of the agent
 
     '''
     def _tickle_cortex_labels(self):
@@ -17,7 +29,7 @@ class Agent(object):
             List of unadulterated string keys for the cortex functions of the agent.
 
         '''
-        return self.cortex.keys() 
+        return (list(self.cortex.keys()),)
 
     def _set(self, object_type, key, value, key_check=False):
         '''Common function to add agent organ or imprint to the appropriate
@@ -185,20 +197,11 @@ class Agent(object):
 
         Notes
         -----
-        The sensor is intended to sense a precept of the World wherein the
-        method is intended as a private method to the current agent. The buzz a
-        sensor generates should be understood as transient and will only
-        through an interpretation manifest itself in a persistent beliefs.
 
         Parameters
         ----------
         precept : str
             Name of the precept of the World to sense
-
-        Returns
-        -------
-        buzz : dict
-            Buzz that the sensor triggers once it senses the precept
 
         Raises
         ------
@@ -214,29 +217,16 @@ class Agent(object):
 
         did_it_sense = the_sensor(self.agent_id_system)
 
-        return did_it_sense
-
     def interpret(self, state):
-        '''Method for agent to interpret a buzz with certain brain tissue
+        '''Method for agent to interpret state of the world
 
         Notes
         -----
-        The particular interpreter brain tissue interprets a buzz
-        triggered by sensor wherein the method is intended as a private method
-        to the current agent. The beliefs that are created as persistent within
-        the agent, but not necessarily identical to the buzz.
 
         Parameters
         ----------
-        brain_tissue : str
+        state : str
             The name of the interpreter to be used
-        buzz : dict
-            The buzz to interpret with the `brain_tissue` interpreter
-
-        Returns
-        -------
-        updated_belief_labels
-            Iterable with labels of updated beliefs following interpretation. 
 
         Raises
         ------
@@ -251,8 +241,6 @@ class Agent(object):
             the_interpreter = self.interpreter[state]
 
         did_it_interpret = the_interpreter()
-
-        return did_it_interpret
 
     def perceive(self, precept, brain_tissue):
         '''Method for agent to sense and interpret a percept
@@ -283,23 +271,16 @@ class Agent(object):
 
         Notes
         -----
-        The desired action is moulded from a number of beliefs wherein
-        the method is intended as a private method to the current agent.
-        The beliefs to be used are defined as part of initilization of the
-        corresponding Moulder organ. The method populates persistent actuators
-        of the agent, keyed on the action, which subsequently can be acted
-        upon. Observe that the moulding can alter the internal scaffold of the
-        agent.
 
         Parameters
         ----------
         potential: str
-            Name of the action onto the World to mould
+            Name of the potential to mould
 
         Raises
         ------
         KeyError
-            If an action is requested for which agent has no moulder
+            If a potential is requested for which agent has no moulder
 
         '''
         if not potential in self.moulder:
@@ -319,12 +300,6 @@ class Agent(object):
 
         Notes
         -----
-        The action is acted onto the World wherein the actuator must be
-        populated by a Moulder organ. The method is intended as a private
-        method to the current agent. Observe that the act method only alters
-        the state of the World. Observe that the act method exhausts the
-        actuator and a new one must be moulded in case an act should be done
-        again.
 
         Parameters
         ----------
@@ -367,16 +342,16 @@ class Agent(object):
         self.act(action)
 
     def hooked_up(self):
-        '''Bla bla
+        '''Determines if agent is part of an agent management system
+
+        Returns
+        -------
+        hooked_up : bool
+            True if the agent has an ID in an agent management system, False
+            otherwise
 
         '''
         return (not self.agent_id_system is None)
-
-    def reveal_cortices(self):
-        '''Bla bla
-
-        '''
-        return list(self.cortex.keys())
 
     def __str__(self):
 
@@ -393,13 +368,25 @@ class Agent(object):
     def __init__(self, name):
 
         self.name = name
+
+        #
+        # Agent ID is a property of the agent assigned by the agent system 
+        # manager as agents are included in the bookkeeping
+        #
         self.agent_id_system = None
 
+        #
+        # Scaffolds of the agent. There can be only one resource and one
+        # essence
         self.resource = None
         self.essence = None
         self.scaffold = {'resource' : self.resource,
                          'essence' : self.essence}
 
+        #
+        # Messages of the agent. These are typically assigned along with the
+        # setting of organs
+        #
         self.belief = {}
         self.buzz = {}
         self.direction = {}
@@ -409,6 +396,10 @@ class Agent(object):
                         'direction' : self.direction,
                         'feature' : self.feature}
 
+        #
+        # Organs of the agent. These are assigned with the appropriate setter
+        # function
+        #
         self.cortex = {}
         self.sensor = {}
         self.actuator = {}
@@ -419,4 +410,14 @@ class Agent(object):
                        'actuator' : self.actuator, 
                        'interpreter' : self.interpreter,
                        'moulder' : self.moulder}
+
+        # 
+        # Mandatory cortex organ to reveal what cortices are available
+        #
+        feature = Feature('cortices_available', ('cortices_names',))
+        cortex_reveal_cortex_labels = Cortex('reveal_available_cortex', 
+                                             None,
+                                             self._tickle_cortex_labels, 
+                                             feature)
+        self.set_organ(cortex_reveal_cortex_labels)
 
