@@ -81,6 +81,21 @@ class _Array(object):
         '''
         return list(self._items.keys())
 
+    def items(self):
+        '''Return iterator over key value pairs of the array, which preserves
+        the order set during initilization
+
+        Returns
+        -------
+        key
+            The key of the element of the array
+        value
+            The corresponding value of the element of the array
+
+        '''
+        for key in self.keys():
+            yield key, self[key]
+
     def slicer(self, labels):
         '''Return a slice of the array based on a set of semantic labels
 
@@ -111,6 +126,14 @@ class _Array(object):
         class_slice.set_values(value_slice)
 
         return class_slice
+
+    def __str__(self):
+        '''Return the OrderedDictionary view'''
+
+        str_out = str(self._items)
+        str_out = str_out.replace('OrderedDict','')
+
+        return str_out
 
     def __getitem__(self, key):
         '''Return the value of the array associated with a key.'''

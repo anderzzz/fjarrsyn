@@ -8,6 +8,7 @@ import numpy.random
 import networkx as nx
 
 from core.agent import Agent
+from core.graph import Node
 
 class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or
