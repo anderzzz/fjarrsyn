@@ -1,100 +1,15 @@
-'''Scaffold Class
+'''Mapper class
 
 '''
 import numpy as np
 from collections import Iterable
 from collections import OrderedDict
 
-class _Scaffold(object):
-    '''Bla bla
-
-    '''
-    def set_elements(self, value_container):
-        '''Bla bla
-
-        '''
-        if self.n_items > 1:
-            if not isinstance(value_container, Iterable):
-                raise TypeError('Scaffold with multiple elements given ' + \
-                                'non-iterable value')
-
-            if len(value_container) != self.n_items:
-                raise ValueError('Scaffold container of incorrect length given')
-
-            values = value_container
-
-        else:
-            values = [value_container]
-
-        for value_index, value in enumerate(values):
-            self._items[self.item_names[value_index]] = value
-
-    def set_empty_scaffold(self):
-        '''Bla bla
-
-        '''
-        return OrderedDict([(key, None) for key in self.item_names])
-
-    def read_value(self):
-        '''Bla bla
-
-        '''
-        data = self._items.values()
-        return list(data)
-
-    def slicer(self, labels):
-        '''Bla bla
-
-        '''
-        class_slice = _Scaffold('scaffold_slice', labels)
-        value_slice = [value for key, value in self._items.items() if key in labels]
-        class_slice.set_elements(value_slice)
-
-        return class_slice
-
-    def __getitem__(self, key):
-        '''Bla bla
-
-        '''
-        return self._items[key]
-
-    def __setitem__(self, key, value):
-        '''Bla bla
-
-        '''
-        if not key in self._items:
-            raise RuntimeError('New scaffold items cannot be added ' + \
-                               'after initilization')
-        self._items[key] = value
-
-    def __init__(self, name, item_names):
-
-        self.name = name
-        self.item_names = item_names
-        self.n_items = len(item_names)
-        self._items = self.set_empty_scaffold()
-
-class Resource(_Scaffold):
-    '''Bla bla
-
-    '''
-    def __init__(self, resource_title, item_names):
-
-        super().__init__(resource_title, item_names)
-
-class Essence(_Scaffold):
-    '''Bla bla
-
-    '''
-    def __init__(self, essence_title, item_names):
-
-        super().__init__(essence_title, item_names)
-
 class _ScaffoldMap(object):
     '''Bla bla
 
     '''
-    def set_elements(self, value_container):
+    def set_values(self, value_container):
         '''Bla bla
 
         '''
@@ -104,21 +19,25 @@ class _ScaffoldMap(object):
                                 'non-iterable value')
 
             if len(value_container) != self.n_elements:
-                raise ValueError('Message container of incorrect length given')
+                raise ValueError('Scaffold container of incorrect length given')
 
             values = value_container
 
         else:
-            values = [value_container]
+            if not isinstance(value_container, Iterable):
+                values = [value_container]
+            
+            else:
+                values = value_container
 
         for value_index, value in enumerate(values):
             self.scaffold_map_return[self.scaffold_element_names[value_index]] = value
 
-    def set_empty_map(self):
+    def void_map(self):
         '''Bla bla
 
         '''
-        return {key : None for key in self.scaffold_element_names}
+        return OrderedDict([(key, None) for key in self.scaffold_element_names])
 
     def __init__(self, name, scaffold_names, map_funcs):
 
@@ -146,7 +65,7 @@ class _ScaffoldMap(object):
         self.scaffold_element_names = tuple(scaffold_names)
         self.n_elements = len(self.scaffold_element_names)
 
-        self.scaffold_map_return = self.set_empty_map()
+        self.scaffold_map_return = self.void_map()
 
 class ResourceMap(_ScaffoldMap):
     '''Bla bla

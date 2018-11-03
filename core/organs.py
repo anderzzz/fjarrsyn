@@ -3,9 +3,8 @@
 '''
 import copy
 
-from core.naturallaw import ObjectMapCollection
-from core.message import Buzz, Direction, Feature, Belief
-from core.scaffold import Resource, ResourceMap
+from core.naturallaw import ObjectMapCollection, ResourceMap
+from core.array import Buzz, Direction, Feature, Belief, Resource
 
 class _Organ(object):
     '''Organ parent class, which defines common structure and method for all
@@ -57,13 +56,6 @@ class Sensor(_Organ):
         Named arguments for the `sensor_func`
 
     '''
-    def __str__(self):
-        '''Print string for sensor object
-
-        '''
-        ret = 'Sensor %s for precept %s.' %(self.name, self.message_input)
-        return ret
-
     def __call__(self, agent_index):
         '''Execute the sensor function with check that buzz output conforms to
         expected shape.
@@ -84,7 +76,7 @@ class Sensor(_Organ):
         kwargs['agent_index'] = agent_index
 
         vals = self.organ_func(**kwargs)
-        self.message_output.set_elements(vals)
+        self.message_output.set_values(vals)
 
         return True
 
@@ -137,7 +129,7 @@ class Actuator(_Organ):
         kwargs = copy.copy(self.kwargs)
         kwargs['agent_index'] = agent_index
 
-        direction_values = self.message_input.read_value()
+        direction_values = self.message_input.values()
 
         out_values = self.organ_func(*direction_values, **kwargs)
 
@@ -145,7 +137,7 @@ class Actuator(_Organ):
             pass
 
         else:
-            self.resource_map.set_elements(out_values)
+            self.resource_map.set_values(out_values)
 
         return True
 
@@ -198,10 +190,10 @@ class Interpreter(_Organ):
             interpretation
 
         '''
-        buzz_values = self.message_input.read_value()
+        buzz_values = self.message_input.values()
 
         if self.belief_updater:
-            current_beliefs = self.message_output.read_value()
+            current_beliefs = self.message_output.values()
             args = (current_beliefs, buzz_values)
 
         else:
@@ -209,12 +201,12 @@ class Interpreter(_Organ):
 
         value = self.organ_func(*args, **self.kwargs)
 
-        self.message_output.set_elements(value)
+        self.message_output.set_values(value)
 
         return True 
 
     def __init__(self, interpreter_name, buzz, interpreter_func, belief,
-                 belief_updater=False, kwargs={}):
+                 belief_updater=False, interpreter_func_kwargs={}):
 
         if not isinstance(buzz, Buzz):
             raise TypeError('Interpreter input should be of class Buzz')
@@ -223,7 +215,7 @@ class Interpreter(_Organ):
             raise TypeError('Interpreter output should be of class Belief')
 
         super().__init__(interpreter_name, buzz, interpreter_func, 
-                         belief, kwargs)
+                         belief, interpreter_func_kwargs)
 
         self.belief_updater = belief_updater
 
@@ -263,16 +255,16 @@ class Moulder(_Organ):
             executed expecting only to create an object force output
 
         '''
-        belief_values = self.message_input.read_value()
+        belief_values = self.message_input.values()
 
         out_values = self.organ_func(*belief_values, **self.kwargs)
 
         if self.resource_map is None:
-            self.message_output.set_elements(out_values)
+            self.message_output.set_values(out_values)
 
         else:
-            self.message_output.set_elements(out_values[0])
-            self.resource_map.set_elements(out_values[1]) 
+            self.message_output.set_values(out_values[0])
+            self.resource_map.set_values(out_values[1]) 
 
         return True
 
@@ -320,15 +312,15 @@ class Cortex(_Organ):
             Return value as the cortex is tickled.
 
         '''
-        scaffold_values = self.message_input.read_value()
+        agent_state_values = self.message_input.values()
 
-        out_values = self.organ_func(*scaffold_values, **self.kwargs)
-        self.message_output.set_elements(out_values)
+        out_values = self.organ_func(*agent_state_values, **self.kwargs)
+        self.message_output.set_values(out_values)
 
         return self.message_output
 
-    def __init__(self, cortex_name, scaffold, cortex_func, feature,
+    def __init__(self, cortex_name, agent_state_array, cortex_func, feature,
                  cortex_func_kwargs={}):
 
-        super().__init__(cortex_name, scaffold, cortex_func, feature,
+        super().__init__(cortex_name, agent_state_array, cortex_func, feature,
                          cortex_func_kwargs)

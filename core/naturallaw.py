@@ -4,6 +4,10 @@ of an agent or other scaffolded object
 '''
 import numpy as np
 import numpy.random
+from collections import Iterable
+from collections import OrderedDict
+
+from core.array import Resource
 
 class _ObjectMap(object):
     '''Parent class for mapping agent object. 
@@ -245,6 +249,109 @@ class ObjectMapOneOneRandom(ObjectMapOneOne):
     def __init__(self, scaffold_name, standard_funcs=False):
 
         super().__init__(scaffold_name, standard_funcs)
+
+class _ScaffoldMap(object):
+    '''Bla bla
+
+    '''
+    def set_values(self, value_container):
+        '''Bla bla
+
+        '''
+        if self.n_elements > 1:
+            if not isinstance(value_container, Iterable):
+                raise TypeError('Scaffold with multiple elements given ' + \
+                                'non-iterable value')
+
+            if len(value_container) != self.n_elements:
+                raise ValueError('Scaffold container of incorrect length given')
+
+            values = value_container
+
+        else:
+            if not isinstance(value_container, Iterable):
+                values = [value_container]
+            
+            else:
+                values = value_container
+
+        for value_index, value in enumerate(values):
+            self.scaffold_map_return[self.scaffold_element_names[value_index]] = value
+
+    def void_map(self):
+        '''Bla bla
+
+        '''
+        return OrderedDict([(key, None) for key in self.scaffold_element_names])
+
+    def __init__(self, name, scaffold_names, map_funcs):
+
+        self.scaffold_name = name
+        self.func_library = _ForceFunctions()
+
+        if len(scaffold_names) != len(map_funcs): 
+            raise TypeError('Number of scaffold names must equal number ' + \
+                            'of mapping functions')
+
+        self.mapper = {}
+        for item, map_func in zip(scaffold_names, map_funcs): 
+            if callable(map_func):
+                self.mapper[item] = map_func
+
+            elif isinstance(map_func, str):   
+                try:
+                    transform_func = getattr(self.func_library, 'force_func_' + map_func)
+                except AttributeError:
+                    raise ValueError('No library transformation function exist for ' + \
+                                     'label %s' %(map_func))
+
+                self.mapper[item] = transform_func
+
+        self.scaffold_element_names = tuple(scaffold_names)
+        self.n_elements = len(self.scaffold_element_names)
+
+        self.scaffold_map_return = self.void_map()
+
+class ResourceMap(_ScaffoldMap):
+    '''Bla bla
+
+    '''
+    def is_empty(self):
+        '''Bla bla
+
+        '''
+        return all([x is None for x in self.scaffold_map_return.values()])   
+
+    def __call__(self, agent):
+        '''Bla bla
+
+        '''
+        resource = agent.resource
+        if resource is None:
+            raise RuntimeError('Agent has not been assigned a resource so ' + \
+                               'nothing to transform via a map')                     
+        elif not isinstance(resource, Resource):
+            raise TypeError('Agent can only be assigned one resource of ' + \
+                            'class Resource')
+
+        for item, resource_map in self.mapper.items():
+            derived_adjustment = self.scaffold_map_return[item]
+            if derived_adjustment is None:
+                continue
+
+            old_value = resource[item]
+            if old_value is None:
+                raise RuntimeError('Initial values of resource %s not assigned' %(item))
+            new_value = resource_map(old_value, derived_adjustment)
+            resource[item] = new_value
+
+            self.scaffold_map_return[item] = None
+
+        agent.resource = resource 
+
+    def __init__(self, name, resource_to_map_names, map_funcs):
+
+        super().__init__(name, resource_to_map_names, map_funcs)
 
 class _ForceFunctions(object):
     '''Bunch of pre-defined object force functions that other classes can use

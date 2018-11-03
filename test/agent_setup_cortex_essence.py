@@ -8,8 +8,7 @@ np.random.seed(79)
 from core.agent import Agent
 
 from core.organs import Cortex 
-from core.message import Feature 
-from core.scaffold import Essence
+from core.array import Feature, Essence
 
 REF1 = [0.9000, 0.3984, 1.0000]
 REF2 = [0.8825, 0.4160, 0.9911]
@@ -34,7 +33,7 @@ feature = Feature('colour', ('hue', 'saturation', 'lightness'))
 # Define Scaffold 
 #
 agent_essence = Essence('my_parameters', ('hue', 'saturation', 'lightness', 'mood'))
-agent_essence.set_elements([0.9, 0.4, 1.0, 'jubilant'])
+agent_essence.set_values([0.9, 0.4, 1.0, 'jubilant'])
 slice_of_essence = agent_essence.slicer(['hue', 'saturation', 'lightness'])
 
 #
@@ -54,9 +53,9 @@ agent.set_scaffold(agent_essence)
 # Tickle the cortex 
 #
 tickle_me_1 = agent.tickle('colour_revealer')
-for val, ref_val in zip(tickle_me_1.read_value(), REF1):
+for val, ref_val in zip(tickle_me_1.values(), REF1):
     assert (isclose(val, ref_val, abs_tol=0.01))
 
 tickle_me_2 = agent.tickle('colour_revealer')
-for val, ref_val in zip(tickle_me_2.read_value(), REF2):
+for val, ref_val in zip(tickle_me_2.values(), REF2):
     assert (isclose(val, ref_val, abs_tol=0.01))

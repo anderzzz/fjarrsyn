@@ -4,8 +4,8 @@
 from core.agent import Agent
 
 from core.organs import Moulder, Actuator 
-from core.message import Belief, Direction
-from core.scaffold import Resource, ResourceMap
+from core.array import Belief, Direction, Resource
+from core.naturallaw import ResourceMap
 
 REF_RESOURCE_OUTCOME = [99.0, 5, 7]
 
@@ -45,7 +45,7 @@ class Env(object):
 # Define Messages
 #
 belief = Belief('rich_environment', ('stuff_1', 'stuff_2', 'stuff_3', 'stuff_4'))
-belief.set_elements([0.7, 0.3, 0.6, 0.1])
+belief.set_values([0.7, 0.3, 0.6, 0.1])
 direction1 = Direction('grab_this_much', ('grab_volume',))
 direction2 = Direction('shout_loud', ('volume',))
 
@@ -53,7 +53,7 @@ direction2 = Direction('shout_loud', ('volume',))
 # Define Scaffold and Map for it
 #
 agent_resources = Resource('internal_resource', ('internal_energy', 'carrot', 'leek'))
-agent_resources.set_elements([100.0, 4, 5])
+agent_resources.set_values([100.0, 4, 5])
 change_energy = ResourceMap('adjust_energy', ('internal_energy',), ('delta',))
 hoard_food = ResourceMap('hoard_food', ('carrot', 'leek'), ('delta', 'delta'))
 
@@ -61,7 +61,7 @@ hoard_food = ResourceMap('hoard_food', ('carrot', 'leek'), ('delta', 'delta'))
 # Define Organs and their associated messages
 #
 moulder1 = Moulder('reach_and_grab', belief, make_decision, direction1,
-                  change_energy)
+                   change_energy)
 moulder2 = Moulder('shout_how_much', belief, shouter, direction2)
 
 env = Env()
@@ -85,7 +85,7 @@ agent.set_scaffold(agent_resources)
 agent.mould('reach_and_grab')
 agent.act('grab_it')
 
-assert (agent.resource.read_value() == REF_RESOURCE_OUTCOME)
+assert (agent.resource.values() == REF_RESOURCE_OUTCOME)
 
 agent.mould('shout_how_much')
 agent.act('shout')

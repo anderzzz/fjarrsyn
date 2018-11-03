@@ -4,7 +4,7 @@
 from core.agent import Agent
 
 from core.organs import Sensor, Interpreter
-from core.message import Buzz, Belief
+from core.array import Buzz, Belief
 
 import numpy as np
 from numpy.random import random_integers
@@ -61,6 +61,6 @@ beliefs = []
 for k in range(0, 20):
     agent.sense('check_roll')
     agent.interpret('was_it_good_roll')
-    beliefs.append(agent.belief['world_is_good'].read_value()[0])
+    beliefs.append(agent.belief['world_is_good'].values()[0])
 
 assert (beliefs == REF_OUTCOME)

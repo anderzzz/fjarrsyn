@@ -2,7 +2,7 @@
 
 '''
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.scaffold import Resource, Essence
+from core.array import Resource, Essence
 
 class Agent(object):
     '''Bla bla
@@ -111,23 +111,23 @@ class Agent(object):
         '''
         if isinstance(organ, Sensor):
             self._set('sensor', organ.name, organ)
-            self._set('buzz', organ.message_output.message_name, organ.message_output)
+            self._set('buzz', organ.message_output.array_name, organ.message_output)
 
         elif isinstance(organ, Actuator):
             self._set('actuator', organ.name, organ)
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
-            self._set('belief', organ.message_output.message_name, organ.message_output)
+            self._set('belief', organ.message_output.array_name, organ.message_output)
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
-            self._set('direction', organ.message_output.message_name,
+            self._set('direction', organ.message_output.array_name,
                                    organ.message_output)
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.name, organ)
-            self._set('feature', organ.message_output.message_name,
+            self._set('feature', organ.message_output.array_name,
                                  organ.message_output)
 
         else:
