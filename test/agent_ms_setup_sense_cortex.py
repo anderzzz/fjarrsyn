@@ -8,6 +8,12 @@ from core.agent import Agent
 from core.organs import Sensor, Cortex
 from core.array import Buzz, Feature, Essence
 
+REF_VALUES = [[('type_sense', 0.50078), ('honesty_sense', 0.5)],
+              [('type_sense', 0.50067), ('honesty_sense', 0.2)]]
+
+def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
 class TestAgentMS(AgentManagementSystem):
 
     def type_query(self, agent_index):
@@ -52,6 +58,15 @@ class TestAgent(Agent):
 agents_init = [TestAgent('LEFT'), TestAgent('RIGHT')]
 agent_ms = TestAgentMS('pair_of_agents', agents_init)
 
+cnt = 0
 for agent, aux_content in agent_ms:
     agent.sense('discover_neighbour_type')
-    print (list(agent.buzz.values())[0])
+    the_buzz = agent.buzz['type_discovery']
+
+    xx = the_buzz['type_sense']
+    yy = the_buzz['honesty_sense']
+
+    assert (isclose(xx, REF_VALUES[cnt][0][1], abs_tol=0.00001))
+    assert (isclose(yy, REF_VALUES[cnt][1][1], abs_tol=0.00001))
+
+    cnt += 1
