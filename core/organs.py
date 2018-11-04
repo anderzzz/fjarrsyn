@@ -2,12 +2,12 @@
 
 '''
 import copy
-from collections import OrderedDict
+from collections import OrderedDict, Iterable
 
-from core.naturallaw import ObjectMapCollection, ResourceMap
+from core.naturallaw import ResourceMapCollection, ResourceMap
 from core.array import Buzz, Direction, Feature, \
                        Belief, Resource, Essence, \
-                       ImprintOperator
+                       ImprintOperator, _Array
 
 class _Organ(object):
     '''Organ parent class, which defines common structure and method for all
@@ -35,22 +35,45 @@ class _Organ(object):
                  organ_function, array_output, 
                  resource_map=None, organ_function_kwargs={}):
 
+        def _decorate_always_iterable_output(f):
+            '''Bla bla
+
+            '''
+            def wrapper(*args, **kwargs):
+                ret = f(*args, **kwargs)
+                if isinstance(ret, str):
+                    return (ret,)
+                elif (not isinstance(ret, Iterable)):
+                    return (ret,)
+                else:
+                    return ret
+
+            return wrapper
+
         self.name = organ_name
 
         if not callable(organ_function):
             raise TypeError('Organ requires callable function for its operation')
-        self.organ_func = organ_function
+        self.organ_func = _decorate_always_iterable_output(organ_function)
 
-        self.array_input = OrderedDict()
-        self.array_output = OrderedDict()
-        if not array_input is None:
+        if array_input is None:
+            self.array_input = OrderedDict()
+        elif isinstance(array_input, str):
+            self.array_input = _Array(array_input, []) 
+        else:
             self.array_input = array_input
-        if not array_output is None:
+
+        if array_output is None:
+            self.array_output = OrderedDict()
+        elif isinstance(array_output, str):
+            self.array_output = _Array(array_input, []) 
+        else:
             self.array_output = array_output
 
         if not resource_map is None:
-            if not isinstance(resource_map, ResourceMap):
-                raise TypeError('Actuator resource maps should be of class ResourceMap')
+            if not isinstance(resource_map, (ResourceMap, ResourceMapCollection)):
+                raise TypeError('Organ resource maps should be of class ' + \
+                                'ResourceMap or ResourceMapCollection')
         self.resource_map = resource_map
 
         self.kwargs = organ_function_kwargs
@@ -152,27 +175,32 @@ class Actuator(_Organ):
             In case the actuator is executed prior to population
 
         '''
+        direction_values = self.array_input.values()
+
         kwargs = copy.copy(self.kwargs)
         kwargs['agent_index'] = agent_index
-
-        direction_values = self.array_input.values()
         out_values = self.organ_func(*direction_values, **kwargs)
 
         if self.resource_map is None:
             pass
 
         else:
-            self.resource_map.set_values(out_values)
+            out_values_naturallaw = out_values[self.array_output.n_elements:]
+            self.resource_map.set_values(out_values_naturallaw)
 
         return True
 
-    def __init__(self, name, direction, actuator_func, action_label,
+    def __init__(self, actuator_name, direction, actuator_func, action_label,
                  resource_map=None, actuator_func_kwargs={}):
 
         if not isinstance(direction, Direction):
-            raise TypeError('Actuator input should be instance of class Direction')
+            raise TypeError('Actuator cannot handle input other than Direction')
 
-        super().__init__(name, direction, actuator_func, 
+        if not isinstance(action_label, str):
+            raise TypeError('Actuator can only be given a string as its ' + \
+                            'action_label output')
+
+        super().__init__(actuator_name, direction, actuator_func, 
                          action_label, resource_map, actuator_func_kwargs)
 
 class Interpreter(_Organ):
@@ -291,12 +319,12 @@ class Moulder(_Organ):
 
         out_values = self.organ_func(*belief_values, **self.kwargs)
 
-        if self.resource_map is None:
-            self.array_output.set_values(out_values)
+        out_values_intentional = out_values[:self.array_output.n_elements]
+        self.array_output.set_values(out_values_intentional)
 
-        else:
-            self.array_output.set_values(out_values[0])
-            self.resource_map.set_values(out_values[1]) 
+        if not self.resource_map is None:
+            out_values_naturallaw = out_values[self.array_output.n_elements:]
+            self.resource_map.set_values(out_values_naturallaw) 
 
         return True
 
@@ -311,10 +339,6 @@ class Moulder(_Organ):
 
         else:
             inputer_actual = inputer
-
-        if not resource_map is None:
-            if not isinstance(resource_map, ResourceMap):
-                raise TypeError('Moulder resource maps should be of class ResourceMap')
 
         super().__init__(moulder_name, None, 
                          moulder_func,  direction, 

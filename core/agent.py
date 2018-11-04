@@ -301,7 +301,7 @@ class Agent(object):
 
         if not the_moulder.resource_map is None:
             if not the_moulder.resource_map.is_empty():
-                the_moulder.resource_map(self)
+                the_moulder.resource_map.apply_to(self)
 
     def act(self, action):
         '''Method for agent to act a populated actuator.
@@ -330,7 +330,7 @@ class Agent(object):
 
         if not the_actuator.resource_map is None:
             if not the_actuator.resource_map.is_empty():
-                the_actuator.resource_map(self)
+                the_actuator.resource_map.apply_to(self)
 
     def engage(self, action):
         '''Method for agent to mould and act an action

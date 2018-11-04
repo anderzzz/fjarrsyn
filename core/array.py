@@ -36,24 +36,15 @@ class _Array(object):
             initialized semantic labels
 
         '''
-        if self.n_elements > 1:
-            if not isinstance(value_container, Iterable):
-                raise TypeError('Message with multiple elements given ' + \
-                                'non-iterable value cotainer')
-
-            if len(value_container) != self.n_elements:
-                raise ValueError('Message container of incorrect length given')
-
-            values = value_container
+        if self.n_elements == 1 and not isinstance(value_container, Iterable):
+            value_container = (value_container,)
 
         else:
-            if not isinstance(value_container, Iterable):
-                values = [value_container]
+            if len(value_container) != self.n_elements:
+                raise ValueError('Value container of length %s ' %(str(len(value_container))) + \
+                                 'given, expected %s' %str(self.n_elements))
 
-            else:
-                values = value_container
-
-        for value_index, value in enumerate(values):
+        for value_index, value in enumerate(value_container):
             self._items[self._item_names[value_index]] = value
 
     def void_array(self):
@@ -94,6 +85,22 @@ class _Array(object):
         '''
         for key in self.keys():
             yield key, self[key]
+
+    def is_empty(self):
+        '''Determine if all values are None
+
+        Returns
+        -------
+        empty : bool
+            True if all values are None, False otherwise
+
+        Notes
+        -----
+        The method accesses the values of the array indirectly and therefore
+        does not consume or otherwise alter the values
+
+        '''
+        return all([x is None for x in self._items.values()])
 
     def __str__(self):
         '''Return the OrderedDictionary view'''

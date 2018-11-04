@@ -3,9 +3,9 @@
 '''
 from core.agent import Agent
 
-from core.organs import Moulder, Actuator 
+from core.organs import Moulder, Actuator
 from core.array import Belief, Direction, Resource
-from core.naturallaw import ResourceMap
+from core.naturallaw import ResourceMap, ResourceMapCollection
 
 REF_RESOURCE_OUTCOME = [99.0, 5, 7]
 
@@ -13,6 +13,7 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 def make_decision(s1, s2, s3, s4):
+    print (s1, s2, s3, s4)
     mask = [s > 0.5 for s in [s1, s2, s3, s4]]
     if all(mask):
         grab_volume = 10.0
@@ -54,8 +55,10 @@ direction2 = Direction('shout_loud', ('volume',))
 #
 agent_resources = Resource('internal_resource', ('internal_energy', 'carrot', 'leek'))
 agent_resources.set_values([100.0, 4, 5])
-change_energy = ResourceMap('adjust_energy', ('internal_energy',), ('delta',))
-hoard_food = ResourceMap('hoard_food', ('carrot', 'leek'), ('delta', 'delta'))
+change_energy = ResourceMap('adjust_energy', 'internal_energy', 'delta', ('expend_energy',))
+change_carrot = ResourceMap('adjust_carrot', 'carrot', 'delta', ('tweak_carrot',))
+change_leek = ResourceMap('adjust_leek', 'leek', 'delta', ('tweak_leek',))
+hoarding_food = ResourceMapCollection([change_carrot, change_leek])
 
 #
 # Define Organs and their associated messages
@@ -66,7 +69,7 @@ moulder2 = Moulder('shout_how_much', belief, shouter, direction2)
 
 env = Env()
 actuator1 = Actuator('grab_it', direction1, env.grabber, 'grab_me_food', 
-                    hoard_food)
+                    hoarding_food)
 actuator2 = Actuator('shout', direction2, env.shout_into_void, 'meaningless_shout')
 
 #
