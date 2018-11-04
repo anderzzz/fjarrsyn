@@ -10,13 +10,13 @@ REFVALUES = ['Yes', 'Doubt it', 'YES!']
 
 def evaluate(hi, p):
     if hi * p > 0.80:
-        return ['YES!']
+        return 'YES!'
     elif hi * p > 0.70:
-        return ['Yes']
+        return 'Yes'
     elif hi * p > 0.5:
-        return ['Maybe']
+        return 'Maybe'
     else:
-        return ['Doubt it']
+        return 'Doubt it'
 #
 # Define Messages
 #
