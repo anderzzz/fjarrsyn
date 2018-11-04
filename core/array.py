@@ -5,7 +5,17 @@ from collections import Iterable
 from collections import OrderedDict
 
 class _Array(object):
-    '''Bla bla
+    '''The parent class of all forms of data and information passing within and
+    to and from the exterior of the agent. In applications the appropriate
+    child classes should be used. The class is built on top an OrderedDict.
+
+    Parameters
+    ----------
+    array_name : str
+        A name to give to the array
+    array_semantics : iterable
+        An iterable of label to the elements of the array describing some
+        relevant semantics
 
     '''
     def set_values(self, value_container):
@@ -58,17 +68,6 @@ class _Array(object):
         '''
         return OrderedDict([(key, None) for key in self._item_names])
 
-    def values(self):
-        '''Return the values in the defined order
-
-        Returns
-        -------
-        values : list
-            The values of the array in the order defined upon initilization
-
-        '''
-        return list(self._items.values())
-
     def keys(self):
         '''Return the semantic keys in the defined order
 
@@ -100,14 +99,9 @@ class _Array(object):
         '''Return the OrderedDictionary view'''
 
         str_out = str(self._items)
-        str_out = str_out.replace('OrderedDict','')
+        str_out = str_out.replace('OrderedDict', str(self.__name__()))
 
         return str_out
-
-    def __getitem__(self, key):
-        '''Return the value of the array associated with a key.'''
-
-        return self._items[key]
 
     def __setitem__(self, key, value):
         '''Set the value of the array associated with the key. This can only be
@@ -143,9 +137,34 @@ class _Array(object):
         self.n_elements = len(self._item_names)
         self._items = self.void_array()
 
+class _Imprint(_Array):
+    '''A child class for _Array which handles persistent information that can
+    be accessed non-destructively
+
+    '''
+    def values(self):
+        '''Return the values in the defined order
+
+        Returns
+        -------
+        values : list
+            The values of the array in the order defined upon initilization
+
+        '''
+        return list(self._items.values())
+
+    def __getitem__(self, key):
+        '''Return the value of the array associated with a key.'''
+
+        return self._items[key]
+
+    def __init__(self, imprint_name, imprint_element_names):
+
+        super().__init__(imprint_name, imprint_element_names)
+
 class _Flash(_Array):
-    '''A child class for _Array which modifiers the parent class in the regard
-    that after values are read they are exhausted and the array is emptied.
+    '''A child class for _Array which handles transient information that cannot
+    be accessed non-destructively
 
     '''
     def values(self):
@@ -180,42 +199,51 @@ class Buzz(_Flash):
     interpreters. The class is a child class of a more general _Array class,
     however in applications the Buzz class should be used
 
+    Parameters
+    ----------
+    buzz_name : str
+        The name of the Buzz
+    buss_element_names : iterable
+        An iterable of names for each element of the Buzz, each name describing
+        some relevant semantics
+
     '''
-    def __init__(self, buzz_name, buzz_element_names):
-
-        super().__init__(buzz_name, buzz_element_names)
-
-        self.message = self._items
+    def __name__(self):
+        return 'Buzz'
 
 class Direction(_Flash):
     '''The Direction class that is used to define the output of moulders
     and input to actuators. The class is a child class of a more general _Array
     class, however in applications the Direction class should be used
 
+    Parameters
+    ----------
+    direction_name : str
+        The name of the Direction
+    direction_element_names : iterable
+        An iterable of names for each element of the Direction, each name describing
+        some relevant semantics
+
     '''
-    def __init__(self, direction_name, direction_element_names):
-
-        super().__init__(direction_name, direction_element_names)
-
-        self.message = self._items
+    def __name__(self):
+        return 'Direction'
 
 class Feature(_Flash):
     '''The Feature class that is used to define the output of cortex. The class
     is a child class of a more general _Array class, however in applications
     the Feature class should be used
 
+    Parameters
+    ----------
+    feature_name : str
+        The name of the Feature
+    feature_element_names : iterable
+        An iterable of names for each element of the Feature, each name describing
+        some relevant semantics
+
     '''
-    def __init__(self, feature_name, feature_element_names):
-
-        super().__init__(feature_name, feature_element_names)
-
-        self.message = self._items
-
-class _Imprint(_Array):
-
-    def __init__(self, imprint_name, imprint_element_names):
-
-        super().__init__(imprint_name, imprint_element_names)
+    def __name__(self):
+        return 'Feature'
 
 class Belief(_Imprint):
     '''The Belief class that is used to define the persistent output of
@@ -223,59 +251,93 @@ class Belief(_Imprint):
     general _Array class, however in applications the Belief class should be
     used
 
-    '''
-    def __init__(self, belief_name, belief_element_names):
-
-        super().__init__(belief_name, belief_element_names)
-
-        self.message = self._items
-
-class _Scaffold(_Imprint):
-    '''Scaffold class
+    Parameters
+    ----------
+    belief_name : str
+        The name of the Belief
+    belief_element_names : iterable
+        An iterable of names for each element of the Belief, each name describing
+        some relevant semantics
 
     '''
-    def __init__(self, scaffold_title, item_names):
+    def __name__(self):
+        return 'Belief'
 
-        super().__init__(scaffold_title, item_names)
-
-class Resource(_Scaffold):
+class Resource(_Imprint):
     '''The Resource class that is used to define the items organs can
     intentionally control as part of their execution. In applications 
     the Resource class should only be edited using the ResourceMap class 
     and related classes
 
+    Parameters
+    ----------
+    resource_name : str
+        The name of the Resource
+    resource_element_names : iterable
+        An iterable of names for each element of the Resource, each name describing
+        some relevant semantics
+
     '''
-    def __init__(self, resource_title, item_names):
+    def __name__(self):
+        return 'Resource'
 
-        super().__init__(resource_title, item_names)
-
-        self.element = self._items
-
-class Essence(_Scaffold):
+class Essence(_Imprint):
     '''The Essence class that is used to define the items of the agent that are
     beyond intentional control. In applications where external forces alters
     the essence the Essence class should only be edited using the EssenceMap
     class and related classes
 
+    Parameters
+    ----------
+    essence_name : str
+        The name of the Essence
+    essence_element_names : iterable
+        An iterable of names for each element of the Essence, each name describing
+        some relevant semantics
+
     '''
-    def __init__(self, essence_title, item_names):
-
-        super().__init__(essence_title, item_names)
-
-        self.element = self._items
+    def __name__(self):
+        return 'Essence'
 
 class ImprintOperator(object):
-    '''Bla bla
+    '''Provides different ways to dynamically access subsets or supersets of an
+    Imprint. Enables multiple organs to operate on different but overlapping 
+    sets of imprints
+
+    Parameters
+    ----------
+    base_imprints 
+        One or an iterable of imprints on which to operate
+    slice_labels : iterable, optional
+        In case the base imprint should be sliced to a subset of elements, this
+        iterable should contain the element labels to keep in the final imprint
+    merger : bool, optional
+        In case the base imprints should be merged to a larger set of element,
+        this flag should be set to True
+    new_name : str, optional
+        The name to give the final imprint after operation
 
     '''
     def identity(self):
-        '''Bla bla
+        '''To handle case where an organ has been initialized with one specific
+        imprint, hence no operations are needed.
+
+        Returns
+        -------
+        imprint : _Imprint
+            The single imprint of the operator
 
         '''
         return self.base_imprints
 
     def slicer(self):
-        '''Bla bla
+        '''To handle case where an organ operates on a subset of elements of
+        some imprint
+
+        Returns
+        -------
+        imprint : _Imprint
+            The sliced imprint as defined by the operator initialization
 
         '''
         class_slice = self.base_imprints.__class__(self.new_name, self.slice_labels)
@@ -286,7 +348,13 @@ class ImprintOperator(object):
         return class_slice
 
     def merge(self):
-        '''Bla bla
+        '''To handle case where an organ operates on a merged set of multiple
+        non-overlapping imprints
+
+        Returns
+        -------
+        imprint : _Imprint
+            The merged imprint as defined by the operator initialization
 
         '''
         union_semantics = []
@@ -307,6 +375,9 @@ class ImprintOperator(object):
         self.slice_labels = slice_labels
         self.merger = merger
         self.new_name = new_name
+
+        if (not slice_labels is None) and merger:
+            raise TypeError('ImprintOperator cannot handle slicing and merging simultaneously')
         
         if not slice_labels is None:
             if not set(slice_labels).issubset(set(self.base_imprints.keys())):
