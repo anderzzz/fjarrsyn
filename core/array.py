@@ -184,6 +184,10 @@ class _Flash(_Array):
             The values of the array in the order defined upon initilization
 
         '''
+        if self.is_empty():
+            raise RuntimeError('Empty flash array values cannot be accessed. ' + \
+                               'Execute the relevant organ to populate the array')
+
         data = list(self._items.values())
         self._items = self.void_array()
 
