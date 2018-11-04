@@ -17,13 +17,13 @@ class _Organ(object):
     ----------
     organ_name : str
         Name of the organ
-    message_input : _Array or None
+    array_input : _Array or None
         Instance of array the organ deals with as input. If None an OrderedDict
         is used as template, which upon execution will return empty values and
         keys
     organ_function : callable
         The function that upon execution performs the operations of the organ
-    message_output : _Array or None
+    array_output : _Array or None
         Instance of message the organ deals with as output. If None and
         OrderedDict is used as template, which upon execution will return empty
         values and keys
@@ -31,27 +31,29 @@ class _Organ(object):
         Any arguments needed for the organ_function
 
     '''
-    def __init__(self, organ_name, message_input, organ_function,
-                 message_output, function_kwargs={}):
+    def __init__(self, organ_name, array_input, 
+                 organ_function, array_output, 
+                 resource_map=None, organ_function_kwargs={}):
 
         self.name = organ_name
+
         if not callable(organ_function):
             raise TypeError('Organ requires callable function for its operation')
         self.organ_func = organ_function
 
-        if not message_input is None:
-            self.message_input = message_input
+        self.array_input = OrderedDict()
+        self.array_output = OrderedDict()
+        if not array_input is None:
+            self.array_input = array_input
+        if not array_output is None:
+            self.array_output = array_output
 
-        else:
-            self.message_input = OrderedDict()
+        if not resource_map is None:
+            if not isinstance(resource_map, ResourceMap):
+                raise TypeError('Actuator resource maps should be of class ResourceMap')
+        self.resource_map = resource_map
 
-        if not message_output is None:
-            self.message_output = message_output
-
-        else:
-            self.message_output = OrderedDict()
-
-        self.kwargs = function_kwargs
+        self.kwargs = organ_function_kwargs
 
 class Sensor(_Organ):
     '''Sensor class, which defines how a precept of the external World is
@@ -92,12 +94,19 @@ class Sensor(_Organ):
         kwargs = copy.copy(self.kwargs)
         kwargs['agent_index'] = agent_index
 
-        vals = self.organ_func(**kwargs)
-        self.message_output.set_values(vals)
+        out_values = self.organ_func(**kwargs)
+
+        if self.resource_map is None:
+            self.array_output.set_values(out_values)
+
+        else:
+            self.array_output.set_values(out_values[0])
+            self.resource_map.set_values(out_values[1]) 
 
         return True
 
-    def __init__(self, name, precept_label, sensor_func, buzz, sensor_func_kwargs={}):
+    def __init__(self, name, precept_label, sensor_func, buzz, 
+                 resource_map=None, sensor_func_kwargs={}):
 
         if not isinstance(precept_label, str):
             raise TypeError('Sensor input should be string')
@@ -106,7 +115,7 @@ class Sensor(_Organ):
             raise TypeError('Sensor output should be of class Buzz')
 
         super().__init__(name, precept_label, sensor_func, 
-                         buzz, sensor_func_kwargs)
+                         buzz, resource_map, sensor_func_kwargs)
 
 class Actuator(_Organ):
     '''Actuator class, which defines how an action by the agent alters the
@@ -146,8 +155,7 @@ class Actuator(_Organ):
         kwargs = copy.copy(self.kwargs)
         kwargs['agent_index'] = agent_index
 
-        direction_values = self.message_input.values()
-
+        direction_values = self.array_input.values()
         out_values = self.organ_func(*direction_values, **kwargs)
 
         if self.resource_map is None:
@@ -164,14 +172,8 @@ class Actuator(_Organ):
         if not isinstance(direction, Direction):
             raise TypeError('Actuator input should be instance of class Direction')
 
-        if not resource_map is None:
-            if not isinstance(resource_map, ResourceMap):
-                raise TypeError('Actuator resource maps should be of class ResourceMap')
-
         super().__init__(name, direction, actuator_func, 
-                         action_label, actuator_func_kwargs)
-
-        self.resource_map = resource_map 
+                         action_label, resource_map, actuator_func_kwargs)
 
 class Interpreter(_Organ):
     '''Interpreter class, which defines how buzz from a sensor is made into
@@ -207,23 +209,29 @@ class Interpreter(_Organ):
             interpretation
 
         '''
-        inp_values = self.message_receiver().values()
+        inp_values = self.array_receiver().values()
 
         if self.belief_updater:
-            current_beliefs = self.message_output.values()
+            current_beliefs = self.array_output.values()
             args = tuple(current_beliefs + inp_values)
 
         else:
             args = tuple(inp_values)
 
-        value = self.organ_func(*args, **self.kwargs)
+        out_values = self.organ_func(*args, **self.kwargs)
 
-        self.message_output.set_values(value)
+        if self.resource_map is None:
+            self.array_output.set_values(out_values)
+
+        else:
+            self.array_output.set_values(out_values[0])
+            self.resource_map.set_values(out_values[1]) 
 
         return True 
 
     def __init__(self, interpreter_name, inputer, interpreter_func, belief,
-                 belief_updater=False, interpreter_func_kwargs={}):
+                 belief_updater=False, 
+                 resource_map=None, interpreter_func_kwargs={}):
 
         if isinstance(inputer, (Buzz, Belief)):
             inputer_actual = ImprintOperator(inputer).identity
@@ -238,9 +246,9 @@ class Interpreter(_Organ):
             raise TypeError('Interpreter output should be of class Belief')
 
         super().__init__(interpreter_name, None, interpreter_func, 
-                         belief, interpreter_func_kwargs)
+                         belief, resource_map, interpreter_func_kwargs)
 
-        self.message_receiver = inputer_actual
+        self.array_receiver = inputer_actual
         self.belief_updater = belief_updater
 
 class Moulder(_Organ):
@@ -279,15 +287,15 @@ class Moulder(_Organ):
             executed expecting only to create an object force output
 
         '''
-        belief_values = self.message_receiver().values()
+        belief_values = self.array_receiver().values()
 
         out_values = self.organ_func(*belief_values, **self.kwargs)
 
         if self.resource_map is None:
-            self.message_output.set_values(out_values)
+            self.array_output.set_values(out_values)
 
         else:
-            self.message_output.set_values(out_values[0])
+            self.array_output.set_values(out_values[0])
             self.resource_map.set_values(out_values[1]) 
 
         return True
@@ -308,11 +316,11 @@ class Moulder(_Organ):
             if not isinstance(resource_map, ResourceMap):
                 raise TypeError('Moulder resource maps should be of class ResourceMap')
 
-        super().__init__(moulder_name, None, moulder_func, 
-                         direction, moulder_func_kwargs)
+        super().__init__(moulder_name, None, 
+                         moulder_func,  direction, 
+                         resource_map, moulder_func_kwargs)
 
-        self.message_receiver = inputer_actual
-        self.resource_map = resource_map 
+        self.array_receiver = inputer_actual
 
 class Cortex(_Organ):
     '''Cortex class, which defines reaction to a certain tickle from the World.
@@ -340,12 +348,12 @@ class Cortex(_Organ):
             Return value as the cortex is tickled.
 
         '''
-        agent_state_values = self.message_receiver().values()
+        agent_state_values = self.array_receiver().values()
 
         out_values = self.organ_func(*agent_state_values, **self.kwargs)
-        self.message_output.set_values(out_values)
+        self.array_output.set_values(out_values)
 
-        return self.message_output
+        return self.array_output
 
     def __init__(self, cortex_name, inputer, cortex_func, feature,
                  cortex_func_kwargs={}):
@@ -362,7 +370,7 @@ class Cortex(_Organ):
         if not isinstance(feature, Feature):
             raise TypeError('Cortex output should be of class Feature')
 
-        super().__init__(cortex_name, None, cortex_func, feature,
+        super().__init__(cortex_name, None, cortex_func, feature, None,
                          cortex_func_kwargs)
 
-        self.message_receiver = inputer_actual
+        self.array_receiver = inputer_actual

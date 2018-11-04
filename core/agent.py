@@ -123,24 +123,24 @@ class Agent(object):
         '''
         if isinstance(organ, Sensor):
             self._set('sensor', organ.name, organ)
-            self._set('buzz', organ.message_output.array_name, organ.message_output)
+            self._set('buzz', organ.array_output.array_name, organ.array_output)
 
         elif isinstance(organ, Actuator):
             self._set('actuator', organ.name, organ)
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
-            self._set('belief', organ.message_output.array_name, organ.message_output)
+            self._set('belief', organ.array_output.array_name, organ.array_output)
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
-            self._set('direction', organ.message_output.array_name,
-                                   organ.message_output)
+            self._set('direction', organ.array_output.array_name,
+                                   organ.array_output)
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.name, organ)
-            self._set('feature', organ.message_output.array_name,
-                                 organ.message_output)
+            self._set('feature', organ.array_output.array_name,
+                                 organ.array_output)
 
         else:
             raise TypeError('Unknown organ type: %s' %str(type(organ)))
@@ -217,6 +217,10 @@ class Agent(object):
 
         did_it_sense = the_sensor(self.agent_id_system)
 
+        if not the_sensor.resource_map is None:
+            if not the_sensor.resource_map.is_empty():
+                the_sensor.resource_map(self)
+
     def interpret(self, state):
         '''Method for agent to interpret state of the world
 
@@ -241,6 +245,10 @@ class Agent(object):
             the_interpreter = self.interpreter[state]
 
         did_it_interpret = the_interpreter()
+
+        if not the_interpreter.resource_map is None:
+            if not the_interpreter.resource_map.is_empty():
+                the_interpreter.resource_map(self)
 
     def perceive(self, precept, brain_tissue):
         '''Method for agent to sense and interpret a percept
