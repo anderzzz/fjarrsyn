@@ -8,10 +8,11 @@ np.random.seed(79)
 from core.agent import Agent
 
 from core.organs import Cortex 
-from core.array import Feature, Essence
+from core.array import Feature, Essence, ImprintOperator
 
 REF1 = [0.9000, 0.3984, 1.0000]
 REF2 = [0.8825, 0.4160, 0.9911]
+REF3 = [0.0140, 0.0158, 0.0000]
 
 def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
@@ -34,12 +35,12 @@ feature = Feature('colour', ('hue', 'saturation', 'lightness'))
 #
 agent_essence = Essence('my_parameters', ('hue', 'saturation', 'lightness', 'mood'))
 agent_essence.set_values([0.9, 0.4, 1.0, 'jubilant'])
-slice_of_essence = agent_essence.slicer(['hue', 'saturation', 'lightness'])
-
+slicer_of_essence = ImprintOperator(agent_essence, 
+                        slice_labels=['hue', 'saturation', 'lightness']).slicer
 #
 # Define Organs and their associated messages
 #
-cortex = Cortex('colour_revealer', slice_of_essence, expose_distort,
+cortex = Cortex('colour_revealer', slicer_of_essence, expose_distort,
                 feature, {'distort_degree' : 0.05})
 
 #
@@ -59,3 +60,9 @@ for val, ref_val in zip(tickle_me_1.values(), REF1):
 tickle_me_2 = agent.tickle('colour_revealer')
 for val, ref_val in zip(tickle_me_2.values(), REF2):
     assert (isclose(val, ref_val, abs_tol=0.01))
+
+agent_essence.set_values([0.0, 0.0, 0.0, 'hey'])
+tickle_me_3 = agent.tickle('colour_revealer')
+for val, ref_val in zip(tickle_me_3.values(), REF3):
+    assert(isclose(val, ref_val, abs_tol=0.01))
+

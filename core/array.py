@@ -96,37 +96,6 @@ class _Array(object):
         for key in self.keys():
             yield key, self[key]
 
-    def slicer(self, labels):
-        '''Return a slice of the array based on a set of semantic labels
-
-        Parameters
-        ----------
-        labels : iterable
-            Iterable of semantic labels to include in the array to be
-            generated. If a label is included that is not present in the array
-            an exception is raised
-
-        Returns
-        -------
-        array_slice : _Array
-            Subarray of the present array
-
-        Raises
-        ------
-        ValueError
-            If the input labels include a value that is not present in the
-            current array
-
-        '''
-        if not set(labels).issubset(set(self.keys())):
-            raise ValueError('Labels to the slicer not found in the current array')
-
-        class_slice = _Array(self.array_name + '_slice', labels)
-        value_slice = [value for key, value in self._items.items() if key in labels]
-        class_slice.set_values(value_slice)
-
-        return class_slice
-
     def __str__(self):
         '''Return the OrderedDictionary view'''
 
@@ -189,7 +158,7 @@ class _Flash(_Array):
             The values of the array in the order defined upon initilization
 
         '''
-        data = tuple(self._items.values())
+        data = list(self._items.values())
         self._items = self.void_array()
 
         return data
@@ -242,7 +211,13 @@ class Feature(_Flash):
 
         self.message = self._items
 
-class Belief(_Array):
+class _Imprint(_Array):
+
+    def __init__(self, imprint_name, imprint_element_names):
+
+        super().__init__(imprint_name, imprint_element_names)
+
+class Belief(_Imprint):
     '''The Belief class that is used to define the persistent output of
     interpreter and input to moulder. The class is a child class of a more
     general _Array class, however in applications the Belief class should be
@@ -255,7 +230,7 @@ class Belief(_Array):
 
         self.message = self._items
 
-class _Scaffold(_Array):
+class _Scaffold(_Imprint):
     '''Scaffold class
 
     '''
@@ -289,3 +264,62 @@ class Essence(_Scaffold):
 
         self.element = self._items
 
+class ImprintOperator(object):
+    '''Bla bla
+
+    '''
+    def identity(self):
+        '''Bla bla
+
+        '''
+        return self.base_imprints
+
+    def slicer(self):
+        '''Bla bla
+
+        '''
+        class_slice = self.base_imprints.__class__(self.new_name, self.slice_labels)
+        value_slice = [value for key, value in self.base_imprints._items.items() \
+                             if key in self.slice_labels]
+        class_slice.set_values(value_slice)
+
+        return class_slice
+
+    def merge(self):
+        '''Bla bla
+
+        '''
+        union_semantics = []
+        union_values = []
+        for base_imprint in self.base_imprints:
+            union_semantics.extend(base_imprint.keys())
+            union_values.extend(base_imprint.values())
+
+        ret_array = self.base_imprints[0].__class__(self.new_name, union_semantics)
+        ret_array.set_values(union_values)
+
+        return ret_array
+
+    def __init__(self, base_imprints, slice_labels=None, merger=False,
+                 new_name='new_imprint'):
+
+        self.base_imprints = base_imprints
+        self.slice_labels = slice_labels
+        self.merger = merger
+        self.new_name = new_name
+        
+        if not slice_labels is None:
+            if not set(slice_labels).issubset(set(self.base_imprints.keys())):
+                raise ValueError('Labels to the slicer not found in the current array')
+
+            if not isinstance(base_imprints, _Imprint):
+                raise TypeError('Slicing can only be done for Imprints and child classes')
+
+        if merger:
+            if len(base_imprints) < 2:
+                raise TypeError('Imprint merger requires at least two base imprints')
+
+            for base_imprint in base_imprints:
+                if not isinstance(base_imprint, _Imprint):
+                    raise TypeError('Only instances of Imprint can be merged')
+    

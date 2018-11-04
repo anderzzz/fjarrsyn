@@ -5,7 +5,9 @@ import copy
 from collections import OrderedDict
 
 from core.naturallaw import ObjectMapCollection, ResourceMap
-from core.array import Buzz, Direction, Feature, Belief, Resource
+from core.array import Buzz, Direction, Feature, \
+                       Belief, Resource, Essence, \
+                       ImprintOperator
 
 class _Organ(object):
     '''Organ parent class, which defines common structure and method for all
@@ -205,14 +207,14 @@ class Interpreter(_Organ):
             interpretation
 
         '''
-        buzz_values = self.message_input.values()
+        inp_values = self.message_receiver().values()
 
         if self.belief_updater:
             current_beliefs = self.message_output.values()
-            args = (current_beliefs, buzz_values)
+            args = tuple(current_beliefs + inp_values)
 
         else:
-            args = (buzz_values,)
+            args = tuple(inp_values)
 
         value = self.organ_func(*args, **self.kwargs)
 
@@ -220,18 +222,25 @@ class Interpreter(_Organ):
 
         return True 
 
-    def __init__(self, interpreter_name, buzz, interpreter_func, belief,
+    def __init__(self, interpreter_name, inputer, interpreter_func, belief,
                  belief_updater=False, interpreter_func_kwargs={}):
 
-        if not isinstance(buzz, Buzz):
-            raise TypeError('Interpreter input should be of class Buzz')
+        if isinstance(inputer, (Buzz, Belief)):
+            inputer_actual = ImprintOperator(inputer).identity
+
+        elif isinstance(inputer, (Direction, Feature)):
+            raise TypeError('Interpreter cannot handle Direction or Feature as input')
+
+        else:
+            inputer_actual = inputer
 
         if not isinstance(belief, Belief):
             raise TypeError('Interpreter output should be of class Belief')
 
-        super().__init__(interpreter_name, buzz, interpreter_func, 
+        super().__init__(interpreter_name, None, interpreter_func, 
                          belief, interpreter_func_kwargs)
 
+        self.message_receiver = inputer_actual
         self.belief_updater = belief_updater
 
 class Moulder(_Organ):
@@ -270,7 +279,7 @@ class Moulder(_Organ):
             executed expecting only to create an object force output
 
         '''
-        belief_values = self.message_input.values()
+        belief_values = self.message_receiver().values()
 
         out_values = self.organ_func(*belief_values, **self.kwargs)
 
@@ -283,22 +292,26 @@ class Moulder(_Organ):
 
         return True
 
-    def __init__(self, moulder_name, belief, moulder_func, direction,
+    def __init__(self, moulder_name, inputer, moulder_func, direction,
                  resource_map=None, moulder_func_kwargs={}):
 
-        if not isinstance(belief, Belief):
-            raise TypeError('Moulder input should be of class Belief')
+        if isinstance(inputer, Belief):
+            inputer_actual = ImprintOperator(inputer).identity
 
-        if not isinstance(direction, Direction):
-            raise TypeError('Moulder output should be of class Direction')
+        elif isinstance(inputer, (Buzz, Direction, Feature)):
+            raise TypeError('Moulder cannot handle Direction, Buzz or Feature as input')
+
+        else:
+            inputer_actual = inputer
 
         if not resource_map is None:
             if not isinstance(resource_map, ResourceMap):
                 raise TypeError('Moulder resource maps should be of class ResourceMap')
 
-        super().__init__(moulder_name, belief, moulder_func, 
+        super().__init__(moulder_name, None, moulder_func, 
                          direction, moulder_func_kwargs)
 
+        self.message_receiver = inputer_actual
         self.resource_map = resource_map 
 
 class Cortex(_Organ):
@@ -327,15 +340,29 @@ class Cortex(_Organ):
             Return value as the cortex is tickled.
 
         '''
-        agent_state_values = self.message_input.values()
+        agent_state_values = self.message_receiver().values()
 
         out_values = self.organ_func(*agent_state_values, **self.kwargs)
         self.message_output.set_values(out_values)
 
         return self.message_output
 
-    def __init__(self, cortex_name, agent_state_array, cortex_func, feature,
+    def __init__(self, cortex_name, inputer, cortex_func, feature,
                  cortex_func_kwargs={}):
 
-        super().__init__(cortex_name, agent_state_array, cortex_func, feature,
+        if isinstance(inputer, (Essence, Resource, Belief)):
+            inputer_actual = ImprintOperator(inputer).identity
+
+        elif isinstance(inputer, (Direction, Feature, Buzz)):
+            raise TypeError('Cortex cannot handle Direction, Buzz or Feature as input')
+
+        else:
+            inputer_actual = inputer
+
+        if not isinstance(feature, Feature):
+            raise TypeError('Cortex output should be of class Feature')
+
+        super().__init__(cortex_name, None, cortex_func, feature,
                          cortex_func_kwargs)
+
+        self.message_receiver = inputer_actual

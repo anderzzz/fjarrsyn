@@ -15,7 +15,8 @@ REF_OUTCOME = [0, -1, 0, 0, 2, 3, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3]
 def dice_sensor(agent_index):
     return list(random_integers(1, 6, 5))
 
-def roll_interpreter(current_joy, dice_values):
+def roll_interpreter(current_joy, d1, d2, d3, d4, d5):
+    dice_values = [d1, d2, d3, d4, d5]
     if sum(dice_values) >= 25:
         up = 2
     elif sum(dice_values) >= 20:
@@ -27,10 +28,10 @@ def roll_interpreter(current_joy, dice_values):
     else:
         up = -2
 
-    if current_joy[0] is None:
+    if current_joy is None:
         joy = 0
     else:
-        joy = current_joy[0]
+        joy = current_joy
 
     new_joy = max(-5, min(5, joy + up))
 
