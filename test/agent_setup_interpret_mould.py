@@ -23,9 +23,9 @@ def rain_predictor(n1, n2):
 
 def mood_maker(p):
     if p > 0.3 and p < 0.7:
-        return ('existential_anxiety',), -2.0
+        return 'existential_anxiety', -2.0
     else:
-        return ('feel_ok',), -1.0
+        return 'feel_ok', -1.0
 
 def make_decision(p, m):
     get_umbrella = True 
@@ -39,7 +39,7 @@ def make_decision(p, m):
         else:
             colour = 'yellow'
 
-    return [get_umbrella, colour], -1.0
+    return get_umbrella, colour, -1.0
 #
 # Define Messages
 #
@@ -53,7 +53,7 @@ direction = Direction('get_which_umbrella', ('any', 'colour'))
 #
 agent_resources = Resource('internal_resource', ('energy',))
 agent_resources.set_values([100.0])
-change_energy = ResourceMap('adjust_energy', ('energy',), ('delta',))
+change_energy = ResourceMap('adjust_energy', 'energy', 'delta', ('how_much',))
 
 #
 # Define Organs and their associated messages

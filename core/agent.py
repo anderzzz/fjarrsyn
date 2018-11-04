@@ -219,7 +219,7 @@ class Agent(object):
 
         if not the_sensor.resource_map is None:
             if not the_sensor.resource_map.is_empty():
-                the_sensor.resource_map(self)
+                the_sensor.resource_map.apply_to(self)
 
     def interpret(self, state):
         '''Method for agent to interpret state of the world
@@ -248,7 +248,7 @@ class Agent(object):
 
         if not the_interpreter.resource_map is None:
             if not the_interpreter.resource_map.is_empty():
-                the_interpreter.resource_map(self)
+                the_interpreter.resource_map.apply_to(self)
 
     def perceive(self, precept, brain_tissue):
         '''Method for agent to sense and interpret a percept

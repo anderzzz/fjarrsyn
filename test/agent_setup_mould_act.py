@@ -13,7 +13,6 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 def make_decision(s1, s2, s3, s4):
-    print (s1, s2, s3, s4)
     mask = [s > 0.5 for s in [s1, s2, s3, s4]]
     if all(mask):
         grab_volume = 10.0

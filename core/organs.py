@@ -36,7 +36,9 @@ class _Organ(object):
                  resource_map=None, organ_function_kwargs={}):
 
         def _decorate_always_iterable_output(f):
-            '''Bla bla
+            '''Decorator to ensure that functions that organ functions that
+            return a single value fit within the general slicing logic,
+            accomplished by making single value returns a one-member tuple
 
             '''
             def wrapper(*args, **kwargs):
@@ -50,12 +52,23 @@ class _Organ(object):
 
             return wrapper
 
+        #
+        # Name of the organ
+        #
         self.name = organ_name
 
+        #
+        # Verify and define the organ function that is called upon execution
+        #
         if not callable(organ_function):
             raise TypeError('Organ requires callable function for its operation')
         self.organ_func = _decorate_always_iterable_output(organ_function)
+        self.kwargs = organ_function_kwargs
 
+        #
+        # Set array input and output. This handles cases where the input is
+        # either not defined or a string
+        #
         if array_input is None:
             self.array_input = OrderedDict()
         elif isinstance(array_input, str):
@@ -70,13 +83,14 @@ class _Organ(object):
         else:
             self.array_output = array_output
 
+        #
+        # Verify the resource map if present
+        #
         if not resource_map is None:
             if not isinstance(resource_map, (ResourceMap, ResourceMapCollection)):
                 raise TypeError('Organ resource maps should be of class ' + \
                                 'ResourceMap or ResourceMapCollection')
         self.resource_map = resource_map
-
-        self.kwargs = organ_function_kwargs
 
 class Sensor(_Organ):
     '''Sensor class, which defines how a precept of the external World is
@@ -116,19 +130,18 @@ class Sensor(_Organ):
         '''
         kwargs = copy.copy(self.kwargs)
         kwargs['agent_index'] = agent_index
-
         out_values = self.organ_func(**kwargs)
 
-        if self.resource_map is None:
-            self.array_output.set_values(out_values)
+        out_values_intentional = out_values[:self.array_output.n_elements]
+        self.array_output.set_values(out_values_intentional)
 
-        else:
-            self.array_output.set_values(out_values[0])
-            self.resource_map.set_values(out_values[1]) 
+        if not self.resource_map is None:
+            out_values_naturallaw = out_values[self.array_output.n_elements:]
+            self.resource_map.set_values(out_values_naturallaw)
 
         return True
 
-    def __init__(self, name, precept_label, sensor_func, buzz, 
+    def __init__(self, sensor_name, precept_label, sensor_func, buzz, 
                  resource_map=None, sensor_func_kwargs={}):
 
         if not isinstance(precept_label, str):
@@ -137,7 +150,7 @@ class Sensor(_Organ):
         if not isinstance(buzz, Buzz):
             raise TypeError('Sensor output should be of class Buzz')
 
-        super().__init__(name, precept_label, sensor_func, 
+        super().__init__(sensor_name, precept_label, sensor_func, 
                          buzz, resource_map, sensor_func_kwargs)
 
 class Actuator(_Organ):
@@ -248,24 +261,24 @@ class Interpreter(_Organ):
 
         out_values = self.organ_func(*args, **self.kwargs)
 
-        if self.resource_map is None:
-            self.array_output.set_values(out_values)
+        out_values_intentional = out_values[:self.array_output.n_elements]
+        self.array_output.set_values(out_values_intentional)
 
-        else:
-            self.array_output.set_values(out_values[0])
-            self.resource_map.set_values(out_values[1]) 
+        if not self.resource_map is None:
+            out_values_naturallaw = out_values[self.array_output.n_elements:]
+            self.resource_map.set_values(out_values_naturallaw) 
 
         return True 
 
     def __init__(self, interpreter_name, inputer, interpreter_func, belief,
-                 belief_updater=False, 
-                 resource_map=None, interpreter_func_kwargs={}):
+                 resource_map=None, interpreter_func_kwargs={},
+                 belief_updater=False):
 
         if isinstance(inputer, (Buzz, Belief)):
             inputer_actual = ImprintOperator(inputer).identity
 
-        elif isinstance(inputer, (Direction, Feature)):
-            raise TypeError('Interpreter cannot handle Direction or Feature as input')
+        elif isinstance(inputer, (Buzz, Direction, Feature)):
+            raise TypeError('Interpreter cannot handle Direction, Buzz or Feature as input')
 
         else:
             inputer_actual = inputer
@@ -340,6 +353,9 @@ class Moulder(_Organ):
         else:
             inputer_actual = inputer
 
+        if not isinstance(direction, Direction):
+            raise TypeError('Moulder output should be of class Direction')
+
         super().__init__(moulder_name, None, 
                          moulder_func,  direction, 
                          resource_map, moulder_func_kwargs)
@@ -375,6 +391,7 @@ class Cortex(_Organ):
         agent_state_values = self.array_receiver().values()
 
         out_values = self.organ_func(*agent_state_values, **self.kwargs)
+
         self.array_output.set_values(out_values)
 
         return self.array_output
