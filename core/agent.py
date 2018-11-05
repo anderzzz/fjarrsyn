@@ -381,6 +381,23 @@ class Agent(object):
         '''
         return (not self.agent_id_system is None)
 
+    def heartbeat(self, n_max=None):
+        '''Bla bla
+
+        '''
+        if n_max is None:
+            ret = True
+
+        else:
+            if self.n_heart_beats >= n_max:
+                ret = False
+            else:
+                ret = True
+
+        self.n_heart_beats += 1
+
+        return ret
+
     def __str__(self):
 
         return self.name + '(ID:%s)'%(str(self.agent_id_system))
@@ -450,3 +467,7 @@ class Agent(object):
                                              feature)
         self.set_organ(cortex_reveal_cortex_labels)
 
+        #
+        # Variables for the dynamics of the agent
+        #
+        self.n_heart_beats = 0
