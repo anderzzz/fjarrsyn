@@ -31,6 +31,20 @@ class Agent(object):
         '''
         return (list(self.cortex.keys()),)
 
+    def _apply_resource_map(self, resource_map):
+        '''Convenience function to apply a resource map, if present, to the
+        agent resources
+
+        Parameters
+        ----------
+        resource_map : ResourceMap
+            A resource map, presumably attached to a recently executed organ
+
+        '''
+        if not resource_map is None:
+            if not resource_map.is_empty():
+                resource_map.apply_to(self)
+
     def _set(self, object_type, key, value, key_check=False):
         '''Common function to add agent organ or imprint to the appropriate
         attribute container.
@@ -124,23 +138,28 @@ class Agent(object):
         if isinstance(organ, Sensor):
             self._set('sensor', organ.name, organ)
             self._set('buzz', organ.array_output.array_name, organ.array_output)
+            self._inverse_map[organ.name] = 'sensor'
 
         elif isinstance(organ, Actuator):
             self._set('actuator', organ.name, organ)
+            self._inverse_map[organ.name] = 'actuator'
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
             self._set('belief', organ.array_output.array_name, organ.array_output)
+            self._inverse_map[organ.name] = 'interpreter'
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
             self._set('direction', organ.array_output.array_name,
                                    organ.array_output)
+            self._inverse_map[organ.name] = 'moulder'
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.name, organ)
             self._set('feature', organ.array_output.array_name,
                                  organ.array_output)
+            self._inverse_map[organ.name] = 'cortex'
 
         else:
             raise TypeError('Unknown organ type: %s' %str(type(organ)))
@@ -158,196 +177,179 @@ class Agent(object):
         for organ in organs:
             self.set_organ(organ)
 
-    def tickle(self, itch):
-        '''Method to tickle the cortex of the agent
+    def tickle(self, phrase):
+        '''Verb for the agent to execute a Cortex organ
 
         Notes
         -----
-        The cortex is intended to be tickled by an external agent to the
-        current agent. Therefore, `tickle` is intended as a public method.
+        The method collects the Cortex associated with input phrase and
+        executes it as well as applies any resource map created by the organ.
+
+        Unlike other verbs, this is activated by an external agent, therefore
+        any illegal phrase does not raise an exception, instead returns None.
 
         Parameters
         ----------
-        itch : str
-            Name for the itch that is tickled of the agent cortex
-
-        Returns
-        -------
-        reaction
-            The return value from the cortex.
-
-        Raises
-        ------
-        KeyError
-            If an itch is tickled that is not defined for the cortex
+        phrase : str
+            Name of the Cortex to execute
 
         '''
-        if not itch in self.cortex:
-            raise KeyError('Agent lacks cortex for itch %s' %(itch))
+        if not phrase in self.cortex:
+            return None
 
         else:
-            the_cortex = self.cortex[itch]
+            the_cortex = self.cortex[phrase]
 
         reaction = the_cortex()
 
         return reaction 
 
-    def sense(self, precept):
-        '''Method for agent to sense a precept of the environment. 
+    def sense(self, phrase):
+        '''Verb for the agent to execute a Sensor organ
 
         Notes
         -----
+        The method collects the Sensor associated with input phrase and
+        executes it as well as applies any resource map created by the organ
 
         Parameters
         ----------
-        precept : str
-            Name of the precept of the World to sense
+        phrase : str
+            Name of the Sensor to execute
 
         Raises
         ------
         KeyError
-            If a precept is sensed that is not defined for the sensor
+            If agent has no Sensor associated with the phrase
 
         '''
-        if not precept in self.sensor:
-            raise KeyError('Agent lacks sensor for precept %s' %(precept))
+        if not phrase in self.sensor:
+            raise KeyError('Agent lacks sensor for %s' %(phrase))
 
         else:
-            the_sensor = self.sensor[precept]
+            the_sensor = self.sensor[phrase]
 
         did_it_sense = the_sensor(self.agent_id_system)
+        self._apply_resource_map(the_sensor.resource_map)
 
-        if not the_sensor.resource_map is None:
-            if not the_sensor.resource_map.is_empty():
-                the_sensor.resource_map.apply_to(self)
-
-    def interpret(self, state):
-        '''Method for agent to interpret state of the world
+    def interpret(self, phrase):
+        '''Verb for the agent to execute an Interpreter organ
 
         Notes
         -----
+        The method collects the Interpreter associated with input phrase and
+        executes it as well as applies any resource map created by the organ
 
         Parameters
         ----------
-        state : str
-            The name of the interpreter to be used
+        phrase : str
+            Name of the Interpreter to execute
 
         Raises
         ------
         KeyError
-            If a brain tissue is used that is not defined for the interpreter
+            If agent has no Interpreter associated with the phrase
 
         '''
-        if not state in self.interpreter:
-            raise KeyError('Agent lacks interpreter for state %s' %(state))
+        if not phrase in self.interpreter:
+            raise KeyError('Agent lacks interpreter for %s' %(phrase))
 
         else:
-            the_interpreter = self.interpreter[state]
+            the_interpreter = self.interpreter[phrase]
 
         did_it_interpret = the_interpreter()
+        self._apply_resource_map(the_interpreter.resource_map)
 
-        if not the_interpreter.resource_map is None:
-            if not the_interpreter.resource_map.is_empty():
-                the_interpreter.resource_map.apply_to(self)
-
-    def perceive(self, precept, brain_tissue):
-        '''Method for agent to sense and interpret a percept
+    def mould(self, phrase):
+        '''Verb for the agent to execute a Moulder organ
 
         Notes
         -----
-        This is a convenience method that combines `sense` and `interpret` methods
-        since these two methods are mostly executed directly after each other.
+        The method collects the Moulder associated with input phrase and
+        executes it as well as applies any resource map created by the organ
 
         Parameters
         ----------
-        precept : str
-            The name of the external precept to sense
-        brain_tissue : str
-            The name of the interpreter to be used
-
-        Returns
-        -------
-        updated_belief_labels
-            Iterable with labels of updated beliefs following interpretation. 
-
-        '''
-        return self.interpret(brain_tissue, self.sense(precept))
-
-    def mould(self, potential):
-        '''Method for agent to mould beliefs into a populated actuator that
-        subsequently can be acted upon
-
-        Notes
-        -----
-
-        Parameters
-        ----------
-        potential: str
-            Name of the potential to mould
+        phrase : str
+            Name of the Moulder to execute
 
         Raises
         ------
         KeyError
-            If a potential is requested for which agent has no moulder
+            If agent has no Moulder associated with the phrase
 
         '''
-        if not potential in self.moulder:
-            raise KeyError('Agent lacks moulder for %s' %(potential))
+        if not phrase in self.moulder:
+            raise KeyError('Agent lacks moulder for %s' %(phrase))
 
         else:
-            the_moulder = self.moulder[potential]
+            the_moulder = self.moulder[phrase]
 
         did_it_mould = the_moulder()
+        self._apply_resource_map(the_moulder.resource_map)
 
-        if not the_moulder.resource_map is None:
-            if not the_moulder.resource_map.is_empty():
-                the_moulder.resource_map.apply_to(self)
-
-    def act(self, action):
-        '''Method for agent to act a populated actuator.
+    def act(self, phrase):
+        '''Verb for the agent to execute an Actuator organ
 
         Notes
         -----
+        The method collects the Actuator associated with input phrase and
+        executes it as well as applies any resource map created by the organ
 
         Parameters
         ----------
-        actions : str
-            Name of the action onto the World to act on
+        phrase : str
+            Name of the Actuator to execute
 
         Raises
         ------
         KeyError
-            If an action is requested for which the agent has no actuator
+            If agent has no Actuator associated with the phrase
 
         '''
-        if not action in self.actuator:
-            raise KeyError('Agent lacks actuator for %s' %(action))
+        if not phrase in self.actuator:
+            raise KeyError('Agent lacks Actuator for %s' %(phrase))
 
         else:
-            the_actuator = self.actuator[action]
+            the_actuator = self.actuator[phrase]
 
         did_it_act = the_actuator(self.agent_id_system)
+        self._apply_resource_map(the_actuator.resource_map)
 
-        if not the_actuator.resource_map is None:
-            if not the_actuator.resource_map.is_empty():
-                the_actuator.resource_map.apply_to(self)
-
-    def engage(self, action):
-        '''Method for agent to mould and act an action
-
-        Notes
-        -----
-        This is a convenience method that combines `mould` and `act` methods
-        since these two methods are mostly executed directly after each other.
+    def engage(self, organ_sequence):
+        '''Compound verb for agent to execute a sequence of multiple organs
 
         Parameters
         ----------
-        action : str
-            Name of the action onto the World to mould and act on
+        organ_sequence : Iterable
+            An iterable of strings, each string pointing to a unique organ of
+            any type, other than cortex. The appropriate verb for agent are
+            executed in the same order as in the sequence
+
+        Notes
+        -----
+        The method assumes that all organs, all types considered, have unique
+        names. If that is not true this compound verb is not well-defined.
+        However, no check is explicitly made to ensure unique names are used.
 
         '''
-        self.mould(action)
-        self.act(action)
+        for organ_name in organ_sequence:
+            if not organ_name in self._inverse_map:
+                raise KeyError('The organ name %s not among agent organs' %(organ_name))
+
+            if self._inverse_map[organ_name] == 'sensor':
+                self.sense(organ_name)
+            elif self._inverse_map[organ_name] == 'interpreter':
+                self.interpret(organ_name)
+            elif self._inverse_map[organ_name] == 'moulder':
+                self.mould(organ_name)
+            elif self._inverse_map[organ_name] == 'actuator':
+                self.act(organ_name)
+            elif self._inverse_map[organ_name] == 'cortex':
+                raise ValueError('The agent can only engage in intentional ' + \
+                                 'actions, not cortical ones')
+            else:
+                KeyError('Unknown organ type %s' %(self._inverse_map[organ_name]))
 
     def hooked_up(self):
         '''Determines if agent is part of an agent management system
@@ -418,6 +420,7 @@ class Agent(object):
                        'actuator' : self.actuator, 
                        'interpreter' : self.interpreter,
                        'moulder' : self.moulder}
+        self._inverse_map = {}
 
         # 
         # Mandatory cortex organ to reveal what cortices are available

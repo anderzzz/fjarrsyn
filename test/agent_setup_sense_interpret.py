@@ -62,6 +62,7 @@ beliefs = []
 for k in range(0, 20):
     agent.sense('check_roll')
     agent.interpret('was_it_good_roll')
+#    agent.engage(['check_roll', 'was_it_good_roll'])
     beliefs.append(agent.belief['world_is_good'].values()[0])
 
 assert (beliefs == REF_OUTCOME)
