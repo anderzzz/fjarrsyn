@@ -79,7 +79,7 @@ class _Organ(object):
         if array_output is None:
             self.array_output = OrderedDict()
         elif isinstance(array_output, str):
-            self.array_output = _Array(array_input, []) 
+            self.array_output = _Array(array_output, []) 
         else:
             self.array_output = array_output
 
