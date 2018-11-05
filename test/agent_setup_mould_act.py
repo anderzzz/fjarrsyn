@@ -30,7 +30,7 @@ def shouter(s1, s2, s3, s4):
     return sum([s1, s2, s3, s4])
 
 class Env(object):
-    def shout_into_void(self, how_loud, agent_index):
+    def shout_into_void(self, how_loud, agent_index=None):
         self.loud_cumsum += how_loud
 
     def grabber(self, volume, agent_index):
@@ -99,7 +99,7 @@ assert (isclose(env.loud_cumsum, 3.4))
 try:
     agent.act('shout')
     raise AssertionError('Action without preceding moulding did not raise exception')
-except TypeError:
+except RuntimeError:
     pass
 else:
     raise AssertionError('Action without preceding moulding did not raise expected exception')

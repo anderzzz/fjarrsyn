@@ -1,4 +1,4 @@
-'''The fundamental Agent parent class
+'''The Agent parent class.
 
 '''
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
@@ -85,39 +85,57 @@ class Agent(object):
         container[key] = value
         setattr(self, object_type, container)
 
-    def set_scaffold(self, scaffold):
-        '''Add an imprint to the agent 
+    def set_scaffold(self, scaffold, allow_overwrite=True):
+        '''Add a scaffold to the agent 
+
+        Parameters
+        ----------
+        scaffold : Resource or Essence
+            An agent scaffold that defines a property of the agent constitution
+        allow_overwrite : bool, optional
+            If True the scaffold can be altered, if False the scaffold can only
+            be assigned once
+
+        Raises
+        ------
+        RuntimeError
+            If scaffold reassignment is attempted after first assignment
+        TypeError
+            If scaffold is neither an instance of Resource or Essence
 
         '''
         if isinstance(scaffold, Resource):
-            self.resource = scaffold
+            if (not allow_overwrite) and (not self.resource is None):
+                raise RuntimeError('Agent resource not allowed to be ' + \
+                                   'changed after first assignement')
+            else:
+                self.resource = scaffold
 
         elif isinstance(scaffold, Essence):
-            self.essence = scaffold
+            if (not allow_overwrite) and (not self.essence is None):
+                raise RuntimeError('Agent essence not allowed to be ' + \
+                                   'changed after first assignement')
+            else:
+                self.essence = scaffold
 
         else:
             raise TypeError('Agent scaffold should be instance of ' + \
                             'class Resource or Essence')
 
-    def set_scaffold_bulk(self, scaffold, entryvalue, edit_only=False):
-        '''Add several imprints to the agent at once
+    def set_scaffold_bulk(self, scaffolds, allow_overwrite=True):
+        '''Add several scaffolds to the agent at once
 
         Parameters
         ----------
-        imprint : str
-            Type of imprint to set
-        entryvalue : dict
-            The dictionary of entry name keys and corresponding value.
-            The value should be a number, string or similar atomic variable, 
-            not a callable function
-        edit_only : bool, optional
-            If False, `entry_name` can be non-existent in the particular
-            imprint, if True, `entry_name` must exist already. Hence, this flag
-            validates if imprints can be only edited or not.
-        
+        scaffold : Resource or Essence
+            An agent scaffold that defines a property of the agent constitution
+        allow_overwrite : bool, optional
+            If True the scaffold can be altered, if False the scaffold can only
+            be assigned once
+
         '''
-        for key, value in entryvalue.items():
-            self.set_scaffold(scaffold, key, value, edit_only)
+        for scaffold in scaffolds: 
+            self.set_scaffold(scaffold, allow_overwrite)
 
     def set_organ(self, organ):
         '''Add an organ to the agent.
