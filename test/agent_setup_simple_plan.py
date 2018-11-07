@@ -1,26 +1,48 @@
 '''Simple Agent Setup with Plan 
 
 '''
+import numpy as np
+import numpy.random
+np.random.seed(79)
+
 from core.agent import Agent
 from core.organs import Sensor, Interpreter, Moulder, Actuator
 from core.array import Buzz, Belief, Direction
 
 from core.propagate import Chain, AutoBeliefCondition
 
+def ear(agent_index):
+    print ('>I\'m listening')
+    ret = [np.sin(np.sqrt(x))**2 for x in np.random.random_integers(0,50,19)]
+    return (ret,)
+
+def trigger_word(nerves):
+    if nerves[0] > 0.5:
+        yup = 0.99
+    else:
+        yup = 0.01
+    return yup
+
+def question_maker(p):
+    question = 'Well hello, what can I do for you?'
+    return question
+
+def mouth(words, agent_index):
+    print (words)
+
 class SlimAgent(Agent):
 
     def __call__(self):
-        while self.heartbeat():
-            if self.chain['sound_trigger'].execute():
-                self.chain['response_formation'].execute()
-                
+        while self.heartbeat(10):
+            if self.chain['sound_trigger'].apply_to(self):
+                self.chain['response_formation'].apply_to(self)
 
     def __init__(self, name):
         super().__init__(name)
 
 # Define Messages
 #
-buzz = Buzz('audio_trigger', (['a' + str(n) for n in range(1, 20)],))
+buzz = Buzz('audio_trigger', (tuple(['a' + str(n) for n in range(1, 20)]),))
 belief = Belief('trigger_spoken', ['probability'])
 direction = Direction('say_this', ['sentence'])
 
@@ -35,14 +57,14 @@ actuator = Actuator('speak', direction, mouth, 'speak_to_the_world')
 #
 # Autonomous constraints
 #
-belief_condition = AutoBeliefConstraint('heard_it', belief, lambda x: x > 0.9)
+belief_condition = AutoBeliefCondition('heard_it', belief, lambda x: x > 0.9)
 
 #
 # Plan
 #
-chain_1 = Chain('sound_trigger', ('listen', 'was_trigger_word_spoken'),
-                belief_condition) 
-chain_2 = Chain('response_formation', ('follow_up_question', 'speak'))
+chain_1 = Chain('sound_trigger', verbs=('listen', 'was_trigger_word_spoken'),
+                condition=belief_condition) 
+chain_2 = Chain('response_formation', verbs=('follow_up_question', 'speak'))
 #
 # Initialize Agent
 #
@@ -51,5 +73,7 @@ agent.set_organ(sensor)
 agent.set_organ(interpreter)
 agent.set_organ(moulder)
 agent.set_organ(actuator)
+agent.set_policy(chain_1)
+agent.set_policy(chain_2)
 
 agent()

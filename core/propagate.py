@@ -5,18 +5,32 @@ class Chain(object):
     '''Bla bla
 
     '''
-    def execute(self):
+    def autocondition(self, func):
         '''Bla bla
 
         '''
-        truth_value = None
+        def wrapper(*args, **kwargs):
+            truth_value = None
+            func(*args, **kwargs)
+            if not self.condition is None:
+                truth_value = self.condition()
 
-        ret = self.engager_func()
+            return truth_value
 
-        if not self.condition is None:
-            truth_value = self.condition()
+        return wrapper
 
-        return truth_value
+    def _apply_verb_sequence_to(self, agent):
+        '''Bla bla
+
+        '''
+        ret = agent.engage(self.verb_sequence)
+
+    def _apply_engager_to(self, agent):
+        '''Bla bla
+
+        '''
+        raise NotImplementedError('Have not done this one')
+        ret = self.engager()
 
     def set_engager(self, engager_func):
         '''Bla bla
@@ -30,6 +44,11 @@ class Chain(object):
         self.condition = condition
         self.engager_func = engager_func
 
+        if not self.verb_sequence is None:
+            self.apply_to = self.autocondition(self._apply_verb_sequence_to)
+        else:
+            self.apply_to = self.autocondition(self._apply_engager_to)
+
 class _AutoCondition(object):
     '''Bla bla
 
@@ -38,7 +57,8 @@ class _AutoCondition(object):
         '''Bla bla
 
         '''
-        pass
+        args = tuple(self.imprint.values())
+        return self.func(*args, **self.kwargs)
 
     def __init__(self, name, imprint, func, kwargs={}):
         

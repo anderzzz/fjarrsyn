@@ -2,6 +2,7 @@
 
 '''
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
+from core.propagate import Chain
 from core.array import Resource, Essence, Feature
 
 class Agent(object):
@@ -194,6 +195,16 @@ class Agent(object):
         '''
         for organ in organs:
             self.set_organ(organ)
+
+    def set_policy(self, policy):
+        '''Bla bla
+
+        '''
+        if isinstance(policy, Chain):
+            self._set('chain', policy.name, policy)
+
+        else:
+            raise TypeError('Unknown policy type: %s' %(str(type(policy))))
 
     def tickle(self, phrase):
         '''Verb for the agent to execute a Cortex organ
@@ -471,3 +482,5 @@ class Agent(object):
         # Variables for the dynamics of the agent
         #
         self.n_heart_beats = 0
+        self.chain = {}
+        self.policies = {'chain' : self.chain}

@@ -1,7 +1,7 @@
 '''All flash classes of the basic Agent are contained in this file.
 
 '''
-from collections import Iterable
+from collections import Iterable, Hashable
 from collections import OrderedDict
 
 class _Array(object):
@@ -139,6 +139,8 @@ class _Array(object):
 
         if not isinstance(array_semantics, Iterable):
             raise TypeError('Array semantics should be provided as an iterable')
+        if not all([isinstance(x, Hashable) for x in array_semantics]):
+            raise TypeError('Elements of array semantics must be hashable')
         self._item_names = array_semantics
 
         self.n_elements = len(self._item_names)
