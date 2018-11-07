@@ -2,7 +2,7 @@
 
 '''
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.propagate import Chain
+from core.propagate import Clause 
 from core.array import Resource, Essence, Feature
 
 class Agent(object):
@@ -197,11 +197,21 @@ class Agent(object):
             self.set_organ(organ)
 
     def set_policy(self, policy):
-        '''Bla bla
+        '''Set a policy item the agent has access to for execution
+
+        Parameters
+        ----------
+        policy
+            The policy object
+
+        Raises
+        ------
+        TypeError
+            If the policy input is of unknown type
 
         '''
-        if isinstance(policy, Chain):
-            self._set('chain', policy.name, policy)
+        if isinstance(policy, Clause):
+            self._set('clause', policy.name, policy)
 
         else:
             raise TypeError('Unknown policy type: %s' %(str(type(policy))))
@@ -393,7 +403,20 @@ class Agent(object):
         return (not self.agent_id_system is None)
 
     def heartbeat(self, n_max=None):
-        '''Bla bla
+        '''Agent heart beat counter, which can be used in execution of policies
+        of the agent keeping track of how many iterations have been performed
+        and if a terminal exit condition is met
+
+        Parameters
+        ----------
+        n_max : int, optional
+            Maximum number of heart beats before end of execution. If None, the
+            execution goes on forever or until other terminal condition is met
+
+        Returns
+        -------
+        continue_life : bool
+            True if agent can iterate further in the execution, False if not
 
         '''
         if n_max is None:
@@ -482,5 +505,5 @@ class Agent(object):
         # Variables for the dynamics of the agent
         #
         self.n_heart_beats = 0
-        self.chain = {}
-        self.policies = {'chain' : self.chain}
+        self.clause = {}
+        self.policies = {'clause' : self.clause}

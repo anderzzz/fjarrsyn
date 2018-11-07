@@ -9,12 +9,22 @@ from core.agent import Agent
 from core.organs import Sensor, Interpreter, Moulder, Actuator
 from core.array import Buzz, Belief, Direction
 
-from core.propagate import Chain, AutoBeliefCondition
+from core.propagate import Clause, AutoBeliefCondition
 
-def ear(agent_index):
-    print ('>I\'m listening')
-    ret = [np.sin(np.sqrt(x))**2 for x in np.random.random_integers(0,50,19)]
-    return (ret,)
+REF = ['ear','mouth','ear','ear','ear','ear','ear','mouth',
+       'ear','mouth','ear','ear','mouth','ear']
+
+class Env(object):
+    def ear(self, agent_index):
+        self.env_interactions.append('ear')
+        ret = [np.sin(np.sqrt(x))**2 for x in np.random.random_integers(0,50,19)]
+        return (ret,)
+
+    def mouth(self, words, agent_index):
+        self.env_interactions.append('mouth')
+
+    def __init__(self):
+        self.env_interactions = []
 
 def trigger_word(nerves):
     if nerves[0] > 0.5:
@@ -27,15 +37,13 @@ def question_maker(p):
     question = 'Well hello, what can I do for you?'
     return question
 
-def mouth(words, agent_index):
-    print (words)
-
+N_HEARTS = 10
 class SlimAgent(Agent):
 
     def __call__(self):
-        while self.heartbeat(10):
-            if self.chain['sound_trigger'].apply_to(self):
-                self.chain['response_formation'].apply_to(self)
+        while self.heartbeat(N_HEARTS):
+            if self.clause['sound_trigger'].apply_to(self):
+                self.clause['response_formation'].apply_to(self)
 
     def __init__(self, name):
         super().__init__(name)
@@ -49,10 +57,11 @@ direction = Direction('say_this', ['sentence'])
 #
 # Define Organs and their associated messages
 #
-sensor = Sensor('listen', 'sound_around_me', ear, buzz)
+env = Env()
+sensor = Sensor('listen', 'sound_around_me', env.ear, buzz)
 interpreter = Interpreter('was_trigger_word_spoken', buzz, trigger_word, belief)
 moulder = Moulder('follow_up_question', belief, question_maker, direction)
-actuator = Actuator('speak', direction, mouth, 'speak_to_the_world')
+actuator = Actuator('speak', direction, env.mouth, 'speak_to_the_world')
 
 #
 # Autonomous constraints
@@ -62,9 +71,9 @@ belief_condition = AutoBeliefCondition('heard_it', belief, lambda x: x > 0.9)
 #
 # Plan
 #
-chain_1 = Chain('sound_trigger', verbs=('listen', 'was_trigger_word_spoken'),
+clause_1 = Clause('sound_trigger', verbs=('listen', 'was_trigger_word_spoken'),
                 condition=belief_condition) 
-chain_2 = Chain('response_formation', verbs=('follow_up_question', 'speak'))
+clause_2 = Clause('response_formation', verbs=('follow_up_question', 'speak'))
 #
 # Initialize Agent
 #
@@ -73,7 +82,9 @@ agent.set_organ(sensor)
 agent.set_organ(interpreter)
 agent.set_organ(moulder)
 agent.set_organ(actuator)
-agent.set_policy(chain_1)
-agent.set_policy(chain_2)
+agent.set_policy(clause_1)
+agent.set_policy(clause_2)
 
 agent()
+
+assert (env.env_interactions == REF)

@@ -1,7 +1,7 @@
 '''Plan related classes
 
 '''
-class Chain(object):
+class Clause(object):
     '''Bla bla
 
     '''
