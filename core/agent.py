@@ -419,7 +419,10 @@ class Agent(object):
             True if agent can iterate further in the execution, False if not
 
         '''
-        if n_max is None:
+        if self.inert:
+            ret = False
+
+        elif n_max is None:
             ret = True
 
         else:
@@ -428,7 +431,8 @@ class Agent(object):
             else:
                 ret = True
 
-        self.n_heart_beats += 1
+        if ret:
+            self.n_heart_beats += 1
 
         return ret
 
@@ -505,5 +509,6 @@ class Agent(object):
         # Variables for the dynamics of the agent
         #
         self.n_heart_beats = 0
+        self.inert = False
         self.clause = {}
         self.policies = {'clause' : self.clause}
