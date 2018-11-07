@@ -52,7 +52,7 @@ actuator = Actuator('say_it', direction, speak, 'mechanical_wave_to_env',
                     actuator_func_kwargs={'well' : True})
 
 agent = Agent('simple human')
-agent.set_organ_bulk([sensor, interpreter, moulder, actuator])
+agent.set_organs(sensor, interpreter, moulder, actuator)
 
 ENV_SPOKEN = []
 agent.engage(['smell_the_roses','does_the_world_blossom','what_to_say','say_it'])

@@ -44,7 +44,7 @@ class TestAgentMS(AgentManagementSystem):
             feature = Feature('revealed_type', ('revealed_type',))
             essence = Essence('who_am_i', ('my_type', 'my_mood'))
             cortex = Cortex('my_type', essence, agent.reveal_type, feature)
-            agent.set_organ_bulk([sensor, cortex])
+            agent.set_organs(sensor, cortex)
 
             essence.set_values([np.random.random(), np.random.random()])
             agent.set_scaffold(essence)

@@ -122,7 +122,7 @@ class Agent(object):
             raise TypeError('Agent scaffold should be instance of ' + \
                             'class Resource or Essence')
 
-    def set_scaffold_bulk(self, scaffolds, allow_overwrite=True):
+    def set_scaffolds(self, *scaffolds, allow_overwrite=True):
         '''Add several scaffolds to the agent at once
 
         Parameters
@@ -182,7 +182,7 @@ class Agent(object):
         else:
             raise TypeError('Unknown organ type: %s' %str(type(organ)))
 
-    def set_organ_bulk(self, organs):
+    def set_organs(self, *organs):
         '''Add organs to the agent
 
         Parameters
