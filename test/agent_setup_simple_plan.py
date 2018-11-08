@@ -6,7 +6,7 @@ import numpy.random
 np.random.seed(79)
 
 from core.agent import Agent
-from core.organs import Sensor, Interpreter, Moulder, Actuator
+from core.organ import Sensor, Interpreter, Moulder, Actuator
 from core.array import Buzz, Belief, Direction
 
 from core.policy import Clause, AutoBeliefCondition

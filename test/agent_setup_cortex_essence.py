@@ -7,7 +7,7 @@ np.random.seed(79)
 
 from core.agent import Agent
 
-from core.organs import Cortex 
+from core.organ import Cortex 
 from core.array import Feature, Essence, ImprintOperator
 
 REF1 = [0.9000, 0.3984, 1.0000]

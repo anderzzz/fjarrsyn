@@ -1,4 +1,4 @@
-from core.organs import Sensor, Interpreter, Moulder, Actuator, Cortex
+from core.organ import Sensor, Interpreter, Moulder, Actuator, Cortex
 from core.array import Buzz, Direction, Belief, Feature
 from core.agent import Agent
 

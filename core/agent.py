@@ -1,7 +1,7 @@
 '''The Agent parent class.
 
 '''
-from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
+from core.organ import Sensor, Actuator, Interpreter, Moulder, Cortex
 from core.policy import Clause, Compulsion 
 from core.array import Resource, Essence, Feature
 

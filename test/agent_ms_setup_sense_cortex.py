@@ -5,7 +5,7 @@ np.random.seed(79)
 from core.agent_ms import AgentManagementSystem
 
 from core.agent import Agent
-from core.organs import Sensor, Cortex
+from core.organ import Sensor, Cortex
 from core.array import Buzz, Feature, Essence
 
 REF_VALUES = [[('type_sense', 0.50078), ('honesty_sense', 0.5)],

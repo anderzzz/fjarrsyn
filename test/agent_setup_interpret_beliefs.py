@@ -3,7 +3,7 @@
 '''
 from core.agent import Agent
 
-from core.organs import Interpreter
+from core.organ import Interpreter
 from core.array import Belief, ImprintOperator
 
 REFVALUES = ['Yes', 'Doubt it', 'YES!']

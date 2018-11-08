@@ -3,7 +3,7 @@
 '''
 from core.agent import Agent
 
-from core.organs import Moulder, Actuator
+from core.organ import Moulder, Actuator
 from core.array import Belief, Direction, Resource
 from core.naturallaw import ResourceMap, ResourceMapCollection
 

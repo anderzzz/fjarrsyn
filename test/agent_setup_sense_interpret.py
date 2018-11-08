@@ -3,7 +3,7 @@
 '''
 from core.agent import Agent
 
-from core.organs import Sensor, Interpreter
+from core.organ import Sensor, Interpreter
 from core.array import Buzz, Belief
 
 import numpy as np

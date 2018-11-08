@@ -6,7 +6,7 @@ import numpy.random
 
 from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
-from core.organs import Sensor, Interpreter, Moulder, Actuator
+from core.organ import Sensor, Interpreter, Moulder, Actuator
 from core.array import Belief, Direction, Resource, Essence
 from core.naturallaw import ResourceMap
 from core.policy import Clause, Compulsion, AutoBeliefCondition
