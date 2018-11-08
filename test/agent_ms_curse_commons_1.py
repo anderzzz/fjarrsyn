@@ -9,7 +9,7 @@ from core.agent_ms import AgentManagementSystem
 from core.organs import Sensor, Interpreter, Moulder, Actuator
 from core.array import Belief, Direction, Resource, Essence
 from core.naturallaw import ResourceMap
-from core.propagate import Clause, AutoBeliefCondition
+from core.policy import Clause, Compulsion, AutoBeliefCondition
 
 class Lake(object):
 
@@ -35,17 +35,16 @@ class Village(Agent):
 
     def inspect_storage(self, dummy):
 
-        n_fishes, n_people = self.village_resource.values()
-        n_people = self.n_people.values()
+        n_fishes, n_people = self.resource.values()
         storage_ratio = float(n_fishes) / float(n_people)
 
         if storage_ratio < self.essence['how_low'] * 0.5:
             ret = 'very low'
 
-        elif storage_ration < self.essence['how_low'] * 0.75:
+        elif storage_ratio < self.essence['how_low'] * 0.75:
             ret = 'quite low'
 
-        elif storage_ration < self.essence['how_low']:
+        elif storage_ratio < self.essence['how_low']:
             ret = 'low'
 
         else:
@@ -70,11 +69,18 @@ class Village(Agent):
 
         return send_n_boats, upper_limit
 
-    def __call__(self):
+    def eat_life_die(self, people_current, fish_current):
+        print (people_current)
+        print (fish_current)
+        raise RuntimeError
 
-        if self.heartbeat():
-            if self.clause['fish now?']:
-                self.clause['go']
+    def __call__(self):
+        
+        self.heartbeat()
+        if self.clause['fish now?'].apply_to(self):
+            self.clause['go'].apply_to(self)
+
+        self.compulsion['survival demands'].apply_to(self)
 
     def __init__(self, name, n_people, n_fishes, how_low, max_fish):
 
@@ -84,18 +90,19 @@ class Village(Agent):
         disposition.set_values([how_low, max_fish])
         self.set_scaffold(disposition)
 
-        village_resources = Resource('village items', 
-                                     ['n_fishes', 'n_people'])
+        village_resource = Resource('village items', 
+                                    ['n_fishes', 'n_people'])
         village_resource.set_values([n_fishes, n_people])
-        self.set_scaffold(village_resources)
+        self.set_scaffold(village_resource)
 
-        storage_status = Belief('must add to stock', 'assessment')
+        storage_status = Belief('must add to stock', ['assessment'])
         stock_ok = Interpreter('should we go fish', storage_status,
                                self.inspect_storage, storage_status)
         direct_fishing_act = Direction('go fish like this', 
                                        ['number_boats', 'upper_limit'])
         go_fishing = Moulder('go fish', storage_status, self.fish_instr,
                              direct_fishing_act)
+        self.set_organs(stock_ok, go_fishing)
 
         belief_cond = AutoBeliefCondition('warehouse status', 
                                           storage_status,
@@ -103,6 +110,12 @@ class Village(Agent):
         clause_1 = Clause('fish now?', ('should we go fish',), belief_cond)
         clause_2 = Clause('go', ('go fish', 'fish from lake'))
         self.set_policies(clause_1, clause_2)
+
+        resource_law_1 = ResourceMap('people eat breed die', ['n_fishes', 'n_people'], 
+                                     self.eat_life_die, 
+                                     ('current_people', 'current_fish'))
+        natural_reqs = Compulsion('survival demands', (resource_law_1,))
+        self.set_policy(natural_reqs)
 
 class World(AgentManagementSystem):
 
@@ -129,18 +142,22 @@ class World(AgentManagementSystem):
         super().__init__(name, agents)
 
         for agent in agents:
-            more_fish = ResourceMap('add_fish', 'village_items', 'delta', ('n_fishes',))
+            more_fish = ResourceMap('add_fish', 'village items', 'delta', ('n_fishes',))
             fish_from_lake = Actuator('fish from lake', 
                                       agent.direction['go fish like this'],
                                       self.extract_from_lake,
                                       'fish_results',
                                       more_fish)
-            agent.add_organ(fish_from_lake)
+            agent.set_organ(fish_from_lake)
 
         self.common_env = lake
 
 
 village_1 = Village('Lakeside', 20, 20, 1.0, 10)
 village_2 = Village('Bayside', 20, 20, 1.0, 10)
+lake = Lake(100, 0.1, 100)
+the_world = World('World around the lake', [village_1, village_2], lake)
 
-the_world = World('World around the lake', [village_1, village_2])
+for agent, aux_content in the_world:
+    print (agent)
+    agent()

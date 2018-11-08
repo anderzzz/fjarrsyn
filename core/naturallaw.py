@@ -281,7 +281,21 @@ class ResourceMap(_Flash):
     `delta` : Bla bla
 
     '''
-    def apply_to(self, agent):
+    def _apply_to_multi_inp(self, agent):
+        '''Bla bla
+
+        '''
+        if agent.resource is None:
+            raise RuntimeError('Agent has not been assigned a resource so ' + \
+                               'nothing to transform via a map')                     
+
+        old_values = [agent.resource[key] for key in self.resource_to_alter]
+        func_args_vals = old_values + list(self.values())
+        new_values = self._mapper(*func_args_vals)
+        for new_val, key in zip(new_values, self.resource_to_alter):
+            agent.resource[key] = new_val
+
+    def _apply_to_single_inp(self, agent):
         '''Apply the resoure map to the resources of an agent
 
         Parameters
@@ -334,6 +348,13 @@ class ResourceMap(_Flash):
         else:
             raise TypeError('The map function should be a callable or a ' + \
                             'standard function string')
+
+        if isinstance(self.resource_to_alter, str) or \
+            (not isinstance(self.resource_to_alter, Iterable)):
+            self.apply_to = self._apply_to_single_inp
+
+        else:
+            self.apply_to = self._apply_to_multi_inp
 
 class ResourceMapCollection(object):
     '''Bla bla

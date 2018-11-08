@@ -9,7 +9,7 @@ from core.agent import Agent
 from core.organs import Sensor, Interpreter, Moulder, Actuator
 from core.array import Buzz, Belief, Direction
 
-from core.propagate import Clause, AutoBeliefCondition
+from core.policy import Clause, AutoBeliefCondition
 
 REF = ['ear','mouth','ear','ear','ear','ear','ear','mouth',
        'ear','mouth','ear','ear','mouth','ear']

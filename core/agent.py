@@ -2,7 +2,7 @@
 
 '''
 from core.organs import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.propagate import Clause 
+from core.policy import Clause, Compulsion 
 from core.array import Resource, Essence, Feature
 
 class Agent(object):
@@ -212,6 +212,9 @@ class Agent(object):
         '''
         if isinstance(policy, Clause):
             self._set('clause', policy.name, policy)
+
+        elif isinstance(policy, Compulsion):
+            self._set('compulsion', policy.name, policy)
 
         else:
             raise TypeError('Unknown policy type: %s' %(str(type(policy))))
@@ -524,4 +527,6 @@ class Agent(object):
         self.n_heart_beats = 0
         self.inert = False
         self.clause = {}
-        self.policies = {'clause' : self.clause}
+        self.compulsion = {}
+        self.policies = {'clause' : self.clause,
+                         'compulsion' : self.compulsion}

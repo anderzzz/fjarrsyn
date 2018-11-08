@@ -1,7 +1,7 @@
 '''Plan related classes
 
 '''
-class Clause(object):
+class _Policy(object):
     '''Bla bla
 
     '''
@@ -19,6 +19,34 @@ class Clause(object):
 
         return wrapper
 
+    def __init__(self, name, apply_func, condition=None):
+
+        self.name = name
+        self.apply_to = apply_func
+        self.condition = condition
+
+class Compulsion(_Policy):
+    '''Bla bla
+
+    '''
+    def _apply_sequence(self, apply_func_sequence):
+        '''Bla bla
+
+        '''
+        def wrapper(*args, **kwargs):
+            for func in apply_func_sequence:
+                func.apply_to(*args)
+
+        return wrapper
+
+    def __init__(self, name, natural_law, condition=None):
+        
+        super().__init__(name, self._apply_sequence(natural_law), condition)
+
+class Clause(_Policy):
+    '''Bla bla
+
+    '''
     def _apply_verb_sequence_to(self, agent):
         '''Bla bla
 
@@ -39,15 +67,15 @@ class Clause(object):
         self.engager_func = engager_func
 
     def __init__(self, name, verbs=None, condition=None, engager_func=None):
-        self.name = name
-        self.verb_sequence = verbs
-        self.condition = condition
-        self.engager_func = engager_func
 
+        self.verb_sequence = verbs
+        self.engager_func = engager_func
         if not self.verb_sequence is None:
-            self.apply_to = self.autocondition(self._apply_verb_sequence_to)
+            applier = self.autocondition(self._apply_verb_sequence_to)
         else:
-            self.apply_to = self.autocondition(self._apply_engager_to)
+            applier = self.autocondition(self._apply_engager_to)
+
+        super().__init__(name, applier, condition)
 
 class _AutoCondition(object):
     '''Bla bla
