@@ -216,6 +216,19 @@ class Agent(object):
         else:
             raise TypeError('Unknown policy type: %s' %(str(type(policy))))
 
+    def set_policies(self, *policies):
+        '''Add policies to the agent
+
+        Parameters
+        ----------
+        policies
+            Container of elements of the policy class instance to add to the
+            agent in bulk.
+
+        '''
+        for policy in policies:
+            self.set_policy(policy)
+
     def tickle(self, phrase):
         '''Verb for the agent to execute a Cortex organ
 
