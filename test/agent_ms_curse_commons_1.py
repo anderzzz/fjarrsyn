@@ -8,8 +8,8 @@ from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
 from core.organ import Sensor, Interpreter, Moulder, Actuator
 from core.array import Belief, Direction, Resource, Essence
-from core.naturallaw import ResourceMap
-from core.policy import Clause, Compulsion, AutoBeliefCondition
+from core.naturallaw import Compulsion, ResourceMap, ResourceMapCollection
+from core.policy import Clause, AutoBeliefCondition
 
 class Lake(object):
 
@@ -69,18 +69,11 @@ class Village(Agent):
 
         return send_n_boats, upper_limit
 
-    def eat_life_die(self, people_current, fish_current):
-        print (people_current)
-        print (fish_current)
-        raise RuntimeError
-
     def __call__(self):
         
         self.heartbeat()
         if self.clause['fish now?'].apply_to(self):
             self.clause['go'].apply_to(self)
-
-        self.compulsion['survival demands'].apply_to(self)
 
     def __init__(self, name, n_people, n_fishes, how_low, max_fish):
 
@@ -111,13 +104,31 @@ class Village(Agent):
         clause_2 = Clause('go', ('go fish', 'fish from lake'))
         self.set_policies(clause_1, clause_2)
 
-        resource_law_1 = ResourceMap('people eat breed die', ['n_fishes', 'n_people'], 
-                                     self.eat_life_die, 
-                                     ('current_people', 'current_fish'))
-        natural_reqs = Compulsion('survival demands', (resource_law_1,))
-        self.set_policy(natural_reqs)
+BIRTH_RATE_FULL = 0.10
+BIRTH_RATE_CAUTION = BIRTH_RATE_FULL * 0.5
+STARVE_RATE = 0.5
 
 class World(AgentManagementSystem):
+
+    def eat_life_die(self, people_current, fish_current):
+
+        if fish_current < people_current:
+            n_starving = people_current - fish_current
+            delta_fish = -1 * fish_current
+            delta_people = -1 * int(n_starving * np.random.ranf() * STARVE_RATE)
+
+        elif fish_current >= 2 * people_current:
+            delta_fish = -2 * people_current
+            delta_people = int(people_current * np.random.ranf() * BIRTH_RATE_FULL)
+
+        else:
+            delta_fish = -1 * people_current
+            delta_people = int(people_current * np.random.ranf() * BIRTH_RATE_CAUTION)
+
+        return delta_fish, delta_people
+
+    def fish_decay(self, fish_current):
+        raise RuntimeError
 
     def extract_from_lake(self, n_boats, max_extract, agent_index):
 
@@ -140,6 +151,18 @@ class World(AgentManagementSystem):
     def __init__(self, name, agents, lake):
 
         super().__init__(name, agents)
+        self.common_env = lake
+
+        map_fish = ResourceMap('fish stock change', 'n_fishes', 'delta', ('adjust_fish',))
+        map_people = ResourceMap('birth death', 'n_people', 'delta', ('adjust_people',))
+        eat_love_death = ResourceMapCollection([map_fish, map_people])
+
+        natural_reqs = Compulsion('survival demands', ['n_people', 'n_fishes'], 
+                                  self.eat_life_die, eat_love_death)
+        storage_reqs = Compulsion('storage evolution', ['n_fishes'],
+                                  self.fish_decay, map_fish)
+        self.set_law(natural_reqs)
+        self.set_law(storage_reqs)
 
         for agent in agents:
             more_fish = ResourceMap('add_fish', 'village items', 'delta', ('n_fishes',))
@@ -150,14 +173,15 @@ class World(AgentManagementSystem):
                                       more_fish)
             agent.set_organ(fish_from_lake)
 
-        self.common_env = lake
 
 
-village_1 = Village('Lakeside', 20, 20, 1.0, 10)
-village_2 = Village('Bayside', 20, 20, 1.0, 10)
+village_1 = Village('Lakeside', 20, 200, 1.0, 10)
+village_2 = Village('Bayside', 20, 200, 1.0, 10)
 lake = Lake(100, 0.1, 100)
 the_world = World('World around the lake', [village_1, village_2], lake)
 
 for agent, aux_content in the_world:
     print (agent)
     agent()
+    the_world.compel(agent, 'survival demands')
+    print (agent.resource)

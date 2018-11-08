@@ -9,6 +9,7 @@ import networkx as nx
 
 from core.agent import Agent
 from core.graph import Node
+from core.naturallaw import Compulsion, Mutation
 
 class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or
@@ -224,6 +225,53 @@ class AgentManagementSystem(object):
         node.agent_content = agent
         self.node_from_agent_id_[agent.agent_id_system] = node
 
+    def set_law(self, law):
+        '''Bla bla
+
+        '''
+        if isinstance(law, Compulsion):
+            self.compulsion[law.name] = law
+
+        elif isinstance(law, Mutatation):
+            self.mutation[law.name] = law
+
+        else:
+            raise TypeError('Unknown law type: %s' %(str(type(law))))
+
+    def compel(self, agent, phrase):
+        '''Bla bla
+
+        '''
+        if not isinstance(agent, Agent):
+            raise TypeError('Only instances of the Agent class can be ' + \
+                            'compelled by Agent System')
+
+        if not phrase in self.compulsion:
+            raise KeyError('Agent System lacks compulsion for %s' %(phrase))
+
+        else:
+            the_compulsion = self.compulsion[phrase]
+
+        did_it_compel = the_compulsion(agent)
+        agent.apply_resource_map(the_compulsion.reaction)
+
+    def mutate(self, agent, phrase):
+        '''Bla bla
+
+        '''
+        pass
+
+    def apply_all_laws(self, agent):
+        '''Bla bla
+
+        '''
+        for law_type in self.law:
+            for phrase, law in self.law[law_type].items():
+                if law_type == 'compulsion':
+                    self.compel(agent, phrase)
+                elif law_type == 'mutation':
+                    self.mutate(agent, phrase)
+
     def __init__(self, name, agents, full_agents_graph=None):
 
         self.name = name
@@ -262,3 +310,10 @@ class AgentManagementSystem(object):
             if not node.agent_content is None:
                 self.node_from_agent_id_[node.agent_content.agent_id_system] = node
 
+        #
+        # Initialize verbs for the Agent System
+        #
+        self.compulsion = {}
+        self.mutation = {}
+        self.law = {'compulsion' : self.compulsion,
+                    'mutator' : self.mutation}

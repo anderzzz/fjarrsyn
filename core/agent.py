@@ -2,7 +2,7 @@
 
 '''
 from core.organ import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.policy import Clause, Compulsion 
+from core.policy import Clause
 from core.array import Resource, Essence, Feature
 
 class Agent(object):
@@ -32,7 +32,7 @@ class Agent(object):
         '''
         return (list(self.cortex.keys()),)
 
-    def _apply_resource_map(self, resource_map):
+    def apply_resource_map(self, resource_map):
         '''Convenience function to apply a resource map, if present, to the
         agent resources
 
@@ -181,7 +181,7 @@ class Agent(object):
             self._inverse_map[organ.name] = 'cortex'
 
         else:
-            raise TypeError('Unknown organ type: %s' %str(type(organ)))
+            raise TypeError('Unknown organ type: %s' %(str(type(organ))))
 
     def set_organs(self, *organs):
         '''Add organs to the agent
@@ -212,9 +212,6 @@ class Agent(object):
         '''
         if isinstance(policy, Clause):
             self._set('clause', policy.name, policy)
-
-        elif isinstance(policy, Compulsion):
-            self._set('compulsion', policy.name, policy)
 
         else:
             raise TypeError('Unknown policy type: %s' %(str(type(policy))))
@@ -285,7 +282,7 @@ class Agent(object):
             the_sensor = self.sensor[phrase]
 
         did_it_sense = the_sensor(self.agent_id_system)
-        self._apply_resource_map(the_sensor.resource_map)
+        self.apply_resource_map(the_sensor.resource_map)
 
     def interpret(self, phrase):
         '''Verb for the agent to execute an Interpreter organ
@@ -313,7 +310,7 @@ class Agent(object):
             the_interpreter = self.interpreter[phrase]
 
         did_it_interpret = the_interpreter()
-        self._apply_resource_map(the_interpreter.resource_map)
+        self.apply_resource_map(the_interpreter.resource_map)
 
     def mould(self, phrase):
         '''Verb for the agent to execute a Moulder organ
@@ -341,7 +338,7 @@ class Agent(object):
             the_moulder = self.moulder[phrase]
 
         did_it_mould = the_moulder()
-        self._apply_resource_map(the_moulder.resource_map)
+        self.apply_resource_map(the_moulder.resource_map)
 
     def act(self, phrase):
         '''Verb for the agent to execute an Actuator organ
@@ -369,7 +366,7 @@ class Agent(object):
             the_actuator = self.actuator[phrase]
 
         did_it_act = the_actuator(self.agent_id_system)
-        self._apply_resource_map(the_actuator.resource_map)
+        self.apply_resource_map(the_actuator.resource_map)
 
     def engage(self, organ_sequence):
         '''Compound verb for agent to execute a sequence of multiple organs
@@ -527,6 +524,4 @@ class Agent(object):
         self.n_heart_beats = 0
         self.inert = False
         self.clause = {}
-        self.compulsion = {}
-        self.policies = {'clause' : self.clause,
-                         'compulsion' : self.compulsion}
+        self.policies = {'clause' : self.clause}
