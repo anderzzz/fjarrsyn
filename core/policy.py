@@ -9,11 +9,11 @@ class Clause(object):
         '''Bla bla
 
         '''
-        def wrapper(*args, **kwargs):
+        def wrapper(*args):
             truth_value = None
-            func(*args, **kwargs)
+            func(*args)
             if not self.condition is None:
-                truth_value = self.condition()
+                truth_value = self.condition(*args)
 
             return truth_value
 
@@ -49,21 +49,68 @@ class Clause(object):
         else:
             self.apply_to = self.autocondition(self._apply_engager_to)
 
+class Heartbeat(object):
+    '''Bla bla
+
+    '''
+    def __call__(self, agent):
+        '''Bla bla
+
+        '''
+        ret = True
+
+        if self.inert:
+            ret = False
+
+        if not self.conditions is None:
+            for condition in self.conditions:
+                if not condition(agent):
+                    ret = False
+
+        self.ticks += self.ticker_arithmetic()
+        if not self.max_ticker is None:
+            if self.ticks > self.max_ticker:
+                ret = False
+
+        return ret
+
+    def __init__(self, name, imprint_conditions=None, 
+                 ticker_arithmetic=None, max_ticker=None):
+
+        self.name = name
+
+        self.conditions = imprint_conditions
+
+        if ticker_arithmetic is None:
+            self.ticker_arithmetic = lambda: 1
+        else:
+            self.ticker_arithmetic = ticker_arithmetic
+
+        self.max_ticker = max_ticker
+        self.ticks = 0
+        self.inert = False
+
 class _AutoCondition(object):
     '''Bla bla
 
     '''
-    def __call__(self):
+    def __call__(self, agent):
         '''Bla bla
 
         '''
-        args = tuple(self.imprint.values())
+        imprint = getattr(agent, self.scaffold_name)
+        if self.element_labels is None:
+            args = tuple(imprint.values())
+        else:
+            args = tuple([imprint[key] for key in self.element_labels])
+
         return self.func(*args, **self.kwargs)
 
-    def __init__(self, name, imprint, func, kwargs={}):
+    def __init__(self, name, scaffold_name, element_labels, func, kwargs={}):
         
         self.name = name
-        self.imprint = imprint
+        self.scaffold_name = scaffold_name
+        self.element_labels = element_labels
         self.func = func
         self.kwargs = kwargs
 
@@ -71,6 +118,17 @@ class AutoBeliefCondition(_AutoCondition):
     '''Bla bla
 
     '''
-    def __init__(self, belief_cond_name, belief, cond_func, cond_func_kwargs={}):
+    def __init__(self, belief_cond_name, belief_labels, cond_func, cond_func_kwargs={}):
 
-        super().__init__(belief_cond_name, belief, cond_func, cond_func_kwargs)
+        super().__init__(belief_cond_name, 'belief', belief_labels, 
+                         cond_func, cond_func_kwargs)
+
+class AutoResourceCondition(_AutoCondition):
+    '''Bla bla
+
+    '''
+    def __init__(self, resource_cond_name, resource, resource_labels, 
+                 cond_func, cond_func_kwargs={}):
+
+        super().__init__(resource_cond_name, 'resource', resource_labels, 
+                         cond_func, cond_func_kwargs)

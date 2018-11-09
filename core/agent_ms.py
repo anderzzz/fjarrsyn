@@ -105,7 +105,7 @@ class AgentManagementSystem(object):
         while _terminator(counter): 
             counter += 1
 
-            if len(self.agents_graph.number_of_nodes()) > 0:
+            if self.agents_graph.number_of_nodes() > 0:
                 entry = np.random.choice(self.agents_graph.nodes)
 
             else:

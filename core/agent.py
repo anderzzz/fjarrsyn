@@ -2,7 +2,7 @@
 
 '''
 from core.organ import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.policy import Clause
+from core.policy import Clause, Heartbeat
 from core.array import Resource, Essence, Feature
 
 class Agent(object):
@@ -213,6 +213,9 @@ class Agent(object):
         if isinstance(policy, Clause):
             self._set('clause', policy.name, policy)
 
+        elif isinstance(policy, Heartbeat):
+            self.heartbeat = policy
+
         else:
             raise TypeError('Unknown policy type: %s' %(str(type(policy))))
 
@@ -415,7 +418,7 @@ class Agent(object):
         '''
         return (not self.agent_id_system is None)
 
-    def heartbeat(self, n_max=None):
+    def pump(self):
         '''Agent heart beat counter, which can be used in execution of policies
         of the agent keeping track of how many iterations have been performed
         and if a terminal exit condition is met
@@ -432,22 +435,11 @@ class Agent(object):
             True if agent can iterate further in the execution, False if not
 
         '''
-        if self.inert:
-            ret = False
-
-        elif n_max is None:
-            ret = True
+        if self.heartbeat is None:
+            return True
 
         else:
-            if self.n_heart_beats >= n_max:
-                ret = False
-            else:
-                ret = True
-
-        if ret:
-            self.n_heart_beats += 1
-
-        return ret
+            return self.heartbeat(self) 
 
     def __str__(self):
 
@@ -524,4 +516,6 @@ class Agent(object):
         self.n_heart_beats = 0
         self.inert = False
         self.clause = {}
-        self.policies = {'clause' : self.clause}
+        self.heartbeat = None
+        self.policies = {'clause' : self.clause,
+                         'heartbeat' : self.heartbeat}
