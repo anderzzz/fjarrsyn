@@ -7,322 +7,35 @@ import numpy.random
 from collections import Iterable
 from collections import OrderedDict
 
-from core.array import _Flash, Resource
+from core.array import _Flash, Resource, Essence
 
-class _ObjectMap(object):
-    '''Parent class for mapping agent object. 
-
-    Parameters
-    ----------
-    mapper : callable
-        Function that given an agent instance maps the object
-    func_map : _ForceFunctions 
-        Instance to the class of library functions for mapping object
+class _Map(_Flash):
+    '''Bla bla
 
     '''
-    def func_to_func(self, func):
-        '''Map object to a callable function, where the object can be both a
-        function or a string pointing to a library function
+    def __init__(self, name, map_func, scaffold_to_alter, map_keys):
 
-        Parameters
-        ----------
-        func 
-            The object that is to be mapped to a callable function, where the
-            mapping can be identity, in case func is callable.
+        super().__init__(name, map_keys)
 
-        Raises
-        ------
-        ValueError
-            In case a function can not be derived from the input
+        self.scaffold_to_alter = scaffold_to_alter
+        self.func_library = _ForceFunctions()
 
-        '''
-        if callable(func):
-            return func 
+        if callable(map_func):
+            self._mapper = map_func
 
-        elif not self.func_map is None:
+        elif isinstance(map_func, str):   
             try:
-                return getattr(self.func_map, func)
+                transform_func = getattr(self.func_library, 'force_func_' + map_func)
+
             except AttributeError:
-                raise ValueError('Standard object map method %s undefined' %(force_func))
-            
-        else:
-            raise ValueError('Unknown mapping function encountered: %s' %(func))
+                raise ValueError('No library transformation function exist for ' + \
+                                 'label %s' %(map_func))
 
-    def set_func(self, func, func_kwargs={}):
-        '''Bla bla
-
-        '''
-        self.kwargs = func_kwargs
-        self.func = self.func_to_func(func)
-
-    def empty_map(self):
-        '''Bla bla
-
-        '''
-        self.func = None
-        self.kwargs = None
-
-    def __call__(self, agent):
-        '''Bla bla
-
-        '''
-        self.mapper(agent)
-
-    def __init__(self, mapper, func_map=None):
-
-        if not callable(mapper):
-            raise TypeError('Object mapper must be callable')
-        self.mapper = mapper
-        self.func_map = func_map
-
-        self.func = None
-        self.kwargs = None
-
-class ObjectMapOneOne(_ObjectMap):
-    '''Bla bla
-
-    '''
-    def map_identity(self, old_value):
-        '''Trivial identity force function. Building-block of composite force
-        functions.
-
-        Parameters
-        ----------
-        old_value 
-            The old_value of the scaffold to update
-
-        Returns
-        -------
-        new_value
-            The new value to update the scaffold to
-
-        '''
-        return old_value
-
-    def _mapper_one_one(self, agent):
-        '''Bla bla
-
-        '''
-        old_value = agent.scaffold[self.scaffold_to_map]
-        new_value = self.func(old_value, **self.kwargs)
-        agent.scaffold[self.scaffold_to_map] = new_value
-
-    def __init__(self, scaffold_to_map, standard_funcs=False):
-
-        self.scaffold_to_map = scaffold_to_map
-        if standard_funcs:
-            func_map = _ForceFunctions()
+            self._mapper = transform_func
 
         else:
-            func_map = None
-
-        super().__init__(self._mapper_one_one, func_map)
-
-class ObjectMapCollection(object):
-    '''Bla bla
-
-    '''
-    def empty_map(self):
-        '''Bla bla
-
-        '''
-        for scaffold_name, force_func in self.mappers.items():
-            force_func.empty_map()
-
-    def set_map_func(self, scaffold_name, force_func, force_func_kwargs={},
-                     apply_p=None):
-        '''Bla bla
-
-        '''
-        if not apply_p is None:
-            args = (apply_p, force_func, force_func_kwargs)
-
-        else:
-            args = (force_func, force_func_kwargs)
-
-        self.mappers[scaffold_name].set_func(*args)
-
-    def __call__(self, agent):
-        '''Bla bla
-
-        '''
-        for scaffold_name, force_func in self.mappers.items():
-            try:
-                force_func(agent)
-            except KeyError:
-                raise KeyError('Agent lacks scaffold named %s' %(scaffold_name))
-
-    def __init__(self, scaffold_names, standard_funcs=False,
-                 stochastic_decoration=False):
-
-        self.mappers = {}
-        for scaffold_name in scaffold_names:
-
-            if not stochastic_decoration:
-                self.mappers[scaffold_name] = ObjectMapOneOne(scaffold_name,
-                                                              standard_funcs)
-
-            else:
-                self.mappers[scaffold_name] = ObjectMapOneOneRandom(scaffold_name, 
-                                                                    standard_funcs)
-
-class ObjectMapManyMany(_ObjectMap):
-    '''Bla bla
-
-    '''
-    def _mapper_many_many(self, agent):
-        '''Bla bla
-
-        '''
-        inp_values = tuple([agent.scaffold[x] for x in self.imprint_inputs])
-        out_values = self.func(*inp_values, **self.kwargs)
-        for scaffold_key, new_value in zip(self.imprint_outputs, out_values):
-            agent.scaffold[scaffold_key] = new_value
-
-    def __init__(self, imprint_inputs, imprint_outputs, standard_funcs=False):
-
-        self.imprint_inputs = imprint_inputs
-        self.imprint_outputs = imprint_outputs
-
-        if standard_funcs:
-            raise NotImplementedError('Standard functions for many to ' + \
-                                      'many object mapping not implemented')
-
-        else:
-            func_map = None
-
-        super().__init__(self._mapper_many_many, func_map)
-
-class ObjectMapOneOneRandom(ObjectMapOneOne):
-    '''Class to create an object force that randomly mutates a scaffold by some
-    function. This class inherets the `ObjectMapOneOne` class.
-
-    Parameters
-    ----------
-    name : str
-        Name of the class instance
-    force_scaffold_overlap : bool, optional
-        Boolean flag to check that all force objects for a named scaffold are
-        matched to a scaffold of the given agent. Default set to `False`.
-
-    '''
-    def _roll_dice(self, func, thrs):
-        '''Decorator that preprend a given force function with a proverbial
-        roll of the dice, wherein the force function is applied as usual if the
-        roll of the dice is less than threshold, otherwise the force function is
-        substituted for the identity function.
-
-        Parameters
-        ----------
-        func : callable
-            The force function to be applied to a scaffold component
-        thrs : float
-            The threshold, to be between 0.0 and 1.0, that regulates how
-            frequently the force function is applied and how often it does not
-            take place
-
-        Returns
-        -------
-        decorated_func : callable
-            The decorated force function
-
-        '''
-        def new_func(old_value, *args, **kwargs):
-            test_value = np.random.random()
-            if test_value < thrs:
-                return func(old_value, *args, **kwargs) 
-            else:
-                return self.map_identity(old_value)
-
-        return new_func
-
-    def set_func(self, apply_p, func, func_kwargs):
-        '''Method to set force function, with a random apply threshold.
-
-        '''
-        if not isinstance(apply_p, float):
-            raise TypeError('Random mapping requires float-valued apply_p parameter')
-
-        self.kwargs = func_kwargs
-        self.func = self._roll_dice(self.func_to_func(func), apply_p)
-
-    def __init__(self, scaffold_name, standard_funcs=False):
-
-        super().__init__(scaffold_name, standard_funcs)
-
-class _Law(object):
-    '''Bla bla
-
-    '''
-    def __init__(self, name, input_labels, law_func, reaction,
-                 law_func_kwargs={}):
-
-        self.name = name
-        self.input_labels = input_labels
-        self.func = law_func
-        self.kwargs = law_func_kwargs
-        self.reaction = reaction
-
-class Compulsion(_Law):
-    '''Bla bla
-
-    '''
-    def _apply_sequence(self, apply_func_sequence):
-        '''Bla bla
-
-        '''
-        def wrapper(*args, **kwargs):
-            for func in apply_func_sequence:
-                func.apply_to(*args)
-
-        return wrapper
-
-    def __call__(self, agent):
-        '''Bla bla
-
-        '''
-        resource_values = [agent.resource[key] for key in self.input_labels]
-        out_values = self.func(*resource_values, **self.kwargs)
-        self.reaction.set_values(out_values)
-
-        return True 
-
-    def __init__(self, name, resource_labels, compel_func, resource_map,
-                 compel_func_kwargs={}):
-
-        if not isinstance(resource_map, (ResourceMap, ResourceMapCollection)):
-            raise TypeError('Compulsion output should be of class ' + \
-                            'ResourceMap or ResourceMapCollection')
-
-        super().__init__(name, resource_labels, compel_func, resource_map, compel_func_kwargs)
-
-class Mutation(_Law):
-    '''Bla bla
-
-    '''
-    def __call__(self, agent):
-        '''Bla bla
-
-        '''
-        if np.random.ranf() < self.mutation_prob:
-            essence_values = [agent.essence[key] for key in self.input_labels]
-            out_values = self.func(*essence_values, **self.kwargs)
-            self.reaction.set_values(out_values)
-
-        else:
-            pass
-
-        return True
-
-    def __init__(self, name, essence_labels, mutate_func, resource_map,
-                 mutation_prob, compel_func_kwargs={}):
-
-        if not isinstance(resource_map, (ResourceMap, ResourceMapCollection)):
-            raise TypeError('Compulsion output should be of class ' + \
-                            'ResourceMap or ResourceMapCollection')
-
-        super().__init__(name, essence_labels, mutate_func, resource_map, compel_func_kwargs)
-        self.mutation_prob = mutation_prob
+            raise TypeError('The map function should be a callable or a ' + \
+                            'standard function string')
 
 class ResourceMap(_Flash):
     '''Defines a map to the agent resources. This is the preferred way to alter
@@ -390,6 +103,9 @@ class ResourceMap(_Flash):
         new_value = self._mapper(old_value, *func_args_vals)
         agent.resource[self.resource_to_alter] = new_value
 
+    def __iter__(self):
+        return self.resource_to_alter
+
     def __init__(self, map_name, resource_to_alter, map_func, map_input):
 
         if not isinstance(map_input, Iterable):
@@ -448,6 +164,11 @@ class ResourceMapCollection(object):
         '''
         for mapper in self.map_container:
             mapper.apply_to(agent)
+
+    def __iter__(self):
+
+        for mapper in self.map_container:
+            yield mapper.__iter__()
 
     def __init__(self, container):
 

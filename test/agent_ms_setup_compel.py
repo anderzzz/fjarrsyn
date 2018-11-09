@@ -8,8 +8,8 @@ REF = [(10.0, 4.0), (4.0, 2.0), (2.0, 1.0), (1.0, 0.5), (0.5, 0.25)]
 def simple_decline(poison_amount, doodle):
     return 1.0 / max(0.25 * poison_amount, doodle)
 
-resource = Resource('poison in body', ['amount'])
-resource.set_values([10.0])
+resource = Resource('poison in body', ['amount', 'kind'])
+resource.set_values([10.0, 'mercury'])
 
 agent = Agent('thin agent')
 agent.set_scaffold(resource)
