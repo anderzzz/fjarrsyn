@@ -259,7 +259,18 @@ class AgentManagementSystem(object):
         '''Bla bla
 
         '''
-        pass
+        if not isinstance(agent, Agent): 
+            raise TypeError('Only instances of the Agent class can be ' + \
+                            'mutated by Agent System')
+
+        if not phrase in self.mutation:
+            raise KeyError('Agent System lacks mutation for %s' %(phrase))
+
+        else:
+            the_mutation = self.mutation[phrase]
+
+        did_it_mutate = the_mutation(agent)
+        agent.apply_resource_map(the_mutation.reaction)
 
     def apply_all_laws(self, agent):
         '''Bla bla

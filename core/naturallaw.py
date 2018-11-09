@@ -296,11 +296,33 @@ class Compulsion(_Law):
 
         super().__init__(name, resource_labels, compel_func, resource_map, compel_func_kwargs)
 
-class Mutation(object):
+class Mutation(_Law):
     '''Bla bla
 
     '''
-    pass
+    def __call__(self, agent):
+        '''Bla bla
+
+        '''
+        if np.random.ranf() < self.mutation_prob:
+            essence_values = [agent.essence[key] for key in self.input_labels]
+            out_values = self.func(*essence_values, **self.kwargs)
+            self.reaction.set_values(out_values)
+
+        else:
+            pass
+
+        return True
+
+    def __init__(self, name, essence_labels, mutate_func, resource_map,
+                 mutation_prob, compel_func_kwargs={})
+
+        if not isinstance(resource_map, (ResourceMap, ResourceMapCollection)):
+            raise TypeError('Compulsion output should be of class ' + \
+                            'ResourceMap or ResourceMapCollection')
+
+        super().__init__(name, essence_labels, mutate_func, resource_map, compel_func_kwargs)
+        self.mutation_prob = mutation_prob
 
 class ResourceMap(_Flash):
     '''Defines a map to the agent resources. This is the preferred way to alter

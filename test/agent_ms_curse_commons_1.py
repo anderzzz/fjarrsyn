@@ -207,7 +207,7 @@ class World(AgentManagementSystem):
 village_1 = Village('Lakeside', 20, 50, 3.0, 4000)
 village_2 = Village('Bayside', 20, 50, 3.0, 4000)
 lake = Lake(200, 20, 0.1, 1000)
-the_world = World('World around the lake', [village_1], lake)
+the_world = World('World around the lake', [village_1, village_2], lake)
 
 for k in range(0, 1000):
     for agent, aux_content in the_world:
