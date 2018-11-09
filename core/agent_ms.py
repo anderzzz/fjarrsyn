@@ -106,7 +106,7 @@ class AgentManagementSystem(object):
             counter += 1
 
             if self.agents_graph.number_of_nodes() > 0:
-                entry = np.random.choice(self.agents_graph.nodes)
+                entry = np.random.choice(list(self.agents_graph.nodes))
 
             else:
                 raise StopIteration('No nodes left in system')

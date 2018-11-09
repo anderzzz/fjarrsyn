@@ -315,7 +315,7 @@ class Mutation(_Law):
         return True
 
     def __init__(self, name, essence_labels, mutate_func, resource_map,
-                 mutation_prob, compel_func_kwargs={})
+                 mutation_prob, compel_func_kwargs={}):
 
         if not isinstance(resource_map, (ResourceMap, ResourceMapCollection)):
             raise TypeError('Compulsion output should be of class ' + \
