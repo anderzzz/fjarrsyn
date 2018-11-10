@@ -117,6 +117,16 @@ class MapCollection(object):
         for _map in self.map_container:
             _map.apply_to(agent)
 
+    def keys(self):
+        '''Bla bla
+
+        '''
+        keys_ret = []
+        for _map in self.map_container:
+            keys_ret.extend(_map.keys())
+
+        return keys_ret
+
     def __iter__(self):
 
         for _map in self.map_container:

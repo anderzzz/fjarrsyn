@@ -6,9 +6,9 @@ import numpy.random
 
 from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
-from core.organ import Sensor, Interpreter, Moulder, Actuator
-from core.array import Belief, Direction, Resource, Essence
-from core.naturallaw import Compulsion, ResourceMap, ResourceMapCollection
+from core.instructor import Sensor, Interpreter, Moulder, Actuator, Compulsion
+from core.message import Belief, Direction, Resource, Essence
+from core.scaffold_map import ResourceMap, MapCollection
 from core.policy import Clause, Heartbeat, AutoBeliefCondition, \
                         AutoResourceCondition
 
@@ -204,6 +204,7 @@ class World(AgentManagementSystem):
 
 
 
+raise RuntimeError
 village_1 = Village('Lakeside', 20, 50, 3.0, 4000)
 village_2 = Village('Bayside', 20, 50, 3.0, 4000)
 lake = Lake(200, 20, 0.1, 1000)

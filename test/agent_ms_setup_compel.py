@@ -10,7 +10,8 @@ from core.instructor import Compulsion
 
 REF = [(10.0, 4.0), (4.0, 2.0), (2.0, 1.0), (1.0, 0.5), (0.5, 0.25)]
 
-def simple_decline(poison_amount, doodle):
+def simple_decline(agent_index, poison_amount_getter, doodle):
+    poison_amount = poison_amount_getter()
     return 1.0 / max(0.25 * poison_amount, doodle)
 
 resource = Resource('poison in body', ['amount', 'kind'])
@@ -22,8 +23,10 @@ agent.set_scaffold(resource)
 ams = AgentManagementSystem('exterior laws', [agent])
 
 mapper = ResourceMap('scale down', 'scale', 'amount', ('factor',))
+kwargs = {'poison_amount_getter' : lambda : agent.resource['amount'], 
+          'doodle' : 2.0}
 compulsion = Compulsion('natural decay', simple_decline, mapper,
-                        {'doodle' : 2.0})
+                        compel_func_kwargs=kwargs)
 ams.set_law(compulsion)
 
 count = 0

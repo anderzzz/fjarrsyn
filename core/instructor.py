@@ -2,6 +2,8 @@
 
 '''
 import copy
+import numpy as np
+import numpy.random
 from collections import OrderedDict, Iterable
 
 from core.scaffold_map import _Map, MapCollection
@@ -196,8 +198,13 @@ class Sensor(_Instructor):
             not match the buzz keys defined during sensor initialization.
 
         '''
-        kwargs = copy.copy(self.kwargs)
-        kwargs['agent_index'] = agent_index
+        if self.func_get_agent_id:
+            kwargs = copy.copy(self.kwargs)
+            kwargs['agent_index'] = agent_index
+        
+        else:
+            kwargs = self.kwargs
+
         out_values = self.engine(**kwargs)
 
         out_values_intentional = out_values[:self.message_output.n_elements]
@@ -210,7 +217,8 @@ class Sensor(_Instructor):
         return True
 
     def __init__(self, sensor_name, sensor_func, buzz, 
-                 resource_map=None, sensor_func_kwargs={}):
+                 resource_map=None, func_get_agent_id=True,
+                 sensor_func_kwargs={}):
 
         if not isinstance(buzz, Buzz):
             raise TypeError('Sensor output should be of class Buzz')
@@ -219,6 +227,7 @@ class Sensor(_Instructor):
                          message_output=buzz, 
                          scaffold_map=resource_map, 
                          engine_kwargs=sensor_func_kwargs)
+        self.func_get_agent_id = func_get_agent_id
 
 class Actuator(_Instructor):
     '''Actuator class, which defines how an action by the agent alters the
@@ -257,8 +266,13 @@ class Actuator(_Instructor):
         '''
         direction_values = self.message_input.values()
 
-        kwargs = copy.copy(self.kwargs)
-        kwargs['agent_index'] = agent_index
+        if self.func_get_agent_id:
+            kwargs = copy.copy(self.kwargs)
+            kwargs['agent_index'] = agent_index
+
+        else:
+            kwargs = self.kwargs
+
         out_values = self.engine(*direction_values, **kwargs)
 
         if not self.scaffold_map is None:
@@ -268,7 +282,8 @@ class Actuator(_Instructor):
         return True
 
     def __init__(self, actuator_name, actuator_func, direction,
-                 resource_map=None, actuator_func_kwargs={}):
+                 resource_map=None, func_get_agent_id=True,
+                 actuator_func_kwargs={}):
 
         if not isinstance(direction, Direction):
             raise TypeError('Actuator cannot handle input other than Direction')
@@ -277,6 +292,7 @@ class Actuator(_Instructor):
                          message_input=direction,
                          scaffold_map=resource_map, 
                          engine_kwargs=actuator_func_kwargs)
+        self.func_get_agent_id = func_get_agent_id
 
 class Interpreter(_Instructor):
     '''Interpreter class, which defines how buzz from a sensor is made into
@@ -484,18 +500,25 @@ class Compulsion(_Instructor):
     '''Bla bla
 
     '''
-    def __call__(self, agent):
+    def __call__(self, agent_index):
         '''Bla bla
 
         '''
-        resource_value = tuple([agent.resource[self.scaffold_map.scaffold_key]])
-        out_values = self.engine(*resource_value, **self.kwargs)
+        if self.func_get_agent_id:
+            kwargs = copy.copy(self.kwargs)
+            kwargs['agent_index'] = agent_index
+
+        else:
+            kwargs = self.kwargs
+
+        out_values = self.engine(**kwargs)
+
         self.scaffold_map.set_values(out_values)
 
         return True 
 
     def __init__(self, name, compel_func, resource_map,
-                 compel_func_kwargs={}):
+                 func_get_agent_id=True, compel_func_kwargs={}):
 
         if not isinstance(resource_map, _Map):
             raise TypeError('Compulsion must have a resource map, child of _Map')
@@ -503,31 +526,44 @@ class Compulsion(_Instructor):
         super().__init__(name, compel_func, 
                          scaffold_map=resource_map, 
                          engine_kwargs=compel_func_kwargs)
+        self.func_get_agent_id = func_get_agent_id
 
 class Mutation(_Instructor):
     '''Bla bla
 
     '''
-    def __call__(self, agent):
+    def __call__(self, agent_index):
         '''Bla bla
 
         '''
         if np.random.ranf() < self.mutation_prob:
-            essence_values = [agent.essence[key] for key in self.scaffold_map.keys()]
-            out_values = self.engine(*essence_values, **self.kwargs)
+            if self.func_get_agent_id:
+                kwargs = copy.copy(self.kwargs)
+                kwargs['agent_index'] = agent_index
+
+            else:
+                kwargs = self.kwargs
+
+            out_values = self.engine(**kwargs)
+
             self.scaffold_map.set_values(out_values)
+
+        else:
+            pass
 
         return True
 
-    def __init__(self, name, mutate_func, resource_map,
-                 mutation_prob, compel_func_kwargs={}):
+    def __init__(self, name, mutate_func, essence_map,
+                 mutation_prob=1.0, func_get_agent_id=True,
+                 mutate_func_kwargs={}):
 
-        if not isinstance(resource_map, _Map): 
+        if not isinstance(essence_map, _Map): 
             raise TypeError('Mutation must have a essence map, child of _Map')
 
         super().__init__(name, mutate_func, 
-                         scaffold_map=resource_map, 
-                         engine_kwargs=compel_func_kwargs)
+                         scaffold_map=essence_map, 
+                         engine_kwargs=mutate_func_kwargs)
+        self.func_get_agent_id = func_get_agent_id
 
         if mutation_prob > 1.0 or mutation_prob < 0.0:
             raise ValueError('Mutation probability must be in range 0.0 to 1.0')

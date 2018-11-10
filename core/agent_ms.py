@@ -232,7 +232,7 @@ class AgentManagementSystem(object):
         if isinstance(law, Compulsion):
             self.compulsion[law.name] = law
 
-        elif isinstance(law, Mutatation):
+        elif isinstance(law, Mutation):
             self.mutation[law.name] = law
 
         else:
@@ -259,7 +259,7 @@ class AgentManagementSystem(object):
         else:
             the_compulsion = self.compulsion[phrase]
 
-        did_it_compel = the_compulsion(agent)
+        did_it_compel = the_compulsion(agent.agent_id_system)
         agent.apply_map(the_compulsion.scaffold_map)
 
     def mutate(self, agent, phrase):
@@ -276,7 +276,7 @@ class AgentManagementSystem(object):
         else:
             the_mutation = self.mutation[phrase]
 
-        did_it_mutate = the_mutation(agent)
+        did_it_mutate = the_mutation(agent.agent_id_system)
         agent.apply_map(the_mutation.scaffold_map)
 
     def apply_all_laws(self, agent):
