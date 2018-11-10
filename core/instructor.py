@@ -354,7 +354,7 @@ class Interpreter(_Instructor):
 
         self.belief_updater = belief_updater
 
-class Moulder(_Organ):
+class Moulder(_Instructor):
     '''Moulder class, which defines how beliefs are turned into an executable
     instance of an actuator.
 
@@ -424,7 +424,7 @@ class Moulder(_Organ):
                          scaffold_map=resource_map,
                          engine_kwargs=moulder_func_kwargs)
 
-class Cortex(_Organ):
+class Cortex(_Instructor):
     '''Cortex class, which defines reaction to a certain tickle from the World.
     The Cortex is separate from beliefs and depend only on scaffold
 
