@@ -1,6 +1,8 @@
 '''Plan related classes
 
 '''
+from collections import Iterable
+
 class Clause(object):
     '''Bla bla
 
@@ -94,41 +96,65 @@ class _AutoCondition(object):
     '''Bla bla
 
     '''
-    def __call__(self, agent):
+    def _apply_cond_func(self, message):
         '''Bla bla
 
         '''
-        imprint = getattr(agent, self.scaffold_name)
-        if self.element_labels is None:
-            args = tuple(imprint.values())
+        if self.keys is None:
+            args_values = tuple(message.values())
+
         else:
-            args = tuple([imprint[key] for key in self.element_labels])
+            args_values = tuple([message[key] for key in self.keys])
 
-        return self.func(*args, **self.kwargs)
+        return self.func(*args_values, **self.kwargs)
 
-    def __init__(self, name, scaffold_name, element_labels, func, kwargs={}):
+    def __init__(self, name, func, keys, kwargs={}):
         
         self.name = name
-        self.scaffold_name = scaffold_name
-        self.element_labels = element_labels
         self.func = func
         self.kwargs = kwargs
+
+        if isinstance(keys, str):
+            self.keys = (keys,)
+        elif isinstance(keys, Iterable):
+            self.keys = keys
+        elif keys is None:
+            self.keys = keys
+        else:
+            raise TypeError('Element labels to AutoCondition should be ' + \
+                            'a string or an iterable')
 
 class AutoBeliefCondition(_AutoCondition):
     '''Bla bla
 
     '''
-    def __init__(self, belief_cond_name, belief_labels, cond_func, cond_func_kwargs={}):
+    def __call__(self, agent):
+        '''Bla bla
 
-        super().__init__(belief_cond_name, 'belief', belief_labels, 
-                         cond_func, cond_func_kwargs)
+        '''
+        message = agent.belief[self.message_input]
+        return self._apply_cond_func(message)
+
+    def __init__(self, belief_cond_name, cond_func, message_input_name, 
+                 belief_keys=None, cond_func_kwargs={}):
+
+        super().__init__(belief_cond_name, cond_func, belief_keys, 
+                         cond_func_kwargs)
+        self.message_input = message_input_name
 
 class AutoResourceCondition(_AutoCondition):
     '''Bla bla
 
     '''
-    def __init__(self, resource_cond_name, resource, resource_labels, 
-                 cond_func, cond_func_kwargs={}):
+    def __call__(self, agent):
+        '''Bla bla
 
-        super().__init__(resource_cond_name, 'resource', resource_labels, 
-                         cond_func, cond_func_kwargs)
+        '''
+        resource = agent.resource
+        return self._apply_cond_func(resource)
+
+    def __init__(self, resource_cond_name, cond_func, resource_keys=None, 
+                 cond_func_kwargs={}):
+
+        super().__init__(resource_cond_name, cond_func, resource_keys, 
+                         cond_func_kwargs)

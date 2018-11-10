@@ -6,10 +6,10 @@ import numpy.random
 np.random.seed(79)
 
 from core.agent import Agent
-from core.organ import Sensor, Interpreter, Moulder, Actuator
-from core.array import Buzz, Belief, Direction
+from core.instructor import Sensor, Interpreter, Moulder, Actuator
+from core.message import Buzz, Belief, Direction
 
-from core.policy import Clause, AutoBeliefCondition
+from core.policy import Clause, Heartbeat, AutoBeliefCondition
 
 REF = ['ear','mouth','ear','ear','ear','ear','ear','mouth',
        'ear','mouth','ear','ear','mouth','ear']
@@ -41,7 +41,7 @@ N_HEARTS = 10
 class SlimAgent(Agent):
 
     def __call__(self):
-        while self.heartbeat(N_HEARTS):
+        while self.heartbeat(self):
             if self.clause['sound_trigger'].apply_to(self):
                 self.clause['response_formation'].apply_to(self)
 
@@ -58,15 +58,15 @@ direction = Direction('say_this', ['sentence'])
 # Define Organs and their associated messages
 #
 env = Env()
-sensor = Sensor('listen', 'sound_around_me', env.ear, buzz)
-interpreter = Interpreter('was_trigger_word_spoken', buzz, trigger_word, belief)
-moulder = Moulder('follow_up_question', belief, question_maker, direction)
-actuator = Actuator('speak', direction, env.mouth, 'speak_to_the_world')
+sensor = Sensor('listen', env.ear, buzz)
+interpreter = Interpreter('was_trigger_word_spoken', trigger_word, buzz, belief)
+moulder = Moulder('follow_up_question', question_maker, belief, direction)
+actuator = Actuator('speak', env.mouth, direction)
 
 #
 # Autonomous constraints
 #
-belief_condition = AutoBeliefCondition('heard_it', belief, lambda x: x > 0.9)
+belief_condition = AutoBeliefCondition('heard_it', lambda x: x > 0.9, 'trigger_spoken')
 
 #
 # Plan
@@ -74,6 +74,7 @@ belief_condition = AutoBeliefCondition('heard_it', belief, lambda x: x > 0.9)
 clause_1 = Clause('sound_trigger', verbs=('listen', 'was_trigger_word_spoken'),
                 condition=belief_condition) 
 clause_2 = Clause('response_formation', verbs=('follow_up_question', 'speak'))
+heart = Heartbeat('beater', max_ticker=N_HEARTS)
 #
 # Initialize Agent
 #
@@ -84,6 +85,7 @@ agent.set_organ(moulder)
 agent.set_organ(actuator)
 agent.set_policy(clause_1)
 agent.set_policy(clause_2)
+agent.set_policy(heart)
 
 agent()
 

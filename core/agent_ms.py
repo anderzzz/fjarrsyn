@@ -238,7 +238,7 @@ class AgentManagementSystem(object):
         else:
             raise TypeError('Unknown law type: %s' %(str(type(law))))
 
-    def set_laws(self *laws):
+    def set_laws(self, *laws):
         '''Bla bla
 
         '''

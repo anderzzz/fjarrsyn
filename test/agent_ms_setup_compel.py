@@ -1,7 +1,12 @@
+'''Integration test of AMS where the AMS compels one agent's resources a
+certain way
+
+'''
 from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
-from core.array import Resource
-from core.naturallaw import Compulsion, ResourceMap
+from core.message import Resource
+from core.scaffold_map import ResourceMap
+from core.instructor import Compulsion
 
 REF = [(10.0, 4.0), (4.0, 2.0), (2.0, 1.0), (1.0, 0.5), (0.5, 0.25)]
 
@@ -16,8 +21,8 @@ agent.set_scaffold(resource)
 
 ams = AgentManagementSystem('exterior laws', [agent])
 
-mapper = ResourceMap('scale down', 'amount', 'scale', ('factor',))
-compulsion = Compulsion('natural decay', ['amount'], simple_decline, mapper,
+mapper = ResourceMap('scale down', 'scale', 'amount', ('factor',))
+compulsion = Compulsion('natural decay', simple_decline, mapper,
                         {'doodle' : 2.0})
 ams.set_law(compulsion)
 

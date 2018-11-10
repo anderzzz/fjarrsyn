@@ -1,11 +1,11 @@
-'''Simple Agent Setup Integration Test
+'''Integration test of agent setup where Interpreter passes message to moulder
 
 '''
 from core.agent import Agent
 
-from core.organ import Moulder, Interpreter 
-from core.array import Buzz, Belief, Direction, Resource, ImprintOperator
-from core.naturallaw import ResourceMap
+from core.instructor import Moulder, Interpreter 
+from core.message import Buzz, Belief, Direction, Resource, ImprintOperator
+from core.scaffold_map import ResourceMap
 
 REF = [[True, 'yellow'], [True, 'black'], [False, None]]
 REF_RESOURCE = [93.0, 88.0, 85.0]
@@ -53,17 +53,17 @@ direction = Direction('get_which_umbrella', ('any', 'colour'))
 #
 agent_resources = Resource('internal_resource', ('energy',))
 agent_resources.set_values([100.0])
-change_energy = ResourceMap('adjust_energy', 'energy', 'delta', ('how_much',))
+change_energy = ResourceMap('adjust_energy', 'delta', 'energy', ('how_much',))
 
 #
 # Define Organs and their associated messages
 #
-interpreter_1 = Interpreter('will_it_rain', buzz, rain_predictor, belief_1,
+interpreter_1 = Interpreter('will_it_rain', rain_predictor, buzz, belief_1,
                             resource_map=change_energy)
-interpreter_2 = Interpreter('am_i_unlucky', belief_1, mood_maker, belief_2,
+interpreter_2 = Interpreter('am_i_unlucky', mood_maker, belief_1, belief_2,
                             resource_map=change_energy)
 total_belief = ImprintOperator([belief_1, belief_2], merger=True).merge
-moulder = Moulder('fetch_umbrella_type', total_belief, make_decision, direction,
+moulder = Moulder('fetch_umbrella_type', make_decision, total_belief, direction,
                    change_energy)
 
 #

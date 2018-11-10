@@ -1,10 +1,11 @@
-'''Simple Agent Setup Integration Test
+'''Integration test of agent setup including an interpreter that accepts belief
+as input and creates belief as output
 
 '''
 from core.agent import Agent
 
-from core.organ import Interpreter
-from core.array import Belief, ImprintOperator
+from core.instructor import Interpreter
+from core.message import Belief, ImprintOperator
 
 REFVALUES = ['Yes', 'Doubt it', 'YES!']
 
@@ -30,7 +31,7 @@ belief_merge_input = ImprintOperator([belief_input_1, belief_input_2],
 #
 # Define Organs and their associated messages
 #
-interpreter = Interpreter('about_to_be_mugged', belief_merge_input, evaluate,
+interpreter = Interpreter('about_to_be_mugged', evaluate, belief_merge_input,
                           belief_output)
 
 #

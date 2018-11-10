@@ -1,11 +1,12 @@
-'''Simple Agent Setup Integration Test
+'''Integration test of agent setup of Moulder and Actuator including
+multi-valued resource map functions
 
 '''
 from core.agent import Agent
 
-from core.organ import Moulder, Actuator
-from core.array import Belief, Direction, Resource
-from core.naturallaw import ResourceMap, ResourceMapCollection
+from core.instructor import Moulder, Actuator
+from core.message import Belief, Direction, Resource
+from core.scaffold_map import ResourceMap, MapCollection
 
 REF = {'A' : 1.01, 'B' : 0.75, 'C' : 0.63}
 
@@ -43,19 +44,18 @@ direction1 = Direction('collect_amount', ('intake_volume',))
 #
 agent_resources = Resource('internal_molecules', ('A','B','C'))
 agent_resources.set_values([2.0, 1.0, 0.5])
-added_a = ResourceMap('get_A', 'A', 'delta_scale', ('add','dilute',))
-added_b = ResourceMap('get_B', 'B', 'delta_scale', ('add','dilute',))
-added_c = ResourceMap('get_C', 'C', 'delta_scale', ('add','dilute',))
-add_internal = ResourceMapCollection([added_a, added_b, added_c])
+added_a = ResourceMap('get_A', 'delta_scale', 'A', ('add','dilute',))
+added_b = ResourceMap('get_B', 'delta_scale', 'B', ('add','dilute',))
+added_c = ResourceMap('get_C', 'delta_scale', 'C', ('add','dilute',))
+add_internal = MapCollection([added_a, added_b, added_c])
 
 #
 # Define Organs and their associated messages
 #
-moulder1 = Moulder('discard_or_not', belief, make_decision, direction1)
+moulder1 = Moulder('discard_or_not', make_decision, belief, direction1)
 
 env = Env()
-actuator1 = Actuator('collect', direction1, env.excretor, 'throw_up', 
-                     add_internal)
+actuator1 = Actuator('collect', env.excretor, direction1, add_internal)
 
 #
 # Initialize Agent

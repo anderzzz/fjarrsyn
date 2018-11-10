@@ -1,10 +1,11 @@
-'''Simple Agent Setup Integration Test
+'''Simple Agent Setup Integration Test of sensor and interpreter operating as a
+belief updater
 
 '''
 from core.agent import Agent
 
-from core.organ import Sensor, Interpreter
-from core.array import Buzz, Belief
+from core.instructor import Sensor, Interpreter
+from core.message import Buzz, Belief
 
 import numpy as np
 from numpy.random import random_integers
@@ -47,8 +48,8 @@ belief = Belief('world_is_good', ['joy_index'])
 #
 # Define Organs and their associated messages
 #
-sensor = Sensor('check_roll', 'random_roll', dice_sensor, buzz)
-interpreter = Interpreter('was_it_good_roll', buzz, roll_interpreter, belief,
+sensor = Sensor('check_roll', dice_sensor, buzz)
+interpreter = Interpreter('was_it_good_roll', roll_interpreter, buzz, belief,
                           belief_updater=True)
 
 #

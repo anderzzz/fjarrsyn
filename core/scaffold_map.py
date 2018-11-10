@@ -5,7 +5,8 @@ of an agent or other scaffolded object
 import numpy as np
 import numpy.random
 
-from core.array import _Flash, Resource, Essence
+from core.array import _Flash 
+from core.message import Resource, Essence
 
 class _Map(_Flash):
     '''Bla bla
@@ -23,7 +24,7 @@ class _Map(_Flash):
         if single:
             old_value = scaffold[self.scaffold_key]
             map_args_values = list(self.values())
-            map_args_total = tuple([old_value] + func_args_val)
+            map_args_total = tuple([old_value] + map_args_values)
 
         else:
             raise NotImplementedError('Not implemented')
@@ -67,6 +68,9 @@ class ResourceMap(_Map):
         '''
         self._apply_to(agent, 'resource')
 
+    def __name__(self):
+        return 'ResourceMap'
+
     def __init__(self, map_name, map_func, resource_key, map_args_keys):
 
         super().__init__(map_name, map_func, resource_key, map_args_keys)
@@ -80,6 +84,9 @@ class EssenceMap(_Map):
 
         '''
         self._apply_to(agent, 'essence')
+
+    def __name__(self):
+        return 'EssenceMap'
 
     def __init__(self, map_name, map_func, essence_key, map_args_keys):
 
@@ -114,6 +121,9 @@ class MapCollection(object):
 
         for _map in self.map_container:
             yield _map
+
+    def __name__(self):
+        return 'MapCollection'
 
     def __init__(self, container):
 

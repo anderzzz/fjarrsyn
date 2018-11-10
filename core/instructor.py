@@ -4,10 +4,11 @@
 import copy
 from collections import OrderedDict, Iterable
 
-from core.naturallaw import _Map
-from core.array import Buzz, Direction, Feature, \
-                       Belief, Resource, Essence, \
-                       ImprintOperator, _Array
+from core.scaffold_map import _Map, MapCollection
+from core.message import Buzz, Direction, Feature, \
+                         Belief, Resource, Essence, \
+                         ImprintOperator
+from core.array import _Array
 
 INSTRUCTOR_POLARITY = ['producer', 'transformer', 'consumer']
 INSTRUCTOR_INGREDIENT = ['tangible', 'abstract']
@@ -41,7 +42,7 @@ class _Instructor(object):
         if not callable(engine):
             raise TypeError('Instructor engine must be callable')
         self.engine = _decorate_always_iterable_output(engine)
-        self.kwargs = self.engine_kwargs
+        self.kwargs = engine_kwargs
 
         self.message_input = message_input
         if not message_output is None:
@@ -50,7 +51,7 @@ class _Instructor(object):
         self.message_output = message_output
 
         if not scaffold_map is None:
-            if not isinstance(scaffold_map, _Map):
+            if not isinstance(scaffold_map, (_Map, MapCollection)):
                 raise TypeError('Scaffold map must be a child to _Map')
         self.scaffold_map = scaffold_map
 
@@ -65,10 +66,10 @@ class _Instructor(object):
 
         type2_container = []
         if not self.scaffold_map is None:
-            type2.append(INSTRUCTOR_INGREDIENT[0])
+            type2_container.append(INSTRUCTOR_INGREDIENT[0])
 
         if (not self.message_input is None) or (not self.message_output is None):
-            type2.append(INSTRUCTOR_INGREDIENT[1])
+            type2_container.append(INSTRUCTOR_INGREDIENT[1])
 
         if len(type2_container) == 0:
             raise ValueError('Instructor must engage with at least a ' + \
@@ -200,7 +201,7 @@ class Sensor(_Instructor):
         out_values = self.engine(**kwargs)
 
         out_values_intentional = out_values[:self.message_output.n_elements]
-        self.array_output.set_values(out_values_intentional)
+        self.message_output.set_values(out_values_intentional)
 
         if not self.scaffold_map is None:
             out_values_naturallaw = out_values[self.message_output.n_elements:]
@@ -215,7 +216,7 @@ class Sensor(_Instructor):
             raise TypeError('Sensor output should be of class Buzz')
 
         super().__init__(sensor_name, sensor_func, 
-                         message_output=Buzz, 
+                         message_output=buzz, 
                          scaffold_map=resource_map, 
                          engine_kwargs=sensor_func_kwargs)
 
@@ -261,7 +262,7 @@ class Actuator(_Instructor):
         out_values = self.engine(*direction_values, **kwargs)
 
         if not self.scaffold_map is None:
-            out_values_naturallaw = out_values[self.message_output.n_elements:]
+            out_values_naturallaw = out_values
             self.scaffold_map.set_values(out_values_naturallaw)
 
         return True
@@ -487,8 +488,8 @@ class Compulsion(_Instructor):
         '''Bla bla
 
         '''
-        resource_values = [agent.resource[key] for key in self.scaffold_map.keys()]
-        out_values = self.engine(*resource_values, **self.kwargs)
+        resource_value = tuple([agent.resource[self.scaffold_map.scaffold_key]])
+        out_values = self.engine(*resource_value, **self.kwargs)
         self.scaffold_map.set_values(out_values)
 
         return True 

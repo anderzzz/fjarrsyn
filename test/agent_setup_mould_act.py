@@ -1,11 +1,12 @@
-'''Simple Agent Setup Integration Test
+'''Integration test of agent setup of Moulder and Actuator organs including
+Resource Maps
 
 '''
 from core.agent import Agent
 
-from core.organ import Moulder, Actuator
-from core.array import Belief, Direction, Resource
-from core.naturallaw import ResourceMap, ResourceMapCollection
+from core.instructor import Moulder, Actuator
+from core.message import Belief, Direction, Resource
+from core.scaffold_map import ResourceMap, MapCollection
 
 REF_RESOURCE_OUTCOME = [99.0, 5, 7]
 
@@ -54,22 +55,21 @@ direction2 = Direction('shout_loud', ('volume',))
 #
 agent_resources = Resource('internal_resource', ('internal_energy', 'carrot', 'leek'))
 agent_resources.set_values([100.0, 4, 5])
-change_energy = ResourceMap('adjust_energy', 'internal_energy', 'delta', ('expend_energy',))
-change_carrot = ResourceMap('adjust_carrot', 'carrot', 'delta', ('tweak_carrot',))
-change_leek = ResourceMap('adjust_leek', 'leek', 'delta', ('tweak_leek',))
-hoarding_food = ResourceMapCollection([change_carrot, change_leek])
+change_energy = ResourceMap('adjust_energy', 'delta', 'internal_energy', ('expend_energy',))
+change_carrot = ResourceMap('adjust_carrot', 'delta', 'carrot', ('tweak_carrot',))
+change_leek = ResourceMap('adjust_leek', 'delta', 'leek', ('tweak_leek',))
+hoarding_food = MapCollection([change_carrot, change_leek])
 
 #
 # Define Organs and their associated messages
 #
-moulder1 = Moulder('reach_and_grab', belief, make_decision, direction1,
+moulder1 = Moulder('reach_and_grab', make_decision, belief, direction1,
                    change_energy)
-moulder2 = Moulder('shout_how_much', belief, shouter, direction2)
+moulder2 = Moulder('shout_how_much', shouter, belief, direction2)
 
 env = Env()
-actuator1 = Actuator('grab_it', direction1, env.grabber, 'grab_me_food', 
-                    hoarding_food)
-actuator2 = Actuator('shout', direction2, env.shout_into_void, 'meaningless_shout')
+actuator1 = Actuator('grab_it', env.grabber, direction1, hoarding_food)
+actuator2 = Actuator('shout', env.shout_into_void, direction2)
 
 #
 # Initialize Agent

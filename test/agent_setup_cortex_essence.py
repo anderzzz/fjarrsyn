@@ -1,4 +1,5 @@
-'''Simple Agent Setup Integration Test
+'''Integration test of agent setup of Cortex that generates a feature based on
+agent essence
 
 '''
 import numpy as np
@@ -7,8 +8,8 @@ np.random.seed(79)
 
 from core.agent import Agent
 
-from core.organ import Cortex 
-from core.array import Feature, Essence, ImprintOperator
+from core.instructor import Cortex 
+from core.message import Feature, Essence, ImprintOperator
 
 REF1 = [0.9000, 0.3984, 1.0000]
 REF2 = [0.8825, 0.4160, 0.9911]
@@ -40,8 +41,8 @@ slicer_of_essence = ImprintOperator(agent_essence,
 #
 # Define Organs and their associated messages
 #
-cortex = Cortex('colour_revealer', slicer_of_essence, expose_distort,
-                feature, {'distort_degree' : 0.05})
+cortex = Cortex('colour_revealer', expose_distort, slicer_of_essence,
+                feature, cortex_func_kwargs={'distort_degree' : 0.05})
 
 #
 # Initialize Agent

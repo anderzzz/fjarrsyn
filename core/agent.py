@@ -504,8 +504,8 @@ class Agent(object):
         #
         feature = Feature('cortices_available', ('cortices_names',))
         cortex_reveal_cortex_labels = Cortex('reveal_available_cortex', 
-                                             None,
                                              self._tickle_cortex_labels, 
+                                             None,
                                              feature)
         self.set_organ(cortex_reveal_cortex_labels)
 

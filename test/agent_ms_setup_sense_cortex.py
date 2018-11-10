@@ -1,3 +1,6 @@
+'''Integration test of AMS where the two agents can sense each others cortices
+
+'''
 import numpy as np
 import numpy.random
 np.random.seed(79)
@@ -5,8 +8,8 @@ np.random.seed(79)
 from core.agent_ms import AgentManagementSystem
 
 from core.agent import Agent
-from core.organ import Sensor, Cortex
-from core.array import Buzz, Feature, Essence
+from core.instructor import Sensor, Cortex
+from core.message import Buzz, Feature, Essence
 
 REF_VALUES = [[('type_sense', 0.50078), ('honesty_sense', 0.5)],
               [('type_sense', 0.50067), ('honesty_sense', 0.2)]]
@@ -40,10 +43,10 @@ class TestAgentMS(AgentManagementSystem):
 
         for agent, aux_content in self:
             buzz = Buzz('type_discovery', ('type_sense', 'honesty_sense'))
-            sensor = Sensor('discover_neighbour_type', 'neighbour_type_query', self.type_query, buzz)
+            sensor = Sensor('discover_neighbour_type', self.type_query, buzz)
             feature = Feature('revealed_type', ('revealed_type',))
             essence = Essence('who_am_i', ('my_type', 'my_mood'))
-            cortex = Cortex('my_type', essence, agent.reveal_type, feature)
+            cortex = Cortex('my_type', agent.reveal_type, essence, feature)
             agent.set_organs(sensor, cortex)
 
             essence.set_values([np.random.random(), np.random.random()])

@@ -1,5 +1,8 @@
-from core.organ import Sensor, Interpreter, Moulder, Actuator, Cortex
-from core.array import Buzz, Direction, Belief, Feature
+'''Integration test of agent setup including all organs from start to finish
+
+'''
+from core.instructor import Sensor, Interpreter, Moulder, Actuator, Cortex
+from core.message import Buzz, Direction, Belief, Feature
 from core.agent import Agent
 
 import numpy as np
@@ -43,12 +46,12 @@ def speak(w1, w2, well, agent_index):
         ENV_SPOKEN.append(w1 + ' ' + w2)
 
 buzz = Buzz('nose_tingle', ['nerve_1', 'nerve_2'])
-sensor = Sensor('smell_the_roses', 'aroma', smeller, buzz)
+sensor = Sensor('smell_the_roses', smeller, buzz)
 belief = Belief('world_blossoms', ['certainty'])
-interpreter = Interpreter('does_the_world_blossom', buzz, nerve_analyzer, belief)
+interpreter = Interpreter('does_the_world_blossom', nerve_analyzer, buzz, belief)
 direction = Direction('words_to_say', ['first_word','second_word'])
-moulder = Moulder('what_to_say', belief, word_smith, direction)
-actuator = Actuator('say_it', direction, speak, 'mechanical_wave_to_env',
+moulder = Moulder('what_to_say', word_smith, belief, direction)
+actuator = Actuator('say_it', speak, direction, 
                     actuator_func_kwargs={'well' : True})
 
 agent = Agent('simple human')
