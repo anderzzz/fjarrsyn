@@ -9,7 +9,7 @@ import networkx as nx
 
 from core.agent import Agent
 from core.graph import Node
-from core.naturallaw import Compulsion, Mutation
+from core.instructor import Compulsion, Mutation
 
 class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or
@@ -238,6 +238,13 @@ class AgentManagementSystem(object):
         else:
             raise TypeError('Unknown law type: %s' %(str(type(law))))
 
+    def set_laws(self *laws):
+        '''Bla bla
+
+        '''
+        for law in laws:
+            self.set_law(law)
+
     def compel(self, agent, phrase):
         '''Bla bla
 
@@ -253,7 +260,7 @@ class AgentManagementSystem(object):
             the_compulsion = self.compulsion[phrase]
 
         did_it_compel = the_compulsion(agent)
-        agent.apply_resource_map(the_compulsion.reaction)
+        agent.apply_map(the_compulsion.scaffold_map)
 
     def mutate(self, agent, phrase):
         '''Bla bla
@@ -270,7 +277,7 @@ class AgentManagementSystem(object):
             the_mutation = self.mutation[phrase]
 
         did_it_mutate = the_mutation(agent)
-        agent.apply_resource_map(the_mutation.reaction)
+        agent.apply_map(the_mutation.scaffold_map)
 
     def apply_all_laws(self, agent):
         '''Bla bla

@@ -52,6 +52,7 @@ class _Instructor(object):
         if not scaffold_map is None:
             if not isinstance(scaffold_map, _Map):
                 raise TypeError('Scaffold map must be a child to _Map')
+        self.scaffold_map = scaffold_map
 
         if (self.message_output is None) and (self.scaffold_map is None):
             type1 = INSTRUCTOR_POLARITY[2]

@@ -1,9 +1,9 @@
 '''The Agent parent class.
 
 '''
-from core.organ import Sensor, Actuator, Interpreter, Moulder, Cortex
+from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
 from core.policy import Clause, Heartbeat
-from core.array import Resource, Essence, Feature
+from core.message import Resource, Essence, Feature
 
 class Agent(object):
     '''The parent Agent class. In applications a custom agent class is created,
@@ -32,19 +32,20 @@ class Agent(object):
         '''
         return (list(self.cortex.keys()),)
 
-    def apply_resource_map(self, resource_map):
+    def apply_map(self, _map):
         '''Convenience function to apply a resource map, if present, to the
         agent resources
 
         Parameters
         ----------
-        resource_map : ResourceMap
-            A resource map, presumably attached to a recently executed organ
+        _map : _Map
+            A resource or essence map, which was created by an Instructor, like
+            an organ or an external law
 
         '''
-        if not resource_map is None:
-            if not resource_map.is_empty():
-                resource_map.apply_to(self)
+        if not _map is None:
+            if not _map.is_empty():
+                _map.apply_to(self)
 
     def _set(self, object_type, key, value, key_check=False):
         '''Common function to add agent organ or imprint to the appropriate
@@ -156,7 +157,7 @@ class Agent(object):
         '''
         if isinstance(organ, Sensor):
             self._set('sensor', organ.name, organ)
-            self._set('buzz', organ.array_output.array_name, organ.array_output)
+            self._set('buzz', organ.message_output.name, organ.message_output)
             self._inverse_map[organ.name] = 'sensor'
 
         elif isinstance(organ, Actuator):
@@ -165,19 +166,17 @@ class Agent(object):
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
-            self._set('belief', organ.array_output.array_name, organ.array_output)
+            self._set('belief', organ.message_output.name, organ.message_output)
             self._inverse_map[organ.name] = 'interpreter'
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
-            self._set('direction', organ.array_output.array_name,
-                                   organ.array_output)
+            self._set('direction', organ.message_output.name, organ.message_output)
             self._inverse_map[organ.name] = 'moulder'
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.name, organ)
-            self._set('feature', organ.array_output.array_name,
-                                 organ.array_output)
+            self._set('feature', organ.message_output.name, organ.message_output)
             self._inverse_map[organ.name] = 'cortex'
 
         else:
@@ -285,7 +284,7 @@ class Agent(object):
             the_sensor = self.sensor[phrase]
 
         did_it_sense = the_sensor(self.agent_id_system)
-        self.apply_resource_map(the_sensor.resource_map)
+        self.apply_map(the_sensor.scaffold_map)
 
     def interpret(self, phrase):
         '''Verb for the agent to execute an Interpreter organ
@@ -313,7 +312,7 @@ class Agent(object):
             the_interpreter = self.interpreter[phrase]
 
         did_it_interpret = the_interpreter()
-        self.apply_resource_map(the_interpreter.resource_map)
+        self.apply_map(the_interpreter.scaffold_map)
 
     def mould(self, phrase):
         '''Verb for the agent to execute a Moulder organ
@@ -341,7 +340,7 @@ class Agent(object):
             the_moulder = self.moulder[phrase]
 
         did_it_mould = the_moulder()
-        self.apply_resource_map(the_moulder.resource_map)
+        self.apply_map(the_moulder.scaffold_map)
 
     def act(self, phrase):
         '''Verb for the agent to execute an Actuator organ
@@ -369,7 +368,7 @@ class Agent(object):
             the_actuator = self.actuator[phrase]
 
         did_it_act = the_actuator(self.agent_id_system)
-        self.apply_resource_map(the_actuator.resource_map)
+        self.apply_map(the_actuator.scaffold_map)
 
     def engage(self, organ_sequence):
         '''Compound verb for agent to execute a sequence of multiple organs

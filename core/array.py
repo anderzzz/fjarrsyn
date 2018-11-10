@@ -136,7 +136,7 @@ class _Array(object):
 
     def __init__(self, array_name, array_semantics):
 
-        self.array_name = array_name
+        self.name = array_name
 
         if not isinstance(array_semantics, Iterable):
             raise TypeError('Array semantics should be provided as an iterable')
