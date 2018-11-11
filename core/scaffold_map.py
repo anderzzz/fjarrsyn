@@ -6,20 +6,76 @@ import numpy as np
 import numpy.random
 from collections import Iterable
 
-from core.array import _Flash, EmptyFlashError 
+from core.array import _Flash, _SupraArray, EmptyFlashError 
 from core.message import Resource, Essence
 
 class _Map(_Flash):
-    '''Bla bla
+    '''Base class for all scaffold maps. 
+
+    Parameters
+    ----------
+    name : str
+        Name of the scaffold map
+    map_func : callable or str
+        Function that processes the input in order to evaluate the new scaffold
+        values. The function can be specified as a string denoting one of the
+        library functions, see further below. The function can be specified as
+        a callable. The callable must accept at least as input the value of the
+        scaffold and must return the new value, see examples for details
+    scaffold_key : str
+        Key to the element of the corresponding scaffold that is to be altered
+        by the map
+    map_args_keys : Iterable
+        A tuple or list of array semantics that an instructor will populate
+        with values upon its execution, which are values that are provided as
+        input to the map function
+
+    Raises
+    ------
+    ValueError
+        If the standard library map function string did not match any library
+        function
+    TypeError
+        If the map function was not specified as either a string or a callable
+
+    Notes
+    -----
+    TO BE WRITTEN
 
     '''
     def _apply_to(self, scaffold, empty_to_identity=True):
-        '''Bla bla
+        '''General method to apply a scaffold map to a scaffold
+
+        Parameters
+        ----------
+        scaffold
+            The particular scaffold to apply the map to, typically either an
+            instance of class Resource or Essence
+        empty_to_identity : bool, optional
+            If True, the interpretation of an empty element in the map values
+            is that the identity operator should be applied to the current
+            value. If False, an exception is raised if an empty element is
+            encountered
+
+        Raises
+        ------
+        EmptyFlashError
+            If empty element encountered and the empty_to_identity is False
+
+        Notes
+        -----
+        The value of the map are transient, which means after the map has been
+        applied once, it cannot be applied again, rather the relevant
+        instructor must be executed to populate the map again
 
         '''
-        compute_new = True
         old_value = scaffold[self.scaffold_key]
 
+        #
+        # Extract map values. If unassigned (None), decide if that implies
+        # identity operator or exception
+        #
+        compute_new = True
         try:
             map_args_value = self.values()
 
@@ -28,6 +84,9 @@ class _Map(_Flash):
                 raise EmptyFlashError('Non-assigned element in map values encountered')
             compute_new = False
 
+        #
+        # Apply the engine of the map
+        #
         if compute_new:
             if not isinstance(map_args_value, (list, tuple)):
                 map_args_value = (map_args_value,)
@@ -45,14 +104,14 @@ class _Map(_Flash):
         super().__init__(name, map_args_keys)
 
         self.scaffold_key = scaffold_key
-        self.func_library = _ForceFunctions()
+        self._func_library = _ForceFunctions()
 
         if callable(map_func):
             self._mapper = map_func
 
         elif isinstance(map_func, str):   
             try:
-                transform_func = getattr(self.func_library, 'force_func_' + map_func)
+                transform_func = getattr(self._func_library, 'force_func_' + map_func)
 
             except AttributeError:
                 raise ValueError('No library transformation function exist for ' + \
@@ -65,11 +124,55 @@ class _Map(_Flash):
                             'standard function string')
 
 class ResourceMap(_Map):
-    '''Bla bla
+    '''Definition of how to map existing resources of an agent to an updated
+    set of resource
+
+    Parameters
+    ----------
+    map_name : str
+        Name of the resource map
+    map_func : callable or str
+        Function that processes the input in order to evaluate the new resource
+        values. The function can be specified as a string denoting one of the
+        library functions, see further below. The function can be specified as
+        a callable. The callable must accept at least as input the value of the
+        resource and must return the new value, see examples for details
+    resource_key : str
+        Key to the element of the corresponding resource that is to be altered
+        by the map
+    map_args_keys : Iterable
+        A tuple or list of array semantics that an instructor will populate
+        with values upon its execution, which are values that are provided as
+        input to the map function
+
+    Notes
+    -----
+    TO BE WRITTEN
 
     '''
     def apply_to(self, agent, empty_to_identity=True):
-        '''Bla bla
+        '''Apply map to agent resource
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent whose resources are to be altered by the resource map
+        empty_to_identity : bool, optional
+            If True, the interpretation of an empty element in the map values
+            is that the identity operator should be applied to the current
+            value. If False, an exception is raised if an empty element is
+            encountered
+
+        Raises
+        ------
+        RuntimeError
+            If no resources have been assigned to the agent
+
+        Notes
+        -----
+        The value of the map are transient, which means after the map has been
+        applied once, it cannot be applied again, rather the relevant
+        instructor must be executed to populate the values again.
 
         '''
         if agent.resource is None:
@@ -85,11 +188,55 @@ class ResourceMap(_Map):
         super().__init__(map_name, map_func, resource_key, map_args_keys)
 
 class EssenceMap(_Map):
-    '''Bla bla
+    '''Definition of how to map existing essence of an agent to an updated
+    essence
+
+    Parameters
+    ----------
+    map_name : str
+        Name of the essence map
+    map_func : callable or str
+        Function that processes the input in order to evaluate the new essence
+        values. The function can be specified as a string denoting one of the
+        library functions, see further below. The function can be specified as
+        a callable. The callable must accept at least as input the value of the
+        essence and must return the new value, see examples for details
+    essence_key : str
+        Key to the element of the corresponding essence that is to be altered
+        by the map
+    map_args_keys : Iterable
+        A tuple or list of array semantics that an instructor will populate
+        with values upon its execution, which are values that are provided as
+        input to the map function
+
+    Notes
+    -----
+    TO BE WRITTEN
 
     '''
     def apply_to(self, agent, empty_to_identity=True):
-        '''Bla bla
+        '''Apply map to agent essence
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent whose essence are to be altered by the essence map
+        empty_to_identity : bool, optional
+            If True, the interpretation of an empty element in the map values
+            is that the identity operator should be applied to the current
+            value. If False, an exception is raised if an empty element is
+            encountered
+
+        Raises
+        ------
+        RuntimeError
+            If no essence has been assigned to the agent
+
+        Notes
+        -----
+        The value of the map are transient, which means after the map has been
+        applied once, it cannot be applied again, rather the relevant
+        instructor must be executed to populate the values again.
 
         '''
         if agent.essence is None:
@@ -104,59 +251,55 @@ class EssenceMap(_Map):
 
         super().__init__(map_name, map_func, essence_key, map_args_keys)
 
-class MapCollection(object):
-    '''Bla bla
+class MapCollection(_SupraArray):
+    '''Creates an object that contains several scaffold maps wherein the public
+    methods of the object are similar to other maps. 
+
+    Parameters
+    ----------
+    container : Iterable
+        Collection of scaffold map objects
+
+    Notes
+    -----
+    The map collection is a collection of maps, where the map collection has
+    public methods and attributes very similar to ordinary maps. The exception
+    is anything related to map argument keys. Unlike in ordinary maps, where
+    these keys are unique, the map collection does not enforce this. Hence, any
+    method that involves getting or setting values using keys will raise an
+    AttributeError.
 
     '''
-    def is_empty(self):
-        '''Bla bla
-
-        '''
-        return all([_map.is_empty() for _map in self.map_container])
-
-    def set_values(self, values):
-        '''Bla bla
-
-        '''
-        for ind, _map in enumerate(self.map_container):
-            left, right = self.args_indeces[ind]
-            _map.set_values(values[left:right])
-
     def apply_to(self, agent, empty_to_identity=True):
-        '''Bla bla
+        '''Apply map collection to agent 
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent whose scaffold are to be altered by the map collection
+        empty_to_identity : bool, optional
+            If True, the interpretation of an empty element in the map values
+            is that the identity operator should be applied to the current
+            value. If False, an exception is raised if an empty element is
+            encountered
+
+        Notes
+        -----
+        The value of the map are transient, which means after the map has been
+        applied once, it cannot be applied again, rather the relevant
+        instructor must be executed to populate the values again.
 
         '''
-        for _map in self.map_container:
+        for _map in self:
             _map.apply_to(agent, empty_to_identity)
-
-    def keys(self):
-        '''Bla bla
-
-        '''
-        keys_ret = []
-        for _map in self.map_container:
-            keys_ret.extend(_map.keys())
-
-        return keys_ret
-
-    def __iter__(self):
-
-        for _map in self.map_container:
-            yield _map
 
     def __name__(self):
         return 'MapCollection'
 
     def __init__(self, container):
 
-        self.map_container = container
-        self.args_indeces = []
-
-        left = 0
-        for _map in self.map_container:
-            right = left + _map.n_elements
-            self.args_indeces.append((left, right))
-            left = right
+        super().__init__(container)
+        self.scaffold_keys = [s.scaffold_key for s in self]
 
 class _ForceFunctions(object):
     '''Bunch of pre-defined object force functions that other classes can use

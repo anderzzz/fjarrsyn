@@ -154,9 +154,18 @@ class _Imprint(_Array):
     '''A child class for _Array which handles persistent information that can
     be accessed non-destructively
 
+    Parameters
+    ----------
+    imprint_name : str
+        A name to give to the imprint
+    imprint_semantics : iterable
+        An iterable of label to the elements of the imprint describing some
+        relevant semantics
+
     '''
     def values(self):
-        '''Return the values in the defined order
+        '''Return the values in the defined order. Accessing values this way
+        does not alter the values
 
         Returns
         -------
@@ -171,13 +180,21 @@ class _Imprint(_Array):
 
         return self._items[key]
 
-    def __init__(self, imprint_name, imprint_element_names):
+    def __init__(self, imprint_name, imprint_semantics):
 
-        super().__init__(imprint_name, imprint_element_names)
+        super().__init__(imprint_name, imprint_semantics)
 
 class _Flash(_Array):
     '''A child class for _Array which handles transient information that cannot
     be accessed non-destructively
+
+    Parameters
+    ----------
+    flash_name : str
+        A name to give to the flash
+    flash_semantics : iterable
+        An iterable of label to the elements of the flash describing some
+        relevant semantics
 
     '''
     def values(self):
@@ -189,10 +206,17 @@ class _Flash(_Array):
         values : list
             The values of the array in the order defined upon initilization
 
+        Raises
+        ------
+        EmptyFlashError
+            In case an empty array is accessed. This suggests the flash has
+            been exhausted and that an instructor must be run to re-populate
+            the flash.
+
         '''
         if self.is_empty():
             raise EmptyFlashError('Empty flash array values cannot be accessed. ' + \
-                                  'Execute the relevant organ to populate the array')
+                                  'Execute the relevant instructor to populate the array')
 
         data = list(self._items.values())
         self._items = self.void_array()
@@ -207,7 +231,182 @@ class _Flash(_Array):
 
         return data
 
-    def __init__(self, flash_name, flash_element_names):
+    def __init__(self, flash_name, flash_semantics):
 
-        super().__init__(flash_name, flash_element_names)
+        super().__init__(flash_name, flash_semantics)
+
+class _SupraArray(object):
+    '''Supra arrays contain a collection of other array, with public methods
+    mostly like the atomic arrays
+
+    Parameters
+    ----------
+    container : list, tuple
+        An ordered collection of atomic arrays, which all can be flashes or all
+        can be imprints, but not a mixture of the two.
+
+    Raises
+    ------
+    TypeError
+        In case the container does not meet specifications
+
+    Notes
+    -----
+    The supra array is a collection of arrays with public methods and
+    attributes very similar to ordinary arrays. The exception is anything
+    related to keys. Unlike atomic arrays, where these keys are unique, the
+    supra array does not enforce this. Hence, any method that involves getting
+    or setting values using keys will raise an informative AttributeError
+
+    '''
+    def is_empty(self):
+        '''Determine if all values are None
+
+        Returns
+        -------
+        empty : bool
+            True if all values are None, False otherwise
+
+        Notes
+        -----
+        The method accesses the values of the array indirectly and therefore
+        does not consume or otherwise alter the values
+
+        '''
+        return all([c.is_empty() for c in self._arrays])
+
+    def set_values(self, values):
+        '''Set values of the array object.
+
+        Parameters
+        ----------
+        values : ordered iterable
+            Values of the array as an ordered iterable, like list or tuple.
+
+        '''
+        for ind, _array in enumerate(self._arrays):
+            left, right = self._array_indeces[ind]
+            _array.set_values(values[left:right])
+
+    def values(self):
+        '''Return the values in the defined order. If accessing values this way
+        is destructive or not depends on the property of the constituent atomic
+        arrays
+
+        Returns
+        -------
+        values : list
+            The values of the supra array in the order defined upon
+            initialization.
+
+        '''
+        ret = []
+        for _array in self._arrays:
+            ret.append(_array.values())
+
+        return ret
+
+    def keys(self):
+        '''Placeholder attribute for key access, which is disallowed for supra
+        arrays. Included to catch understandable error and raise informative
+        exception.
+
+        Raises
+        ------
+        AttributeError
+
+        '''
+        raise AttributeError('Supra arrays are not guaranteed to have ' + \
+                             'unique keys, hence `keys` is invalid attribute')
+
+    def items(self):
+        '''Placeholder attribute for key access, which is disallowed for supra
+        arrays. Included to catch understandable error and raise informative
+        exception.
+
+        Raises
+        ------
+        AttributeError
+
+        '''
+        raise AttributeError('Supra arrays are not guaranteed to have ' + \
+                             'unique keys, hence `items` is invalid attribute')
+
+    def __iter__(self):
+        '''Iterate over the constituent arrays of the supra array
+
+        Returns
+        -------
+        arrays
+            The arrays in the defined order that constitutes the supra array
+
+        '''
+        for _array in self._arrays:
+            yield _array
+
+    def __str__(self):
+        '''Return the concatenation of the OrderedDictionary view
+
+        '''
+        total_str = []
+        for _array in self._arrays:
+            total_str.append(str(array))
+
+        return ' + '.join(total_str)
+
+    def __setitem__(self, key, value):
+        '''Placeholder attribute for key access, which is disallowed for supra
+        arrays. Included to catch understandable error and raise informative
+        exception.
+
+        Raises
+        ------
+        AttributeError
+
+        '''
+        raise AttributeError('Supra arrays are not guaranteed to have ' + \
+                             'unique keys, hence setting with keys ' + \
+                             'is invalid')
+
+    def __getitem__(self, key):
+        '''Placeholder attribute for key access, which is disallowed for supra
+        arrays. Included to catch understandable error and raise informative
+        exception.
+
+        Raises
+        ------
+        AttributeError
+
+        '''
+        raise AttributeError('Supra arrays are not guaranteed to have ' + \
+                             'unique keys, hence getting with keys ' + \
+                             'is invalid')
+
+    def __init__(self, container):
+
+        if not isinstance(container, (list, tuple)):
+            raise TypeError('Container must be an ordered iterable')
+
+        if isinstance(container[0], _Flash):
+            if not all([isinstance(c, _Flash) for c in container]):
+                raise TypeError('Array collection must be of one type of array')
+
+        elif isinstance(container[0], _Imprint):
+            if not all([isinstance(c, _Imprint) for c in container]):
+                raise TypeError('Array collection must be of one type of array')
+
+        else:
+            raise TypeError('Array collection must be comprised of either ' + \
+                            '_Flash or _Imprint type')
+        self._arrays = container
+
+        self._array_indeces = []
+        left = 0
+        for _array in self._arrays:
+            right = left + _array.n_elements
+            self._array_indeces.append((left, right))
+            left = right
+
+        self.name = '+'.join([a.name for a in self._arrays])
+        self.n_elements = sum([a.n_elements for a in self._arrays])
 

@@ -669,7 +669,7 @@ class MultiMutation(Mutation):
             kwargs = self.kwargs
 
         out_values = []
-        for key in self.scaffold_map.keys():
+        for key in self.scaffold_map:
             if np.random.ranf() < self.mutation_prob:
                 out_values.append(self.engine(**kwargs))
 
