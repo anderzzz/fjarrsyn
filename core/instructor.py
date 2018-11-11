@@ -618,7 +618,28 @@ class Mutation(_Instructor):
 
     '''
     def __call__(self, agent_index):
-        '''Bla bla
+        '''Execute the mutation attempt and populate the output if attempt
+        successful
+
+        Parameters
+        ----------
+        agent_index : str
+            The agent index for the agent that is mutated
+
+        Returns
+        -------
+        success : bool
+            If the attempted mutation was completed succesfully, return value
+            is True. If the execution created Exception, return value is False.
+            Note that even if mutation attempt did not lead to a mutation, the
+            return value is True
+
+        Notes
+        -----
+        The attempt to mutate is stochastic and of a probability set during
+        initialization. If a mutation is made, the engine is applied to all
+        arguments of the essence. If mutations should be attempted in sequence
+        independently on the essence arguments, use the MultiMutation class
 
         '''
         if np.random.ranf() < self.mutation_prob:
@@ -629,7 +650,10 @@ class Mutation(_Instructor):
             else:
                 kwargs = self.kwargs
 
-            out_values = self.engine(**kwargs)
+            try:
+                out_values = self.engine(**kwargs)
+            except Exception:
+                return False
 
             self.scaffold_map.set_values(out_values)
 
@@ -656,9 +680,63 @@ class Mutation(_Instructor):
         self.mutation_prob = mutation_prob
 
 class MultiMutation(Mutation):
+    '''Multi Mutation class, which defines how the Agent responds to being
+    mutated to produce a tangible mapping
 
+    Parameters
+    ----------
+    mutate_name : str
+        Name of mutation
+    mutate_func : callable
+        The function that defines the engine of the mutation that produces
+        the tangible resource mapping for the agent
+    essence_map : EssenceMap or MapCollection
+        Map with defined semantics to act on agent essence
+    mutation_prob : float, optional
+        Probability the mutation engine is executed
+    func_get_agent_id : bool, optional
+        If True, the mutate function is provided the agent index as one of the
+        input arguments, if False, not so.
+    mutate_func_kwargs : dict, optional
+        Named arguments to the mutate function
+
+    Raises
+    ------
+    TypeError
+        If the essence map is not an instance of EssenceMap or MapCollection
+    ValueError
+        If the probability is not between 0.0 and 1.0
+
+    Notes
+    -----
+    This is a child class of the Mutation class and only differs in how the
+    mutation attemtps are distributed on the essence arguments, see `__call__`
+
+    '''
     def __call__(self, agent_index):
-        '''Bla bla
+        '''Execute the mutation attempt and populate the output if attempt
+        successful
+
+        Parameters
+        ----------
+        agent_index : str
+            The agent index for the agent that is mutated
+
+        Returns
+        -------
+        success : bool
+            If the attempted mutation was completed succesfully, return value
+            is True. If the execution created Exception, return value is False.
+            Note that even if mutation attempt did not lead to a mutation, the
+            return value is True
+
+        Notes
+        -----
+        The attempt to mutate is stochastic and of a probability set during
+        initialization. If the essence contains multiple arguments a sequence
+        of independent attempts to mutate is done, which means some arguments
+        may mutate, others may not. If mutation should apply, or not apply, to
+        all arguments use the Mutation class.
 
         '''
         if self.func_get_agent_id:
@@ -671,10 +749,14 @@ class MultiMutation(Mutation):
         out_values = []
         for key in self.scaffold_map:
             if np.random.ranf() < self.mutation_prob:
-                out_values.append(self.engine(**kwargs))
+                try:
+                    out_values.append(self.engine(**kwargs))
+                except Exception:
+                    return False
 
             else:
                 out_values.append(None)
 
         self.scaffold_map.set_values(out_values)
 
+        return True

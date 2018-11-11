@@ -3,9 +3,6 @@
 '''
 from core.array import _Imprint, _Flash
 
-class _Message(object):
-    pass
-
 class Buzz(_Flash):
     '''The Buzz class that is used to define the output of sensors and input to
     interpreters. The class is a child class of a more general _Array class,
