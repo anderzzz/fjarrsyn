@@ -5,6 +5,9 @@ applications but through child classes
 from collections import Iterable, Hashable
 from collections import OrderedDict
 
+class EmptyFlashError(Exception):
+    pass
+
 class _Array(object):
     '''The parent class of all forms of data and information passing within and
     to and from the exterior of the agent. In applications the appropriate
@@ -188,8 +191,8 @@ class _Flash(_Array):
 
         '''
         if self.is_empty():
-            raise RuntimeError('Empty flash array values cannot be accessed. ' + \
-                               'Execute the relevant organ to populate the array')
+            raise EmptyFlashError('Empty flash array values cannot be accessed. ' + \
+                                  'Execute the relevant organ to populate the array')
 
         data = list(self._items.values())
         self._items = self.void_array()

@@ -6,7 +6,8 @@ from core.agent import Agent
 
 from core.instructor import Moulder, Actuator
 from core.message import Belief, Direction, Resource
-from core.scaffold_map import ResourceMap, MapCollection
+from core.scaffold_map import ResourceMap, MapCollection 
+from core.array import EmptyFlashError
 
 REF = {'A' : 1.01, 'B' : 0.75, 'C' : 0.63}
 
@@ -77,5 +78,5 @@ for mol in REF:
 try:
     agent.act('collect')
     raise AssertionError('Acting twice in sequence did not raise correct exception')
-except RuntimeError:
+except EmptyFlashError: 
     pass

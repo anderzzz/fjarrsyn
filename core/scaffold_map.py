@@ -4,35 +4,41 @@ of an agent or other scaffolded object
 '''
 import numpy as np
 import numpy.random
+from collections import Iterable
 
-from core.array import _Flash 
+from core.array import _Flash, EmptyFlashError 
 from core.message import Resource, Essence
 
 class _Map(_Flash):
     '''Bla bla
 
     '''
-    def _apply_to(self, agent, scaffold_type_label, single=True):
+    def _apply_to(self, scaffold, empty_to_identity=True):
         '''Bla bla
 
         '''
-        scaffold = getattr(agent, scaffold_type_label)
-        if scaffold is None:
-            raise RuntimeError('Agent has not been assigned ' + \
-                'a %s, hence nothing to map' %(scaffold_type_label))
+        compute_new = True
+        old_value = scaffold[self.scaffold_key]
 
-        if single:
-            old_value = scaffold[self.scaffold_key]
-            map_args_values = list(self.values())
-            map_args_total = tuple([old_value] + map_args_values)
+        try:
+            map_args_value = self.values()
+
+        except EmptyFlashError:
+            if not empty_to_identity:
+                raise EmptyFlashError('Non-assigned element in map values encountered')
+            compute_new = False
+
+        if compute_new:
+            if not isinstance(map_args_value, (list, tuple)):
+                map_args_value = (map_args_value,)
+
+            args = tuple(map_args_value)
+            new_value = self._mapper(old_value, *args)
 
         else:
-            raise NotImplementedError('Not implemented')
+            new_value = old_value
 
-        new_value = self._mapper(*map_args_total)
-
-        if single:
-            scaffold[self.scaffold_key] = new_value
+        scaffold[self.scaffold_key] = new_value
 
     def __init__(self, name, map_func, scaffold_key, map_args_keys):
 
@@ -62,11 +68,14 @@ class ResourceMap(_Map):
     '''Bla bla
 
     '''
-    def apply_to(self, agent):
+    def apply_to(self, agent, empty_to_identity=True):
         '''Bla bla
 
         '''
-        self._apply_to(agent, 'resource')
+        if agent.resource is None:
+            raise RuntimeError('Agent has not been assigned resource')
+
+        self._apply_to(agent.resource, empty_to_identity)
 
     def __name__(self):
         return 'ResourceMap'
@@ -79,11 +88,14 @@ class EssenceMap(_Map):
     '''Bla bla
 
     '''
-    def apply_to(self, agent):
+    def apply_to(self, agent, empty_to_identity=True):
         '''Bla bla
 
         '''
-        self._apply_to(agent, 'essence')
+        if agent.essence is None:
+            raise RuntimeError('Agent has not been assigned essence')
+
+        self._apply_to(agent.essence, empty_to_identity)
 
     def __name__(self):
         return 'EssenceMap'
@@ -110,12 +122,12 @@ class MapCollection(object):
             left, right = self.args_indeces[ind]
             _map.set_values(values[left:right])
 
-    def apply_to(self, agent):
+    def apply_to(self, agent, empty_to_identity=True):
         '''Bla bla
 
         '''
         for _map in self.map_container:
-            _map.apply_to(agent)
+            _map.apply_to(agent, empty_to_identity)
 
     def keys(self):
         '''Bla bla
@@ -174,7 +186,7 @@ class _ForceFunctions(object):
 
         '''
         increment = np.random.normal(0.0, std)
-        return old_value + increment
+        return old_value + float(increment)
 
     def force_func_wiener_bounded(self, old_value, std, lower_bound=-1.0*np.Infinity, 
                              upper_bound=1.0*np.Infinity):

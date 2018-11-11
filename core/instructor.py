@@ -657,17 +657,21 @@ class Mutation(_Instructor):
 
 class MultiMutation(Mutation):
 
-    def __call__(self, agent):
+    def __call__(self, agent_index):
         '''Bla bla
 
         '''
-        raise NotImplementedError
+        if self.func_get_agent_id:
+            kwargs = copy.copy(self.kwargs)
+            kwargs['agent_index'] = agent_index
+
+        else:
+            kwargs = self.kwargs
 
         out_values = []
         for key in self.scaffold_map.keys():
             if np.random.ranf() < self.mutation_prob:
-                essence_values = agent.essence[key]
-                out_values.append(self.engine(*essence_values, **self.kwargs))
+                out_values.append(self.engine(**kwargs))
 
             else:
                 out_values.append(None)

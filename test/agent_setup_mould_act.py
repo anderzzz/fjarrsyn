@@ -6,7 +6,8 @@ from core.agent import Agent
 
 from core.instructor import Moulder, Actuator
 from core.message import Belief, Direction, Resource
-from core.scaffold_map import ResourceMap, MapCollection
+from core.scaffold_map import ResourceMap, MapCollection 
+from core.array import EmptyFlashError
 
 REF_RESOURCE_OUTCOME = [99.0, 5, 7]
 
@@ -99,7 +100,7 @@ assert (isclose(env.loud_cumsum, 3.4))
 try:
     agent.act('shout')
     raise AssertionError('Action without preceding moulding did not raise exception')
-except RuntimeError:
+except EmptyFlashError: 
     pass
 else:
     raise AssertionError('Action without preceding moulding did not raise expected exception')
