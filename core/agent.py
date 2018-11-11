@@ -254,9 +254,9 @@ class Agent(object):
         else:
             the_cortex = self.cortex[phrase]
 
-        reaction = the_cortex()
+        did_it_reveal = the_cortex()
 
-        return reaction 
+        return the_cortex.message_output
 
     def sense(self, phrase):
         '''Verb for the agent to execute a Sensor organ

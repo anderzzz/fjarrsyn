@@ -1,4 +1,6 @@
-'''Instructor classes
+'''Instructors are compound objects that connect messages and maps by an engine
+in order to form organs and laws of the agents. Therefore instructors are
+central to the agent-based modelling.
 
 '''
 import copy
@@ -6,19 +8,42 @@ import numpy as np
 import numpy.random
 from collections import OrderedDict, Iterable
 
-from core.scaffold_map import _Map, MapCollection
+from core.scaffold_map import ResourceMap, EssenceMap, \
+                              MapCollection, _Map
 from core.message import Buzz, Direction, Feature, \
                          Belief, Resource, Essence, \
                          ImprintOperator
-from core.array import _Array
-
-INSTRUCTOR_POLARITY = ['producer', 'transformer', 'consumer']
-INSTRUCTOR_INGREDIENT = ['tangible', 'abstract']
 
 class _Instructor(object):
-    '''Bla bla
+    '''Base class for all instructors. Common attributes are defined and type
+    checks are done on inputs.
+
+    Parameters
+    ----------
+    name : str
+        Name of the instructor
+    engine : callable
+        Function that processes input from the agent (if any) in order to 
+        produce output to the agent (if any). The function can perform
+        additional operations outside the agent. Conventionally, the only
+        operations within the agent should be encoded as part of the message
+        and scaffold_map output, not performed by the engine
+    message_input : optional
+        Object encoding any agent input to the instructor. The input
+        message is conventionally output from another instructor.
+    message_output : optional
+        Object encoding any agent output from the instructor. The
+        engine populates the values of the Message object given here.
+    scaffold_map : _Map or MapCollection, optional
+        Map object encoding any changes to the tangible Messages of the agent.
+        The engine populates the values of the Map object given here.
+    engine_kwargs : dict, optional
+        Named arguments for the engine function.
 
     '''
+    _INSTRUCTOR_POLARITY = ['producer', 'transformer', 'consumer']
+    _INSTRUCTOR_INGREDIENT = ['tangible', 'abstract']
+
     def __init__(self, name, engine, 
                  message_input=None, message_output=None,
                  scaffold_map=None, engine_kwargs={}):
@@ -41,15 +66,19 @@ class _Instructor(object):
 
         self.name = name
 
+        #
+        # Set engine attributes
+        #
         if not callable(engine):
             raise TypeError('Instructor engine must be callable')
         self.engine = _decorate_always_iterable_output(engine)
         self.kwargs = engine_kwargs
 
+        #
+        # Message input and output can be of flexible type. These are checked
+        # in child classes
+        #
         self.message_input = message_input
-        if not message_output is None:
-            if not isinstance(message_output, _Array):
-                raise TypeError('Message output must be a child to _Array')
         self.message_output = message_output
 
         if not scaffold_map is None:
@@ -57,21 +86,24 @@ class _Instructor(object):
                 raise TypeError('Scaffold map must be a child to _Map')
         self.scaffold_map = scaffold_map
 
+        #
+        # Compute the instructor logical type
+        #
         if (self.message_output is None) and (self.scaffold_map is None):
-            type1 = INSTRUCTOR_POLARITY[2]
+            type1 = self._INSTRUCTOR_POLARITY[2]
             
         elif self.message_input is None:
-            type1 = INSTRUCTOR_POLARITY[0]
+            type1 = self._INSTRUCTOR_POLARITY[0]
 
         else:
-            type1 = INSTRUCTOR_POLARITY[1]
+            type1 = self._INSTRUCTOR_POLARITY[1]
 
         type2_container = []
         if not self.scaffold_map is None:
-            type2_container.append(INSTRUCTOR_INGREDIENT[0])
+            type2_container.append(self._INSTRUCTOR_INGREDIENT[0])
 
         if (not self.message_input is None) or (not self.message_output is None):
-            type2_container.append(INSTRUCTOR_INGREDIENT[1])
+            type2_container.append(self._INSTRUCTOR_INGREDIENT[1])
 
         if len(type2_container) == 0:
             raise ValueError('Instructor must engage with at least a ' + \
@@ -79,123 +111,50 @@ class _Instructor(object):
 
         self.type_label = type1 + ':' + '-'.join(type2_container)
 
-#class _Organ(object):
-#    '''Organ parent class, which defines common structure and method for all
-#    organs. 
-#
-#    Parameters
-#    ----------
-#    organ_name : str
-#        Name of the organ
-#    array_input : _Array or None
-#        Instance of array the organ deals with as input. If None an OrderedDict
-#        is used as template, which upon execution will return empty values and
-#        keys
-#    organ_function : callable
-#        The function that upon execution performs the operations of the organ
-#    array_output : _Array or None
-#        Instance of message the organ deals with as output. If None and
-#        OrderedDict is used as template, which upon execution will return empty
-#        values and keys
-#    function_kwargs : dict, optional
-#        Any arguments needed for the organ_function
-#
-#    '''
-#    def __init__(self, organ_name, array_input, 
-#                 organ_function, array_output, 
-#                 resource_map=None, organ_function_kwargs={}):
-#
-#        def _decorate_always_iterable_output(f):
-#            '''Decorator to ensure that functions that organ functions that
-#            return a single value fit within the general slicing logic,
-#            accomplished by making single value returns a one-member tuple
-#
-#            '''
-#            def wrapper(*args, **kwargs):
-#                ret = f(*args, **kwargs)
-#                if isinstance(ret, str):
-#                    return (ret,)
-#                elif (not isinstance(ret, Iterable)):
-#                    return (ret,)
-#                else:
-#                    return ret
-#
-#            return wrapper
-#
-#        #
-#        # Name of the organ
-#        #
-#        self.name = organ_name
-#
-#        #
-#        # Verify and define the organ function that is called upon execution
-#        #
-#        if not callable(organ_function):
-#            raise TypeError('Organ requires callable function for its operation')
-#        self.organ_func = _decorate_always_iterable_output(organ_function)
-#        self.kwargs = organ_function_kwargs
-#
-#        #
-        # Set array input and output. This handles cases where the input is
-        # either not defined or a string
-#        #
-#        if array_input is None:
-#            self.array_input = OrderedDict()
-#        elif isinstance(array_input, str):
-#            self.array_input = _Array(array_input, []) 
-#        else:
-#            self.array_input = array_input
-#
-#        if array_output is None:
-#            self.array_output = OrderedDict()
-#        elif isinstance(array_output, str):
-#            self.array_output = _Array(array_output, []) 
-#        else:
-#            self.array_output = array_output
-#
-#        #
-#        # Verify the resource map if present
-#        #
-#        if not resource_map is None:
-#            if not isinstance(resource_map, (ResourceMap, ResourceMapCollection)):
-#                raise TypeError('Organ resource maps should be of class ' + \
-#                                'ResourceMap or ResourceMapCollection')
-#        self.resource_map = resource_map
-
 class Sensor(_Instructor):
-    '''Sensor class, which defines how a precept of the external World is
-    turned into buzz within the agent.
+    '''Sensor class, which defines how a precept of the external world is
+    turned into buzz within the agent. Conventionally the external world is in
+    the scope of the Agent Management System.
 
     Parameters
     ----------
-    name : str
+    sensor_name : str
         Name of sensor
-    precept_name : str
-        Name of the precept of the World to interact with
     sensor_func : callable
-        Callable function that upon execution reads precept and returns the
-        buzz dictionary
-    buzzkeys : list
-        List of strings for the buzz names that the sensor generates, must be
-        identical to the keys for the dictionary returned by the `sensor_func`
-    kwargs : dict, optional
-        Named arguments for the `sensor_func`
+        The function that defines the engine of the sensor that produces the
+        output buzz. Conventionally the function is defined within the scope of
+        the Agent Managament System
+    buzz : Buzz
+        Buzz object with defined semantics, which the sensor engine populates
+        upon execution
+    resource_map : ResourceMap or MapCollection, optional
+        In case the execution of the sensor produces tangible output to alter
+        agent resources, a map with defined semantics is given
+    func_get_agent_id : bool, optional
+        If True, the sensor function is provided the agent index as one of the
+        input arguments, if False, not so.
+    sensor_func_kwargs : dict, optional
+        Named arguments to the sensor function
+
+    Raises
+    ------
+    TypeError
+        If the `buzz` parameter provides a message of type other than Buzz
 
     '''
     def __call__(self, agent_index):
-        '''Execute the sensor function with check that buzz output conforms to
-        expected shape.
+        '''Execute the sensor and populate the output
+
+        Parameters
+        ----------
+        agent_index : str
+            The agent index for the agent whose sensor is executed
 
         Returns
         -------
-        buzz : dict
-            The buzz generated by the Sensor as it interacts with environment
-
-        Raises
-        ------
-        ValueError
-            If the sensor function returns a buzz dictionary with keys that do
-            not match the buzz keys defined during sensor initialization.
+        success : bool
+            If execution of engine successful, return value is True. If
+            execution created Exception, return value is False     
 
         '''
         if self.func_get_agent_id:
@@ -205,7 +164,10 @@ class Sensor(_Instructor):
         else:
             kwargs = self.kwargs
 
-        out_values = self.engine(**kwargs)
+        try:
+            out_values = self.engine(**kwargs)
+        except Exception:
+            return False
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
@@ -230,38 +192,52 @@ class Sensor(_Instructor):
         self.func_get_agent_id = func_get_agent_id
 
 class Actuator(_Instructor):
-    '''Actuator class, which defines how an action by the agent alters the
-    external world.
+    '''Actuator class, which defines how the Agent takes actions onto the
+    external world. Conventionally the external world is in the scope of the
+    Agent Management System.
 
     Parameters
     ----------
-    name : str
-        Name of the actuator
-    action_name : str
-        Name of the action to act on the World
+    actuator_name : str
+        Name of actuator
     actuator_func : callable
-        Callable function that upon execution alters the World. The function
-        does not have to return anything
-    keys2populate : list
-        Container of names of the arguments to the callable function that
-        define the specific action. This list should exclude any agent
-        identifier, which declares where in the World the action is applied.
-    agent_index : str
-        Agent index in the World onto which the action should be applied
+        The function that defines the engine of the actuator that consumes the
+        input direction. Conventionally the function is defined within the scope of
+        the Agent Managament System
+    direction : Direction
+        Direction object with defined semantics, whose values the actuator engine
+        consumes upon execution. Conventionally the Direction object has been
+        produced by a moulder
+    resource_map : ResourceMap or MapCollection, optional
+        In case the execution of the actuator produces tangible output to alter
+        agent resources, a map with defined semantics is given
+    func_get_agent_id : bool, optional
+        If True, the actuator function is provided the agent index as one of the
+        input arguments, if False, not so.
+    actuator_func_kwargs : dict, optional
+        Named arguments to the actuator function
+
+    Raises
+    ------
+    TypeError
+        If the `direction` parameter provides a message of type other than
+        Direction
 
     '''
     def __call__(self, agent_index):
-        '''Execute the actuator function and alter the World
+        '''Execute the actuator to consume input and populate the output (if
+        any)
 
-        Notes
-        -----
-        The actuator can only be executed after the actuator has been
-        populated, which is done with the `populate` method
+        Parameters
+        ----------
+        agent_index : str
+            The agent index for the agent whose actuator is executed
 
-        Raises
-        ------
-        RuntimeError
-            In case the actuator is executed prior to population
+        Returns
+        -------
+        success : bool
+            If execution of engine successful, return value is True. If
+            execution created Exception, return value is False     
 
         '''
         direction_values = self.message_input.values()
@@ -273,7 +249,10 @@ class Actuator(_Instructor):
         else:
             kwargs = self.kwargs
 
-        out_values = self.engine(*direction_values, **kwargs)
+        try:
+            out_values = self.engine(*direction_values, **kwargs)
+        except Exception:
+            return False
 
         if not self.scaffold_map is None:
             out_values_naturallaw = out_values
@@ -295,37 +274,53 @@ class Actuator(_Instructor):
         self.func_get_agent_id = func_get_agent_id
 
 class Interpreter(_Instructor):
-    '''Interpreter class, which defines how buzz from a sensor is made into
-    persistent beliefs of the agent.
+    '''Interpreter class, which defines how the Agent interprets buzz or
+    beliefs in order to produce or update beliefs the agent holds. 
 
     Parameters
     ----------
-    name : str
-        Name of the interpreter
-    buzz_names : list
-        Container of names of the buzz to be interpreted. Must correspond with
-        the output from the relevant sensor
+    interpreter_name : str
+        Name of interpreter
     interpreter_func : callable
-        Callable function that upon execution computes and assigns belief given
-        the buzz input
-    kwargs : dict, optional
-        Any arguments other than the buzz needed in order to execute the
-        interpreter function
+        The function that defines the engine of the interpreter that consumes the
+        input buzz or belief and which generates the belief output. Conventionally 
+        the function is defined within the scope of the Agent
+    inputer : Buzz, Belief or callable to access objects of such type
+        The input to the engine, or an executable that returns the input the
+        engine consumes. Conventionally the Buzz object has been produced by a
+        sensor; conventionally the Belief object has been produced by another
+        interpreter
+    belief : Belief
+        Belief object with defined semantics, which the interpreter engine populates
+        upon execution
+    resource_map : ResourceMap or MapCollection, optional
+        In case the execution of the interpreter produces tangible output to alter
+        agent resources, a map with defined semantics is given
+    interpreter_func_kwargs : dict, optional
+        Named arguments to the interpreter function
+    belief_updater : bool, optional
+        If True, the engine is provided as arguments the values of the belief
+        of the output. This enables the engine to evaluate a change in belief
+        and return updated beliefs. Note that the current values of the output
+        are provided before the values of the input in the arguments passed to
+        the engine. If False, the engine receives only values from the input. 
+
+    Raises
+    ------
+    TypeError
+        If the `belief` parameter provides a message of type other than
+        Belief or if the `inputer` parameter provides a message of type other
+        than Buzz or Belief.
 
     '''
     def __call__(self):
-        '''Execute the interpreter function
-
-        Parameters
-        ----------
-        buzz : dict
-            The buzz values from the relevant sensor
+        '''Execute the interpreter to consume input and produce the output
 
         Returns
         -------
-        belief_updated : list
-            List of keys to the beliefs that were updated following the
-            interpretation
+        success : bool
+            If execution of engine successful, return value is True. If
+            execution created Exception, return value is False     
 
         '''
         inp_values = self.message_input().values()
@@ -337,7 +332,10 @@ class Interpreter(_Instructor):
         else:
             args = tuple(inp_values)
 
-        out_values = self.engine(*args, **self.kwargs)
+        try:
+            out_values = self.engine(*args, **self.kwargs)
+        except Exception:
+            return False
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
@@ -369,48 +367,57 @@ class Interpreter(_Instructor):
                          message_output=belief,
                          scaffold_map=resource_map,
                          engine_kwargs=interpreter_func_kwargs)
-
         self.belief_updater = belief_updater
 
 class Moulder(_Instructor):
-    '''Moulder class, which defines how beliefs are turned into an executable
-    instance of an actuator.
+    '''Moulder class, which defines how the Agent moulds direction from
+    beliefs in order to produce instruction for actuator. 
 
     Parameters
     ----------
-    name : str
+    moulder_name : str
         Name of moulder
-    belief_names : list
-        Container of belief labels that the moulder engages with
     moulder_func : callable
-        Callable function that upon execution processes agent belief and
-        scaffold into a complete set of parameters to be used to populate an
-        actuator
-    kwargs : dict, optional
-        Named arguments for the `moulder_func`
+        The function that defines the engine of the moulder that consumes the
+        input belief and which generates the direction output. Conventionally 
+        the function is defined within the scope of the Agent
+    inputer : Belief or callable to access object of that type
+        The input to the engine, or an executable that returns the input the
+        engine consumes. Conventionally the Belief object has been produced by
+        an interpreter at some point in time.
+    direction : Direction
+        Direction object with defined semantics, which the moulder engine populates
+        upon execution
+    resource_map : ResourceMap or MapCollection, optional
+        In case the execution of the moulder produces tangible output to alter
+        agent resources, a map with defined semantics is given
+    moulder_func_kwargs : dict, optional
+        Named arguments to the moulder function
+
+    Raises
+    ------
+    TypeError
+        If the `direction` parameter provides a message of type other than
+        Direction or if the `inputer` parameter provides a message of type other
+        than Belief.
 
     '''
     def __call__(self):
-        '''Execute the moulder to populate an actuator
+        '''Execute the moulder to consume input and produce the output
 
-        Notes
-        -----
-        After excecution of the moulder the actuator can be executed. Prior to
-        moulding the actuator is form without content.
-
-        Parameters
-        ----------
-        belief : dict
-            Dictionary of belief values, at least a subset of which overlaps
-            with the belief names defined during initialization
-        actuator
-            The actuator instance to populate. If not defined the moulder is
-            executed expecting only to create an object force output
+        Returns
+        -------
+        success : bool
+            If execution of engine successful, return value is True. If
+            execution created Exception, return value is False     
 
         '''
         belief_values = self.message_input().values()
 
-        out_values = self.engine(*belief_values, **self.kwargs)
+        try:
+            out_values = self.engine(*belief_values, **self.kwargs)
+        except Exception:
+            return False
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
@@ -443,38 +450,55 @@ class Moulder(_Instructor):
                          engine_kwargs=moulder_func_kwargs)
 
 class Cortex(_Instructor):
-    '''Cortex class, which defines reaction to a certain tickle from the World.
-    The Cortex is separate from beliefs and depend only on scaffold
+    '''Cortex class, which defines how the Agent responds to being tickled
+    and produces a feature. 
 
     Parameters
     ----------
-    name : str
+    cortex_name : str
         Name of cortex
-    tickle_name : str
-        Name of the kind of external tickling that the cortex responds to
     cortex_func : callable
-        Callable function that upon execution returns a value of some sort that
-        at most can depend on the agent scaffold.
-    kwargs : dict, optional
-        Named arguments for the `cortex_func`
+        The function that defines the engine of the cortex that consumes the
+        input imprint and which generates the feature output. Conventionally 
+        the function is defined within the scope of the Agent
+    inputer : Essence, Resource, Belief or callable
+        The input to the engine, or an executable that returns the input the
+        engine consumes. These objects encodes something persistent of the
+        agent. 
+    feature : Feature
+        Feature object with defined semantics, which the cortex engine populates
+        upon execution
+    cortex_func_kwargs : dict, optional
+        Named arguments to the cortex function
+
+    Raises
+    ------
+    TypeError
+        If the `inputer` parameter provides a message of type other than
+        Essence, Resource or Belief, or if the `feature` parameter is a 
+        message of type other than Feature.
 
     '''
     def __call__(self):
-        '''Execute the cortex
+        '''Execute the cortex to consume input and produce the output
 
         Returns
         -------
-        value
-            Return value as the cortex is tickled.
+        success : bool
+            If execution of engine successful, return value is True. If
+            execution created Exception, return value is False     
 
         '''
         agent_state_values = self.message_input().values()
 
-        out_values = self.engine(*agent_state_values, **self.kwargs)
+        try:
+            out_values = self.engine(*agent_state_values, **self.kwargs)
+        except Exception:
+            return False
 
         self.message_output.set_values(out_values)
 
-        return self.message_output
+        return True 
 
     def __init__(self, cortex_name, cortex_func, inputer, feature,
                  cortex_func_kwargs={}):
@@ -497,11 +521,43 @@ class Cortex(_Instructor):
                          engine_kwargs=cortex_func_kwargs)
 
 class Compulsion(_Instructor):
-    '''Bla bla
+    '''Compulsion class, which defines how the Agent responds to being
+    compelled to produce a tangible mapping
+
+    Parameters
+    ----------
+    compel_name : str
+        Name of compulsion
+    compel_func : callable
+        The function that defines the engine of the compulsion that produces
+        the tangible resource mapping for the agent
+    resource_map : ResourceMap or MapCollection
+        Map with defined semantics to act on agent resources
+    func_get_agent_id : bool, optional
+        If True, the compel function is provided the agent index as one of the
+        input arguments, if False, not so.
+    compel_func_kwargs : dict, optional
+        Named arguments to the compel function
+
+    Raises
+    ------
+    TypeError
+        If the resource map is not an instance of ResourceMap or MapCollection
 
     '''
     def __call__(self, agent_index):
-        '''Bla bla
+        '''Execute the compulsion and populate the output
+
+        Parameters
+        ----------
+        agent_index : str
+            The agent index for the agent that is compelled
+
+        Returns
+        -------
+        success : bool
+            If execution of engine successful, return value is True. If
+            execution created Exception, return value is False     
 
         '''
         if self.func_get_agent_id:
@@ -511,25 +567,54 @@ class Compulsion(_Instructor):
         else:
             kwargs = self.kwargs
 
-        out_values = self.engine(**kwargs)
+        try:
+            out_values = self.engine(**kwargs)
+        except Exception:
+            return False
 
         self.scaffold_map.set_values(out_values)
 
         return True 
 
-    def __init__(self, name, compel_func, resource_map,
+    def __init__(self, compel_name, compel_func, resource_map,
                  func_get_agent_id=True, compel_func_kwargs={}):
 
-        if not isinstance(resource_map, _Map):
-            raise TypeError('Compulsion must have a resource map, child of _Map')
+        if not isinstance(resource_map, (ResourceMap, MapCollection)):
+            raise TypeError('Compulsion must have a resource map of type ' + \
+                            'ResourceMap or MapCollection')
 
-        super().__init__(name, compel_func, 
+        super().__init__(compel_name, compel_func, 
                          scaffold_map=resource_map, 
                          engine_kwargs=compel_func_kwargs)
         self.func_get_agent_id = func_get_agent_id
 
 class Mutation(_Instructor):
-    '''Bla bla
+    '''Mutation class, which defines how the Agent responds to being
+    mutated to produce a tangible mapping
+
+    Parameters
+    ----------
+    mutate_name : str
+        Name of mutation
+    mutate_func : callable
+        The function that defines the engine of the mutation that produces
+        the tangible resource mapping for the agent
+    essence_map : EssenceMap or MapCollection
+        Map with defined semantics to act on agent essence
+    mutation_prob : float, optional
+        Probability the mutation engine is executed
+    func_get_agent_id : bool, optional
+        If True, the mutate function is provided the agent index as one of the
+        input arguments, if False, not so.
+    mutate_func_kwargs : dict, optional
+        Named arguments to the mutate function
+
+    Raises
+    ------
+    TypeError
+        If the essence map is not an instance of EssenceMap or MapCollection
+    ValueError
+        If the probability is not between 0.0 and 1.0
 
     '''
     def __call__(self, agent_index):
@@ -553,14 +638,15 @@ class Mutation(_Instructor):
 
         return True
 
-    def __init__(self, name, mutate_func, essence_map,
+    def __init__(self, mutate_name, mutate_func, essence_map,
                  mutation_prob=1.0, func_get_agent_id=True,
                  mutate_func_kwargs={}):
 
-        if not isinstance(essence_map, _Map): 
-            raise TypeError('Mutation must have a essence map, child of _Map')
+        if not isinstance(essence_map, (EssenceMap, MapCollection)): 
+            raise TypeError('Mutation must have an essence map of type ' + \
+                            'EssenceMap or MapCollection')
 
-        super().__init__(name, mutate_func, 
+        super().__init__(mutate_name, mutate_func, 
                          scaffold_map=essence_map, 
                          engine_kwargs=mutate_func_kwargs)
         self.func_get_agent_id = func_get_agent_id
@@ -575,6 +661,8 @@ class MultiMutation(Mutation):
         '''Bla bla
 
         '''
+        raise NotImplementedError
+
         out_values = []
         for key in self.scaffold_map.keys():
             if np.random.ranf() < self.mutation_prob:
