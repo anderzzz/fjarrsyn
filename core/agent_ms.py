@@ -86,7 +86,7 @@ class AgentManagementSystem(object):
         node_agent_1 = self.node_from_agent_id_[agent_index_1]
         node_agent_2 = self.node_from_agent_id_[agent_index_2]
 
-        there_is_edge = (node_agent_1, node_agent_2) in self.agents_graph
+        there_is_edge = (node_agent_1, node_agent_2) in self.agents_graph.edges
 
         if not there_is_edge:
             return there_is_edge, None
@@ -156,14 +156,16 @@ class AgentManagementSystem(object):
             Any auxiliary content of the node
 
         '''
-        if not require_agents:
+        if not require_agent:
             entry = np.random.choice(list(self.agents_graph.nodes))
 
         else:
-            nodes_shuffle = np.random.shuffle(list(self.agents_graph.nodes))
+            nodes_shuffle = np.random.choice(list(self.agents_graph.nodes),
+                                             size=len(self.agents_graph.nodes))
             for node in nodes_shuffle:
                 if not node.agent_content is None:
                     entry = node
+                    break
 
             else:
                 raise RuntimeError('The graph contains no nodes with agents')
