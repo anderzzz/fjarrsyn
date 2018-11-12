@@ -68,23 +68,131 @@ class AgentManagementSystem(object):
             ret_neighbours = node_neighbours
 
         return set(ret_neighbours)
-            
-    def shuffle_iter(self, max_iter):
-        '''Iterator over node content in system as a random selection with
-        replacement. 
+
+    def edge_property(self, agent_index_1, agent_index_2):
+        '''Determine property of edge, including if there is an edge at all
+
+        Parameters
+        ----------
+        agent_index_1 : str
+            Index of first agent in system
+        agent_index_2 : str
+            Index of second agent in system
+
+        Returns
+        -------
+
+        '''
+        node_agent_1 = self.node_from_agent_id_[agent_index_1]
+        node_agent_2 = self.node_from_agent_id_[agent_index_2]
+
+        there_is_edge = (node_agent_1, node_agent_2) in self.agents_graph
+
+        if not there_is_edge:
+            return there_is_edge, None
+
+        else:
+            edge_attribute = self.agents_graph[node_agent_1][node_agent_2]
+            return there_is_edge, edge_attribute
+
+    def edge_edit(self, agent_index_1, agent_index_2, 
+                  delete=False, add=False, weight=None):
+        '''Edit the agent graph
 
         Notes
         -----
-        The return element is generated in each iteration from the current 
-        set of nodes. Therefore, this iterator is stable to additions or
-        deletions of nodes or agents contained in nodes of the system 
-        during the iteration.
+        The method does not verify if the graph operation makes sense given the
+        current topology. If not, exceptions are raised in graph library
+        method. 
+
+        Parameters
+        ----------
+        agent_index_1 : str
+            Index of first agent in system
+        agent_index_2 : str
+            Index of second agent in system
+        delete : bool, optional
+            If True, delete edge between the two agents
+        add : bool, optional
+            If True, add edge between the two agents
+        weight : optional
+            Add or set weight attribute of edge, either previously existing or
+            just added
+
+        Raises
+        ------
+        NetworkXError 
+            If operations on the graph are meaningless in current topology
+
+        '''
+        node_agent_1 = self.node_from_agent_id_[agent_index_1]
+        node_agent_2 = self.node_from_agent_id_[agent_index_2]
+
+        if delete:
+            self.agents_graph.remove_edge(node_agent_1, node_agent_2)
+
+        if add:
+            self.agents_graph.add_edge(node_agent_1, node_agent_2)
+
+        if not weight is None:
+            raise NotImplementedError('Weighted graphs not fully implemented')
+            self.agents_graph.edges[node_agent_1, node_agent_2]['weight'] = weight
+
+    def choice(self, require_agent=False):
+        '''Pick one node at random
+
+        Parameters
+        ----------
+        require_agent : bool, optional
+            If True, the random selection is made from the subset of nodes that
+            contain agents. If False, the random selection is made from the
+            full set of nodes.
+
+        Returns
+        -------
+        agent_content : Agent
+            Agent of node. Is `None` in case no agent occupies the node
+        aux_content 
+            Any auxiliary content of the node
+
+        '''
+        if not require_agents:
+            entry = np.random.choice(list(self.agents_graph.nodes))
+
+        else:
+            nodes_shuffle = np.random.shuffle(list(self.agents_graph.nodes))
+            for node in nodes_shuffle:
+                if not node.agent_content is None:
+                    entry = node
+
+            else:
+                raise RuntimeError('The graph contains no nodes with agents')
+            
+        return entry.agent_content, entry.aux_content
+
+    def shuffle_iter(self, max_iter, replace=False):
+        '''Iterator over node content in system as a random selection with
+        or without replacement. 
+
+        Notes
+        -----
+        Graphs can contain nodes that are not populated by an agent. This
+        manifest itself as `agent_content` being `None`. The loop using the
+        iterator should therefore handle these cases. Also note that if nodes
+        are added or deleted to the graph inside a loop using the iterator,
+        bad behaviour can be produced. If such graph operations are to be
+        performed, `choice` can be used to pick nodes one by one.
 
         Parameters
         ----------
         max_iter : int
             The number of entries the iterator should yield. If set to negative
             number the iteration is infinite.
+        replace : bool, optional
+            If True, the iterator selects nodes randomly with replacement such
+            that an uneven sampling of the nodes can be generated. If False,
+            the iterator selects nodes in random order, but guaranteed to
+            generate an even sampling of the nodes.
 
         Yields
         ------
@@ -93,11 +201,6 @@ class AgentManagementSystem(object):
         aux_content 
             Any auxiliary content of the node
 
-        Raises
-        ------
-        StopIteration
-            In case the system is void of nodes
-
         '''
         def _terminator(counter):
             if (counter < max_iter) or (max_iter < 0):
@@ -105,22 +208,19 @@ class AgentManagementSystem(object):
             else:
                 return False
             
+        shuffled = []
         counter = 0
         while _terminator(counter): 
             counter += 1
 
-            if self.agents_graph.number_of_nodes() > 0:
-                entry = np.random.choice(list(self.agents_graph.nodes))
+            if len(shuffled) == 0:
+                shuffled = list(np.random.choice(list(self.agents_graph.nodes), 
+                                                 size=len(self.agents_graph.nodes),
+                                                 replace=replace))
 
-            else:
-                raise StopIteration('No nodes left in system')
+            entry = shuffled.pop()
 
             yield entry.agent_content, entry.aux_content
-
-    def __len__(self):
-        '''Return number of agents in the system'''
-
-        return len(self.agents_in_scope)
 
     def __iter__(self):
         '''Iterator over all nodes and their content of the agent system.
@@ -131,7 +231,8 @@ class AgentManagementSystem(object):
         manifest itself as `agent_content` being `None`. The loop using the
         iterator should therefore handle these cases. Also note that if nodes
         are added or deleted to the graph inside a loop using the iterator,
-        bad behaviour can be produced..
+        bad behaviour can be produced. If such graph operations are to be
+        performed, `choice` can be used to pick nodes one by one.
 
         Yields
         ------
@@ -361,6 +462,30 @@ class AgentManagementSystem(object):
         did_it_mutate = the_mutation(agent.agent_id_system)
         agent.apply_map(the_mutation.scaffold_map)
 
+    def engage_all_verbs(self, agent, validate_lawbook=False):
+        '''Convenience function to apply all verbs to the given agent
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent to apply verbs to
+        validate_lawbook : bool, optional
+            If True, the system law book is used to selectively apply only laws
+            that have jurisdiction over the given agent
+
+        '''
+        for law_type in self.law:
+            for phrase, law in self.law[law_type].items():
+                
+                if validate_lawbook:
+                    if not phrase in self.lawbook[agent.agent_id_system]:
+                        continue
+
+                if law_type == 'compulsion':
+                    self.compel(agent, phrase, validate_lawbook)
+                elif law_type == 'mutation':
+                    self.mutate(agent, phrase, validate_lawbook)
+
     def make_lawbook_entry(self, law_phrases, agent_name_selector=None, agent_ids=None):
         '''Enter a connection between agents as certain law phrases, such that
         the agent management system can enforce certain laws being applied to
@@ -409,29 +534,10 @@ class AgentManagementSystem(object):
 
             self.lawbook[agent.agent_id_system] = word
 
-    def engage_all_verbs(self, agent, validate_lawbook=False):
-        '''Convenience function to apply all verbs to the given agent
+    def __len__(self):
+        '''Return number of agents in the system'''
 
-        Parameters
-        ----------
-        agent : Agent
-            The agent to apply verbs to
-        validate_lawbook : bool, optional
-            If True, the system law book is used to selectively apply only laws
-            that have jurisdiction over the given agent
-
-        '''
-        for law_type in self.law:
-            for phrase, law in self.law[law_type].items():
-                
-                if validate_lawbook:
-                    if not phrase in self.lawbook[agent.agent_id_system]:
-                        continue
-
-                if law_type == 'compulsion':
-                    self.compel(agent, phrase, validate_lawbook)
-                elif law_type == 'mutation':
-                    self.mutate(agent, phrase, validate_lawbook)
+        return len(self.agents_in_scope)
 
     def __init__(self, name, agents, full_agents_graph=None):
 
