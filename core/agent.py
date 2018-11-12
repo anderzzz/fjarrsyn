@@ -145,7 +145,7 @@ class Agent(object):
         Parameters
         ----------
         organ
-            The organ class instance to add to the agent. The organ must be one
+            The instructor class instance to add to the agent. The organ must be one
             of the known organ classes
 
         Raises
@@ -188,8 +188,8 @@ class Agent(object):
         Parameters
         ----------
         organs
-            Container of elements of the organ class instance to add to 
-            the agent in bulk. The organ must be one of the known organ classes
+            Argument tuple of organs to add to the agent. Must be instances
+            of known organ classes
 
         '''
         for organ in organs:

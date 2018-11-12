@@ -15,13 +15,6 @@ class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or
     other external objects. 
     
-    Notes 
-    -----
-    The agent management system is an abstract object in which the agent 
-    affordances are implemented and transplanted into the relevant agent
-    organs. Any spatial network relations between agents are part of this
-    system. Agents part of the system are assinged a unique ID.
-
     Parameters
     ----------
     name : str
@@ -38,6 +31,13 @@ class AgentManagementSystem(object):
     TypeError
         If a full agents graph is given that is not of the Graph class
 
+    Notes 
+    -----
+    The agent management system is an abstract object in which the agent 
+    affordances are implemented and transplanted into the relevant agent
+    organs. Any spatial network relations between agents are part of this
+    system. Agents part of the system are assinged a unique ID.
+
     '''
     def neighbours_to(self, agent_index, agents_only=True):
         '''Method to extract the agent objects neighbours in the graph to the
@@ -48,11 +48,14 @@ class AgentManagementSystem(object):
         agent_index : str
             The agent identifier within the system, available from the
             `agent_id_system` attribute
+        agents_only : bool, optional
+            If True, only the agents of the graph neighbours are returned,
+            otherwise the entire Node object of the neighbours
 
         Returns
         -------
         agents_hood : set
-            Set of agents directly adjacent to the given agent
+            Set of agents (or Nodes) directly adjacent to the given agent
 
         '''
         node_with_agent = self.node_from_agent_id_[agent_index]
@@ -67,12 +70,13 @@ class AgentManagementSystem(object):
         return set(ret_neighbours)
             
     def shuffle_iter(self, max_iter):
-        '''Iterator over node content in system in random order. 
+        '''Iterator over node content in system as a random selection with
+        replacement. 
 
         Notes
         -----
-        The element is generated in each iteration from the current set of
-        nodes. Therefore, this iterator is stable to additions or
+        The return element is generated in each iteration from the current 
+        set of nodes. Therefore, this iterator is stable to additions or
         deletions of nodes or agents contained in nodes of the system 
         during the iteration.
 
@@ -114,19 +118,20 @@ class AgentManagementSystem(object):
             yield entry.agent_content, entry.aux_content
 
     def __len__(self):
+        '''Return number of agents in the system'''
 
         return len(self.agents_in_scope)
 
     def __iter__(self):
-        '''Iterator over the nodes and their content of the agent system.
+        '''Iterator over all nodes and their content of the agent system.
 
         Notes
         -----
         Graphs can contain nodes that are not populated by an agent. This
         manifest itself as `agent_content` being `None`. The loop using the
         iterator should therefore handle these cases. Also note that if nodes
-        are added or deleted to the graph while the iterator is used, can
-        create bad behaviour.
+        are added or deleted to the graph inside a loop using the iterator,
+        bad behaviour can be produced..
 
         Yields
         ------
@@ -226,7 +231,19 @@ class AgentManagementSystem(object):
         self.node_from_agent_id_[agent.agent_id_system] = node
 
     def set_law(self, law):
-        '''Bla bla
+        '''Add a law for agents in the system
+
+        Parameters
+        ----------
+        law
+            The instructor class instance to add to the agent management
+            system. The law must be one the known law classes
+
+        Raises
+        ------
+        TypeError
+            If the `law` that is given as input is not an instance of a known
+            law class
 
         '''
         if isinstance(law, Compulsion):
@@ -239,14 +256,44 @@ class AgentManagementSystem(object):
             raise TypeError('Unknown law type: %s' %(str(type(law))))
 
     def set_laws(self, *laws):
-        '''Bla bla
+        '''Add laws for agents to the system
+
+        Parameters
+        ----------
+        laws
+            Argument tuple of the laws to add to the agent. Must be instances
+            of known law classes
 
         '''
         for law in laws:
             self.set_law(law)
 
-    def compel(self, agent, phrase):
-        '''Bla bla
+    def compel(self, agent, phrase, validate_lawbook=False):
+        '''Verb for the agent management system to execute a Compulsion
+
+        Notes
+        -----
+        The method collects the Compulsion associated with the input phrase and
+        compels the given agent accordingly
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent to be compelled
+        phrase : str
+            Name of the compulsion to execute
+        validate_lawbook : bool, optional
+            If True, validate that Compulsion of given phrase should be
+            possible to apply to given agent. 
+
+        Raises
+        ------
+        KeyError
+            If system contains no compulsion with the phrase
+        TypeError
+            If it is not an agent that is compelled
+        RuntimeError
+            If the agent does not have the phrase in the law book
 
         '''
         if not isinstance(agent, Agent):
@@ -259,11 +306,41 @@ class AgentManagementSystem(object):
         else:
             the_compulsion = self.compulsion[phrase]
 
+        if validate_lawbook:
+            if not phrase in self.lawbook[agent.agent_id_system]:
+                raise RuntimeError('Compulsion %s is not in law book ' %(phrase) + \
+                                   'for agent with ID %s' %(agent.agent_id_system))
+
         did_it_compel = the_compulsion(agent.agent_id_system)
         agent.apply_map(the_compulsion.scaffold_map)
 
-    def mutate(self, agent, phrase):
-        '''Bla bla
+    def mutate(self, agent, phrase, validate_lawbook=False):
+        '''Verb for the agent management system to execute a Mutation or
+        MultiMutation 
+
+        Notes
+        -----
+        The method collects the Mutation (or MultiMutation) associated 
+        with the input phrase and compels the given agent accordingly
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent to be mutated 
+        phrase : str
+            Name of the mutation to execute
+        validate_lawbook : bool, optional
+            If True, validate that Mutation of given phrase should be
+            possible to apply to given agent. 
+
+        Raises
+        ------
+        KeyError
+            If system contains no mutation with the phrase
+        TypeError
+            If it is not an agent that is mutated
+        RuntimeError
+            If the agent does not have the phrase in the law book
 
         '''
         if not isinstance(agent, Agent): 
@@ -276,19 +353,85 @@ class AgentManagementSystem(object):
         else:
             the_mutation = self.mutation[phrase]
 
+        if validate_lawbook:
+            if not phrase in self.lawbook[agent.agent_id_system]:
+                raise RuntimeError('Compulsion %s is not in law book ' %(phrase) + \
+                                   'for agent with ID %s' %(agent.agent_id_system))
+
         did_it_mutate = the_mutation(agent.agent_id_system)
         agent.apply_map(the_mutation.scaffold_map)
 
-    def apply_all_laws(self, agent):
-        '''Bla bla
+    def make_lawbook_entry(self, law_phrases, agent_name_selector=None, agent_ids=None):
+        '''Enter a connection between agents as certain law phrases, such that
+        the agent management system can enforce certain laws being applied to
+        certain agents only
+
+        Parameters
+        ----------
+        law_phrases : Iterable
+            Collection of phrases, or names, of laws that have been added to
+            the system
+        agent_name_selector : callable, optional
+            Function that receives an agent name and returns either True or
+            False, where the former is interpreted as that the given law
+            phrases apply to the corresponding set of agents of the system
+        agent_ids : iterable, optional
+            Collection of agent IDs, strings, for which the given law phrases
+            apply. 
+
+        Notes
+        -----
+        At least one of the `agent_name_selector` or `agent_ids` has to be
+        given. 
+
+        The method updates the law book, hence the method can be called
+        multiple times in order to fully populate the law book. If an agent
+        matches no law phrase, its entry is None.
+
+        The law book is not required and is not enforced unless relevant
+        methods, such as `compel` and `mutate`, are explicitly instructed to do
+        so.
+
+        '''
+        for agent, aux in self:
+            word = self.lawbook.setdefault(agent.agent_id_system, None)
+
+            if not agent_name_selector is None:
+                if agent_name_selector(agent.name):
+                    word = law_phrases
+
+            elif not agent_ids is None:
+                if agent.agent_id_system in agent_ids:
+                    word = law_phrases
+
+            else:
+                raise ValueError('One of agent_name_selector or agent_ids must be set')
+
+            self.lawbook[agent.agent_id_system] = word
+
+    def engage_all_verbs(self, agent, validate_lawbook=False):
+        '''Convenience function to apply all verbs to the given agent
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent to apply verbs to
+        validate_lawbook : bool, optional
+            If True, the system law book is used to selectively apply only laws
+            that have jurisdiction over the given agent
 
         '''
         for law_type in self.law:
             for phrase, law in self.law[law_type].items():
+                
+                if validate_lawbook:
+                    if not phrase in self.lawbook[agent.agent_id_system]:
+                        continue
+
                 if law_type == 'compulsion':
-                    self.compel(agent, phrase)
+                    self.compel(agent, phrase, validate_lawbook)
                 elif law_type == 'mutation':
-                    self.mutate(agent, phrase)
+                    self.mutate(agent, phrase, validate_lawbook)
 
     def __init__(self, name, agents, full_agents_graph=None):
 
@@ -335,3 +478,4 @@ class AgentManagementSystem(object):
         self.mutation = {}
         self.law = {'compulsion' : self.compulsion,
                     'mutator' : self.mutation}
+        self.lawbook = {}

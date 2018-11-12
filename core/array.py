@@ -350,7 +350,7 @@ class _SupraArray(object):
         '''
         total_str = []
         for _array in self._arrays:
-            total_str.append(str(array))
+            total_str.append(str(_array))
 
         return ' + '.join(total_str)
 
