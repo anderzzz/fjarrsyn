@@ -166,8 +166,8 @@ class Sensor(_Instructor):
 
         try:
             out_values = self.engine(**kwargs)
-        except Exception:
-            return False
+        except Exception as err:
+            return err
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
@@ -251,8 +251,8 @@ class Actuator(_Instructor):
 
         try:
             out_values = self.engine(*direction_values, **kwargs)
-        except Exception:
-            return False
+        except Exception as err:
+            return err
 
         if not self.scaffold_map is None:
             out_values_naturallaw = out_values
@@ -334,8 +334,8 @@ class Interpreter(_Instructor):
 
         try:
             out_values = self.engine(*args, **self.kwargs)
-        except Exception:
-            return False
+        except Exception as err:
+            return err
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
@@ -416,8 +416,8 @@ class Moulder(_Instructor):
 
         try:
             out_values = self.engine(*belief_values, **self.kwargs)
-        except Exception:
-            return False
+        except Exception as err:
+            return err
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
@@ -493,8 +493,8 @@ class Cortex(_Instructor):
 
         try:
             out_values = self.engine(*agent_state_values, **self.kwargs)
-        except Exception:
-            return False
+        except Exception as err:
+            return err
 
         self.message_output.set_values(out_values)
 
@@ -569,8 +569,8 @@ class Compulsion(_Instructor):
 
         try:
             out_values = self.engine(**kwargs)
-        except Exception:
-            return False
+        except Exception as err:
+            return err
 
         self.scaffold_map.set_values(out_values)
 
@@ -652,8 +652,8 @@ class Mutation(_Instructor):
 
             try:
                 out_values = self.engine(**kwargs)
-            except Exception:
-                return False
+            except Exception as err:
+                return err
 
             self.scaffold_map.set_values(out_values)
 
@@ -751,8 +751,8 @@ class MultiMutation(Mutation):
             if np.random.ranf() < self.mutation_prob:
                 try:
                     out_values.append(self.engine(**kwargs))
-                except Exception:
-                    return False
+                except Exception as err:
+                    return err
 
             else:
                 out_values.append(None)

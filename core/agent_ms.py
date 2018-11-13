@@ -415,6 +415,9 @@ class AgentManagementSystem(object):
                                    'for agent with ID %s' %(agent.agent_id_system))
 
         did_it_compel = the_compulsion(agent.agent_id_system)
+        if self.strict_engine and (not did_it_compel is True):
+            raise did_it_compel
+
         agent.apply_map(the_compulsion.scaffold_map)
 
     def mutate(self, agent, phrase, validate_lawbook=False):
@@ -462,6 +465,9 @@ class AgentManagementSystem(object):
                                    'for agent with ID %s' %(agent.agent_id_system))
 
         did_it_mutate = the_mutation(agent.agent_id_system)
+        if self.strict_engine and (not did_it_mutate is True):
+            raise did_it_mutate
+
         agent.apply_map(the_mutation.scaffold_map)
 
     def engage_all_verbs(self, agent, validate_lawbook=False):
@@ -541,9 +547,11 @@ class AgentManagementSystem(object):
 
         return len(self.agents_in_scope)
 
-    def __init__(self, name, agents, full_agents_graph=None):
+    def __init__(self, name, agents, full_agents_graph=None,
+                 strict_engine=False):
 
         self.name = name
+        self.strict_engine = strict_engine
 
         #
         # The agent to agent network relation is defined, which is a complete

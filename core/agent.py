@@ -3,7 +3,7 @@
 '''
 from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
 from core.policy import Clause, Heartbeat
-from core.message import Resource, Essence, Feature
+from core.message import Resource, Essence, Feature, Buzz, Belief, Direction
 
 class Agent(object):
     '''The parent Agent class. In applications a custom agent class is created,
@@ -129,7 +129,7 @@ class Agent(object):
 
         Parameters
         ----------
-        scaffold : Resource or Essence
+        scaffolds : Resource or Essence
             An agent scaffold that defines a property of the agent constitution
         allow_overwrite : bool, optional
             If True the scaffold can be altered, if False the scaffold can only
@@ -138,6 +138,52 @@ class Agent(object):
         '''
         for scaffold in scaffolds: 
             self.set_scaffold(scaffold, allow_overwrite)
+
+    def set_message(self, message, allow_overwrite=True):
+        '''Add a message available to the organs of the agent.
+
+        Parameters
+        ----------
+        message : Buzz, Belief, Direction, Feature
+            The message instance to add to the agent's repetoire. The message
+            must be one of the known message classes, not a scaffold
+
+        Raises
+        ------
+        TypeError
+            If the `message` that is given as input is not an instance of a
+            known message class
+
+        '''
+        if isinstance(message, Buzz):
+            self._set('buzz', message.name, message)
+
+        elif isinstance(message, Belief):
+            self._set('belief', message.name, message)
+
+        elif isinstance(message, Direction):
+            self._set('direction', message.name, message)
+
+        elif isinstance(message, Feature):
+            self._set('feature', message.name, message)
+
+        else:
+            raise TypeError('Unknown message type: %s' %(str(type(message))))
+
+    def set_messages(self, *messages, allow_overwrite=True):
+        '''Add several messages to the agent at once
+
+        Parameters
+        ----------
+        messages : Buzz, Belief, Direction, Feature
+            An agent message
+        allow_overwrite : bool, optional
+            If True the message can be altered, if False the message can only
+            be assigned once
+
+        '''
+        for message in messages:
+            self.set_message(message, allow_overwrite)
 
     def set_organ(self, organ):
         '''Add an organ to the agent.
@@ -157,7 +203,7 @@ class Agent(object):
         '''
         if isinstance(organ, Sensor):
             self._set('sensor', organ.name, organ)
-            self._set('buzz', organ.message_output.name, organ.message_output)
+            self.set_message(organ.message_output)
             self._inverse_map[organ.name] = 'sensor'
 
         elif isinstance(organ, Actuator):
@@ -166,17 +212,17 @@ class Agent(object):
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
-            self._set('belief', organ.message_output.name, organ.message_output)
+            self.set_message(organ.message_output)
             self._inverse_map[organ.name] = 'interpreter'
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
-            self._set('direction', organ.message_output.name, organ.message_output)
+            self.set_message(organ.message_output)
             self._inverse_map[organ.name] = 'moulder'
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.name, organ)
-            self._set('feature', organ.message_output.name, organ.message_output)
+            self.set_message(organ.message_output)
             self._inverse_map[organ.name] = 'cortex'
 
         else:
@@ -255,6 +301,8 @@ class Agent(object):
             the_cortex = self.cortex[phrase]
 
         did_it_reveal = the_cortex()
+        if self.strict_engine and (not did_it_reveal is True):
+            raise did_it_reveal
 
         return the_cortex.message_output
 
@@ -284,6 +332,9 @@ class Agent(object):
             the_sensor = self.sensor[phrase]
 
         did_it_sense = the_sensor(self.agent_id_system)
+        if self.strict_engine and (not did_it_sense is True):
+            raise did_it_sense
+
         self.apply_map(the_sensor.scaffold_map)
 
     def interpret(self, phrase):
@@ -312,6 +363,9 @@ class Agent(object):
             the_interpreter = self.interpreter[phrase]
 
         did_it_interpret = the_interpreter()
+        if self.strict_engine and (not did_it_interpret is True):
+            raise did_it_interpret
+
         self.apply_map(the_interpreter.scaffold_map)
 
     def mould(self, phrase):
@@ -340,6 +394,9 @@ class Agent(object):
             the_moulder = self.moulder[phrase]
 
         did_it_mould = the_moulder()
+        if self.strict_engine and (not did_it_mould is True):
+            raise did_it_mould
+
         self.apply_map(the_moulder.scaffold_map)
 
     def act(self, phrase):
@@ -368,6 +425,9 @@ class Agent(object):
             the_actuator = self.actuator[phrase]
 
         did_it_act = the_actuator(self.agent_id_system)
+        if self.strict_engine and (not did_it_act is True):
+            raise did_it_act
+
         self.apply_map(the_actuator.scaffold_map)
 
     def engage(self, organ_sequence):
@@ -452,9 +512,10 @@ class Agent(object):
         raise RuntimeError('Basic Agent class has no executive function. ' + \
                            'That should be implemented in specific agent classes.')
 
-    def __init__(self, name):
+    def __init__(self, name, strict_engine=False):
 
         self.name = name
+        self.strict_engine = strict_engine
 
         #
         # Agent ID is a property of the agent assigned by the agent system 
