@@ -1,22 +1,16 @@
 '''Basic Curse of the Commons
 
 '''
-import numpy as np
-import numpy.random
-
 from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.instructor import Sensor, Interpreter, Moulder, Actuator, Compulsion
+from core.instructor import Interpreter, Moulder
 from core.message import Belief, Direction, Resource, Essence
-from core.scaffold_map import ResourceMap, MapCollection
 from core.policy import Clause, Heartbeat, AutoBeliefCondition, \
                         AutoResourceCondition
 
 class Village(Agent):
 
-    def inspect_storage(self, dummy):
+    def inspect_storage(self, n_fishes, n_people):
 
-        n_fishes, n_people = self.resource.values()
         storage_ratio = float(n_fishes) / float(n_people)
 
         if storage_ratio < self.essence['how_low'] * 0.3:
@@ -58,7 +52,6 @@ class Village(Agent):
 
         else:
             self.heartbeat.inert = True
-            raise RuntimeError('Death of Village')
 
     def __init__(self, name, n_people, n_fishes, how_low, max_fish):
 
@@ -74,25 +67,24 @@ class Village(Agent):
         self.set_scaffold(village_resource)
 
         storage_status = Belief('must add to stock', ['assessment'])
-        stock_ok = Interpreter('should we go fish', storage_status,
-                               self.inspect_storage, storage_status)
+        stock_ok = Interpreter('should we go fish', self.inspect_storage, 
+                                village_resource, storage_status)
         direct_fishing_act = Direction('go fish like this', 
                                        ['number_boats', 'upper_limit'])
-        go_fishing = Moulder('go fish', storage_status, self.fish_instr,
+        go_fishing = Moulder('go fish', self.fish_instr, storage_status,
                              direct_fishing_act)
         self.set_organs(stock_ok, go_fishing)
 
         belief_cond = AutoBeliefCondition('warehouse status', 
-                                          None,
-                                          lambda x: x != 'OK')
+                                          lambda x: x != 'OK',
+                                          'must add to stock')
         clause_1 = Clause('fish now?', ('should we go fish',), belief_cond)
         clause_2 = Clause('go', ('go fish', 'fish from lake'))
         self.set_policies(clause_1, clause_2)
 
         heart_cond = AutoResourceCondition('still alive', 
-                                           'village items',
-                                           ('n_people',),
-                                           lambda x: x > 0)
+                                           lambda x: x > 0,
+                                           ('n_people',))
         heart = Heartbeat('alive', (heart_cond,))
         self.set_policies(heart)
 

@@ -302,37 +302,6 @@ class AgentManagementSystem(object):
         agent.agent_id_system = None
         del self.agents_in_scope[key]
 
-    def bookkeep(self, agent):
-        '''Add an agent to the book keeping of the agent management system
-
-        Parameters
-        ----------
-        agent : Agent
-            Agent to add to system
-
-        '''
-        if not isinstance(agent, Agent):
-            raise TypeError('Only instances of the Agent class can be ' + \
-                            'in Agent System book keeping')
-
-        agent.agent_id_system = str(uuid4())
-        self.agents_in_scope[agent.agent_id_system] = agent
-
-    def situate(self, agent, node):
-        '''Join an agent to a node and add it to the system book keeping
-
-        Parameters
-        ----------
-        agent : Agent
-            Agent to add to system
-        node : Node
-            Node of graph in which to situate the agent to
-
-        '''
-        self.bookkeep(agent)
-        node.agent_content = agent
-        self.node_from_agent_id_[agent.agent_id_system] = node
-
     def set_law(self, law):
         '''Add a law for agents in the system
 
@@ -370,6 +339,37 @@ class AgentManagementSystem(object):
         '''
         for law in laws:
             self.set_law(law)
+
+    def bookkeep(self, agent):
+        '''Add an agent to the book keeping of the agent management system
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent to add to system
+
+        '''
+        if not isinstance(agent, Agent):
+            raise TypeError('Only instances of the Agent class can be ' + \
+                            'in Agent System book keeping')
+
+        agent.agent_id_system = str(uuid4())
+        self.agents_in_scope[agent.agent_id_system] = agent
+
+    def situate(self, agent, node):
+        '''Join an agent to a node and add it to the system book keeping
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent to add to system
+        node : Node
+            Node of graph in which to situate the agent to
+
+        '''
+        self.bookkeep(agent)
+        node.agent_content = agent
+        self.node_from_agent_id_[agent.agent_id_system] = node
 
     def compel(self, agent, phrase, validate_lawbook=False):
         '''Verb for the agent management system to execute a Compulsion

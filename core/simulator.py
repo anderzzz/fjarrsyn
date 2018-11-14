@@ -3,8 +3,8 @@ the system. The classes contain standard sampling methods.
 
 '''
 from core.agent_ms import AgentManagementSystem
-from writeread.graph_io import GraphIO
-from writeread.agent_io import AgentSystemIO
+from core.graph_io import GraphIO
+from core.agent_io import AgentSystemIO
 
 class FiniteSystemRunner(object):
     '''Class to create an object that runs a simulation of an agent system

@@ -4,13 +4,9 @@
 import numpy as np
 import numpy.random
 
-from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
-from core.instructor import Sensor, Interpreter, Moulder, Actuator, Compulsion
-from core.message import Belief, Direction, Resource, Essence
+from core.instructor import Actuator, Compulsion
 from core.scaffold_map import ResourceMap, MapCollection
-from core.policy import Clause, Heartbeat, AutoBeliefCondition, \
-                        AutoResourceCondition
 
 class Lake(object):
 
@@ -101,20 +97,19 @@ class World(AgentManagementSystem):
         super().__init__(name, agents)
         self.common_env = lake
 
-        map_fish = ResourceMap('fish stock change', 'n_fishes', 'delta', ('adjust_fish',))
-        map_people = ResourceMap('birth death', 'n_people', 'delta', ('adjust_people',))
-        eat_love_death = ResourceMapCollection([map_fish, map_people])
+        map_fish = ResourceMap('fish stock change', 'delta', 'n_fishes', ('adjust_fish',))
+        map_people = ResourceMap('birth death', 'delta', 'n_people', ('adjust_people',))
+        eat_love_death = MapCollection([map_fish, map_people])
 
-        natural_reqs = Compulsion('survival demands', ['n_people', 'n_fishes'], 
-                                  self.eat_life_die, eat_love_death)
+        natural_reqs = Compulsion('survival demands', self.eat_life_die,
+                                  eat_love_death)
         self.set_law(natural_reqs)
 
         for agent in agents:
-            more_fish = ResourceMap('add_fish', 'n_fishes', 'delta', ('add_fishes',))
+            more_fish = ResourceMap('add_fish', 'delta', 'n_fishes', ('add_fishes',))
             fish_from_lake = Actuator('fish from lake', 
-                                      agent.direction['go fish like this'],
                                       self.extract_from_lake,
-                                      'fish_results',
+                                      agent.direction['go fish like this'],
                                       more_fish)
             agent.set_organ(fish_from_lake)
 

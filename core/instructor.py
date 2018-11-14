@@ -350,7 +350,7 @@ class Interpreter(_Instructor):
                  resource_map=None, interpreter_func_kwargs={},
                  belief_updater=False):
 
-        if isinstance(inputer, (Buzz, Belief)):
+        if isinstance(inputer, (Buzz, Belief, Resource)):
             inputer_actual = ImprintOperator(inputer).identity
 
         elif isinstance(inputer, (Buzz, Direction, Feature)):
