@@ -63,7 +63,8 @@ class FiniteSystemRunner(object):
         for k_iter in range(self.n_iter):
 
             self.propagate_(system, **self.propagate_kwargs)
-            self.io.try_stamp(system, k_iter)
+            if not self.io is None:
+                self.io.try_stamp(system, k_iter)
 
             if not self.progress_report_step is None:
                 if k_iter % self.progress_report_step == 0:
@@ -96,4 +97,4 @@ class FiniteSystemRunner(object):
             self.io = system_io
 
         else:
-            self.io.try_stamp = lambda x, y: None 
+            self.io = None
