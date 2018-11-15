@@ -1,4 +1,6 @@
-'''Bla bla
+'''Sampler classes that extract some subset of system features for easy
+digestion, analysis or writing to disk. The samplers include agent properties,
+environment properties and system topological properties.
 
 '''
 import os
@@ -7,13 +9,89 @@ from pandas import DataFrame
 from collections import Iterable
 
 class AgentSampler(object):
-    '''Bla bla
+    '''Given an Agent Management System, the state of the agents are sampled in
+    an easy to use data format.
+
+    Notes
+    -----
+    The Agent Sampler is typically used in conjunction with the System IO class
+    wherein the data from the Agent Sampler is written to disk by the System IO
+    instance. 
+
+    The format of the semantic elements of the containers for `resource_args`,
+    `essence_args` and `belief_args` is a two-membered tuple with semantic
+    content as follows:
+
+    (<imprint name>, <imprint semantic element>)
+
+    For a belief defined as `Belief('Time', ('Season','Time of Day'))` the
+    semantic elements can be ('Time', 'Season') or ('Time', 'Time of Day')
+
+    Parameters
+    ----------
+    resource_args : list or tuple, optional
+        If provided, the container should include semantic elements, which
+        define one resource of the agent that should be sampled. The format of 
+        each semantic element is as defined in the Notes. 
+    essence_args : list or tuple, optional
+        If provided, the container should include semantic elements, which
+        define one essence of the agent that should be sampled. The format of 
+        each semantic element is as defined in the Notes. 
+    belief_args : list or tuple, optional
+        If provided, the container should include semantic elements, which
+        define one belief of the agent that should be sampled. The format of 
+        each semantic element is as defined in the Notes. 
+    matcher : callable, optional
+        If provided, the callable takes one input, an Agent, and based on some
+        of its attributes should compute a boolean return. If the returned
+        boolean is True, this agent is to be sampled, if False, the agent
+        should not be sampled. This is typically used if the system contains
+        qualitatively very different agents, which should be sampled in
+        separate ways. A convenient way is to match based on agent name. If not
+        provided, all agents are sampled.
+    sample_steps : int, optional
+        Integer that instructs a simulator or IO class at what multiples of
+        simulated steps to execute the Agent Sampler.
+
+    Raises
+    ------
+    TypeError
+        If the resource, essence or belief argument semantics is defined in
+        other format than specified.
+    TypeError
+        If the matcher is not a callable
 
     '''
     def __call__(self, ams, generation=0):
-        '''Bla bla
+        '''Perform a sampling of agents of a system
+
+        Notes
+        -----
+        The sampling data is in the form of a pandas DataFrame. The Pandas
+        library provides several methods to filter and reformat the data if
+        desired. The sampled data is easily turned into a CSV file by invoking
+        the method `.to_csv('output.csv')` to the DataFrame output.
+
+        Parameters
+        ----------
+        ams : AgentManagementSystem
+            An agent management system populated with Agents, not necessarily
+            identical ones
+        generation : int, optional
+            If the sampling is part of a simulation, this parameter enables to
+            provide the current generation or iteration of the sampling, such
+            that this value becomes included as meta data in the sampling
+            output
+
+        Returns
+        -------
+        df : Pandas DataFrame
+            A stacked pandas DataFrame of sampled agent data. 
 
         '''
+        #
+        # Loop pver agents in system
+        #
         rows = []
         for agent, aux in ams:
 
@@ -21,17 +99,26 @@ class AgentSampler(object):
             if not self.matcher is None:
                 is_there_match = self.matcher(agent)
 
+            #
+            # If agent is supposed to be sampled, proceed here
+            #
             if is_there_match:
                 d_out = {self.indexer[0] : generation,
                          self.indexer[1] : agent.name,
                          self.indexer[2] : agent.agent_id_system}
 
+                #
+                # Loop over the imprint types of an Agent
+                #
                 for imprint_type in ['resource', 'essence', 'belief']:
 
                     args = getattr(self, imprint_type + '_args')
                     if args is None:
                         continue
 
+                    #
+                    # Loop over imprint names and arguments
+                    #
                     for array_name, arg_name in args:
 
                         if imprint_type == 'belief': 
@@ -42,6 +129,10 @@ class AgentSampler(object):
 
                         for key, value in imprint.items():
 
+                            #
+                            # If a match on all counts, construct the compact
+                            # label and retrieve the corresponding value
+                            #
                             if key == arg_name:
                                 label = ':'.join([imprint_type, array_name, key])
                                 d_out[label] = value
@@ -49,6 +140,11 @@ class AgentSampler(object):
                 df_row = pd.Series(d_out)
                 rows.append(df_row)
 
+        #
+        # 1. Create a DataFrame, pivotted, such that there is one row per agent
+        # 2. Stack the data columns, such that there is one row per data entry
+        # 3 & 4. Adjust labels and ordering of rows to be intuitive
+        #
         df = pd.DataFrame(rows)
         df = df.melt(id_vars=self.indexer)
         df = df.set_index(self.indexer + ['variable'])
@@ -57,7 +153,7 @@ class AgentSampler(object):
         return df
 
     def __init__(self, resource_args=None, essence_args=None, belief_args=None,
-                 matcher=None, sample_steps=None, other_attributes=None):
+                 matcher=None, sample_steps=None):
 
         self.indexer = ['generation', 'name', 'agent_index']
 
@@ -86,8 +182,6 @@ class AgentSampler(object):
             self.matcher = lambda x: True
 
         self.sample_steps = sample_steps
-
-        self.other_attr = other_attributes
 
 class EnvSampler(object):
     pass
@@ -158,97 +252,3 @@ class SystemIO(object):
 
             self.io_rules.append(rule)
 
-class AgentSystemIO(object):
-    '''Bla bla
-
-    '''
-    def flatten_scaffold(self, scaffold):
-        '''Rename imprint data by merging scaffold and beliefs with their
-        respective labels. Typical label can be `scaffold_money`.
-
-        Parameters
-        ----------
-        imprint : dict
-            The imprint of an agent
-
-        Returns
-        -------
-        flat_imprint : dict
-            The dictionary where keys have been flattened
-
-        '''
-        flat_imprint = {}
-        for scaffold_type, scaffold_data in scaffold.items():
-            for unit_name, unit_value in scaffold_data.items():
-                key_union = scaffold_type + '_' + unit_name
-                flat_scaffold[key_union] = unit_value
-
-        return flat_scaffold
-
-    def write_state_of_(self, system, write_count):
-        '''Write the agent states of the system
-
-        Parameters
-        ----------
-        system
-            The agent management system
-
-        '''
-        for agent_id, agent in system.agents_in_scope.items(): 
-
-            for imprint_label in ['resource', 'essence', 'belief']:
-
-                data_dict = getattr(agent, imprint_label)
-
-            if any([not v is None for v in agent.scaffold.values()]):
-                data_dict = self.flatten_scaffold(agent.scaffold)
-
-            else:
-                data_dict = {}
-
-            data_dict['agent_id'] = agent_id
-            data_dict['generation_count'] = str(write_count)
-            
-            self.writer.writerow(data_dict)
-
-    def flush(self):
-        '''Bla bla
-
-        '''
-        self.file_handle.flush()
-
-    def close(self):
-        '''Bla bla
-
-        '''
-        self.file_handle.close()
-
-    def __init__(self, file_name, file_format, resource_args=None,
-                 essence_args=None, belief_args=None):
-
-        fieldnames = ['agent_id'] + ['generation_count']
-
-        if not resource_args is None:
-            resource_fields = ['resource:' + arg_name for arg_name in resource_args]
-            fieldnames += resource_fields
-        self.resource_args = resource_args
-                
-        if not essence_args is None:
-            essence_fields = ['essence:' + arg_name for arg_name in essence_args]
-            fieldnames += essence_fields
-        self.essence_args = essence_args
-                
-        if not belief_args is None:
-            belief_fields = ['belief:' + arg_name for arg_name in belief_args]
-            fieldnames += belief_fields
-        self.belief_args = belief_args
-                
-        self.file_handle = open(file_name, 'w')
-        if file_format == 'csv':
-            self.writer = csv.DictWriter(self.file_handle,
-                                         fieldnames=fieldnames,
-                                         extrasaction='ignore')
-            self.writer.writeheader()
-
-        else:
-            raise ValueError('Unknown agent system file format: %s' %(file_format))
