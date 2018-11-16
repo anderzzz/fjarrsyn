@@ -25,6 +25,13 @@ class AgentManagementSystem(object):
         Optional Graph object that defines the spatial network relation between
         the agents of the system. If none given, a complete non-directional
         graph is used.
+    common_env : optional
+        In case all agents have a common environment, provide the corresponding
+        object here
+    strict_engine : bool, optional
+        If False, any exceptions from engine execution of instructors are
+        non-fatal to the execution. If True, engine exceptions terminates
+        execution
 
     Raises
     ------

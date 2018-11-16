@@ -19,6 +19,10 @@ class Agent(object):
     ----------
     name : str
         Name of the agent
+    strict_engine : bool, optional
+        If False, any exceptions from engine execution of instructors are
+        non-fatal to the execution. If True, engine exceptions terminates
+        execution
 
     '''
     def _tickle_cortex_labels(self):
