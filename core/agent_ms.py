@@ -548,7 +548,7 @@ class AgentManagementSystem(object):
         return len(self.agents_in_scope)
 
     def __init__(self, name, agents, full_agents_graph=None,
-                 strict_engine=False):
+                 common_env=None, strict_engine=False):
 
         self.name = name
         self.strict_engine = strict_engine
@@ -570,6 +570,8 @@ class AgentManagementSystem(object):
                                 'of the Graph class')
 
         self.agents_graph.name = 'Agents Graph of System %s' %(self.name)
+
+        self.common_env = common_env
 
         #
         # The agents are added to the system book keeping

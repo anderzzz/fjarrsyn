@@ -7,6 +7,8 @@ import os
 import pandas as pd
 from pandas import DataFrame
 from collections import Iterable
+import networkx as nx
+import operator
 
 class AgentSampler(object):
     '''Given an Agent Management System, the state of the agents are sampled in
@@ -153,7 +155,7 @@ class AgentSampler(object):
         return df
 
     def __init__(self, resource_args=None, essence_args=None, belief_args=None,
-                 matcher=None, sample_steps=None):
+                 matcher=None, sample_steps=1):
 
         self.indexer = ['generation', 'name', 'agent_index']
 
@@ -184,10 +186,164 @@ class AgentSampler(object):
         self.sample_steps = sample_steps
 
 class EnvSampler(object):
-    pass
+    '''Basic Environment sampler
+
+    Bla BLA
+
+    '''
+    def __call__(self, ams, generation=0):
+        '''Bla bla
+
+        '''
+        if not self.common_env is None:
+
+            df = pd.DataFrame(self.sampler_func(ams.common_env),
+                     index=pd.Index([generation], name='generation'))
+
+        else:
+
+            rows = []
+            for agent, aux in ams:
+
+                is_there_match = True
+                if not self.matcher is None:
+                    is_there_match = self.matcher(agent)
+
+                if is_there_match:
+                    d_out = {self.indexer[0] : generation,
+                             self.indexer[1] : agent.name,
+                             self.indexer[2] : agent.agent_id_system}
+
+                    data_dict = self.sampler_func(aux)
+                    d_out.update(data_dict)
+
+                    df_row = pd.Series(d_out)
+                    rows.append(df_row)
+
+            df = pd.DataFrame(rows)
+            df = df.melt(id_vars=self.indexer)
+            df = df.set_index(self.indexer + ['variable'])
+            df = df.sort_values(self.indexer)
+
+        return df
+
+    def __init__(self, sampler_func, 
+                 common_env=None, 
+                 agent_matcher=None, agent_data_index=['generation'],
+                 sample_steps=1):
+
+        self.sampler_func = sampler_func
+        
+        self.common_env = common_env
+        self.indexer = ['generation', 'name', 'agent_index']
+
+        if not agent_matcher is None:
+            if not callable(agent_matcher):
+                raise TypeError('The matcher should be a callable')
+            self.matcher = agent_matcher
+
+        else:
+            self.matcher = lambda x: True
+        self.agent_data_index = agent_data_index
+
+        self.sample_steps = sample_steps
 
 class GraphSampler(object):
-    pass
+    '''Bla bla
+
+    '''
+    def _make_labels_only(self, network):
+        '''Create a new network of identical topology, but with the nodes
+        swapped for the agent label. This is needed to create a representation
+        that can be serialized as a string
+
+        Parameters
+        ----------
+        network 
+            The reference network, from `networkx` library
+
+        Returns
+        -------
+        network_agent_labels
+            The new network with the label substitution, all else the same as
+            the input network
+
+        Raises
+        ------
+        RuntimeError
+            If the number of nodes changes after re-labelling. This is caused
+            by non-unique node labels. The method attempts to make labels
+            unique, but in some edge-cases that include labels that end on
+            `_<integer>`, this routine can conceivably fail.
+
+        '''
+        mapping = {}
+        for node in network:
+
+            if not node.agent_content is None:
+                mapping[node] = self.key_occ_(node)
+
+            else:
+                mapping[node] = self.key_unocc_(node)
+
+        if len(set(mapping.values())) < nx.number_of_nodes(network):
+
+            value_values = set(mapping.values())
+            v_map = {}
+            for v in value_values:
+                n_vals = list(mapping.values()).count(v)
+                if n_vals > 1:
+                    v_unique = [v + '_%s'%(str(k)) for k in range(n_vals)]
+                    v_map[v] = v_unique
+                else:
+                    v_map[v] = [v]
+
+            mapping_unique = {}
+            for key, value in mapping.items():
+                mapping_unique[key] = v_map[value].pop(0)
+            mapping = mapping_unique
+
+        network_agent_labels = nx.relabel_nodes(network, mapping)
+
+        if nx.number_of_nodes(network_agent_labels) != nx.number_of_nodes(network):
+            raise RuntimeError('After relabelling number of nodes changes. ' + \
+                               'Likely an edge-case in the key functions')
+
+        return network_agent_labels
+
+    def __call__(self, ams, generation=0):
+        '''Bla bla
+
+        '''
+        network_labels_only = self._make_labels_only(ams.agents_graph)
+        
+        return network_labels_only
+
+    def __init__(self, 
+                 key_occ_node='agent_id_system', 
+                 key_unocc_node='unoccupied', 
+                 report_empty_to_empty=True, sample_steps=1):
+
+        if isinstance(key_occ_node, str):
+            self.key_occ_ = lambda x: x.agent_content.agent_id_system
+
+        elif callable(key_occ_node):
+            self.key_occ_ = key_occ_node
+
+        else:
+            raise TypeError('The `key_occ_node` argument must be string or callable')
+
+        if isinstance(key_unocc_node, str):
+            self.key_unocc_ = lambda x: key_unocc_node
+
+        elif callable(key_unocc_node):
+            self.key_unocc_ = lambda x: getattr(x, key_unocc_node)
+
+        else:
+            raise TypeError('The `key_unocc_node` argument must be string or callable')
+
+        self.report_empty_to_empty = report_empty_to_empty
+        self.sample_steps = sample_steps
 
 class SystemIO(object):
     '''Bla bla
@@ -197,9 +353,17 @@ class SystemIO(object):
         '''Bla bla
 
         '''
-        df = sampler(system, generation)
+        if isinstance(sampler, (AgentSampler, EnvSampler)):
+            df = sampler(system, generation)
+            getattr(df, io_method)(filename, **io_method_kwargs)
 
-        getattr(df, io_method)(filename, **io_method_kwargs)
+        elif isinstance(sampler, GraphSampler):
+            network_strings_only = sampler(system, generation)
+            io_func = operator.attrgetter(io_method)(nx.readwrite)
+            io_func(network_strings_only, filename, **io_method_kwargs)
+
+        else:
+            TypeError('Unknown sampler type %s' %(str(type(sampler))))
 
     def try_stamp(self, system, generation):
         '''Bla bla
@@ -219,36 +383,56 @@ class SystemIO(object):
         for rule in self.io_rules:
             sampler = rule['sampler']
             if generation % sampler.sample_steps == 0:
-                filename = rule['filename'][:self.injection_point] + \
+                injection_point = rule['injection_point']
+                filename = rule['filename'][:injection_point] + \
                            str(generation) + \
-                           rule['filename'][self.injection_point:]
+                           rule['filename'][injection_point:]
                 io_method = rule['io_method']
                 io_method_kwargs = rule['io_method_kwargs']
 
                 yield sampler, io_method, filename, io_method_kwargs
 
+    def set_write_rule(self, name, method_key, sampler, method_kwargs={}):
+        '''Bla bla
+
+        '''
+        rule = {}
+
+        if isinstance(sampler, (AgentSampler, EnvSampler)):
+
+            try:
+                write_method = getattr(DataFrame, method_key)
+                rule['io_method'] = method_key
+            except AttributeError:
+                raise AttributeError('IO object must use one of the IO ' + \
+                                     'of Pandas DataFrame, not %s' %(method_key))
+            rule['filename'] = name + method_key.replace('to_', '.')
+            rule['injection_point'] = len(name)
+
+        elif isinstance(sampler, GraphSampler):
+            
+            try:
+                write_method = operator.attrgetter(method_key)(nx.readwrite)
+                rule['io_method'] = method_key
+            except AttributeError:
+                raise AttributeError('IO object must use one of the IO ' + \
+                                     'of networkx, not %s' %(method_key))
+
+            rule['filename'] = name + '.' + method_key.split('.')[0]
+            rule['injection_point'] = len(name)
+
+        else:
+            raise TypeError('The sampler should be instance of one of ' + \
+                            'the library samplers')
+
+        rule['sampler'] = sampler
+        rule['io_method_kwargs'] = method_kwargs
+        
+        self.io_rules.append(rule)
+
     def __init__(self, io_objects=[]):
 
         self.io_rules = []
+
         for io_obj in io_objects:
-            rule = {}
-
-            try:
-                write_method = getattr(DataFrame, io_obj[1])
-                rule['io_method'] = io_obj[1] 
-            except AttributeError:
-                raise AttributeError('IO object must use one of the IO ' + \
-                                     'of Pandas DataFrame, not %s' %(io_obj[1]))
-
-            rule['filename'] = io_obj[0] + io_obj[1].replace('to_', '.')
-            rule['sampler'] = io_obj[2]
-            
-            self.injection_point = len(io_obj[0])
-
-            if len(io_objects) == 4:
-                rule['io_method_kwargs'] = io_obj[4]
-            else:
-                rule['io_method_kwargs'] = {}
-
-            self.io_rules.append(rule)
-
+            self.set_write_rule(*io_obj)

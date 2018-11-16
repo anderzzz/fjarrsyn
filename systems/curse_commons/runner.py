@@ -16,6 +16,9 @@ LAKE_SIZE = 25
 CAPACITY = 1000
 SPAWN_PROB = 0.3
 
+def sample_env(lake):
+    return {'n_fish' : lake.n_fish}
+
 collection = []
 for k_village in range(N_VILLAGES):
     village = Village('Village %s' %(str(k_village)),
@@ -30,11 +33,12 @@ village_sampler = AgentSampler(resource_args=[('village items', 'n_people')],
                                matcher=lambda x : 'Village' in x.name)
 
 lake = Lake(INIT_FISHES_LAKE, LAKE_SIZE, SPAWN_PROB, CAPACITY)
-#lake_sampler = EnvSampler()
+lake_sampler = EnvSampler(sample_env, common_env=lake, sample_steps=5)
 
 world = World('Around the Lake', collection, lake)
 
-io = SystemIO([('villages', 'to_json', village_sampler)])
+io = SystemIO([('villages', 'to_csv', village_sampler),
+               ('lake_state', 'to_csv', lake_sampler)])
 #io.append('villages', 'csv', village_sampler)
 #io.append('lake', 'csv', lake_sampler)
 propagator = Propagator()

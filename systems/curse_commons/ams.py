@@ -94,8 +94,7 @@ class World(AgentManagementSystem):
 
     def __init__(self, name, agents, lake):
 
-        super().__init__(name, agents)
-        self.common_env = lake
+        super().__init__(name, agents, common_env=lake)
 
         map_fish = ResourceMap('fish stock change', 'delta', 'n_fishes', ('adjust_fish',))
         map_people = ResourceMap('birth death', 'delta', 'n_people', ('adjust_people',))

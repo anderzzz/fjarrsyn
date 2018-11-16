@@ -106,6 +106,9 @@ class Agent(object):
             If scaffold is neither an instance of Resource or Essence
 
         '''
+        if not isinstance(allow_overwrite, bool):
+            raise TypeError('`allow_overwrite` should be Boolean')
+
         if isinstance(scaffold, Resource):
             if (not allow_overwrite) and (not self.resource is None):
                 raise RuntimeError('Agent resource not allowed to be ' + \
@@ -155,6 +158,9 @@ class Agent(object):
             known message class
 
         '''
+        if not isinstance(allow_overwrite, bool):
+            raise TypeError('`allow_overwrite` should be Boolean')
+
         if isinstance(message, Buzz):
             self._set('buzz', message.name, message)
 
