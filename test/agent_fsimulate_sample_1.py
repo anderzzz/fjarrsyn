@@ -68,8 +68,8 @@ agent_sampler_1 = AgentSampler(resource_args=[('Dietary energy', 'value')],
                                sample_steps=2)
 agent_sampler_2 = AgentSampler(essence_args=[('Persistence', 'value')],
                                sample_steps=3)
-io = SystemIO([('tmp_1', 'to_csv', agent_sampler_1),
-               ('tmp_2', 'to_json', agent_sampler_2)])
+io = SystemIO([('tmp_1', agent_sampler_1, 'to_csv'),
+               ('tmp_2', agent_sampler_2, 'to_json')])
 
 runner = FiniteSystemRunner(4, propagator, system_io=io)
 runner(ams)

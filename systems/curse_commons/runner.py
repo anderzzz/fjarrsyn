@@ -33,7 +33,7 @@ village_sampler = AgentSampler(resource_args=[('village items', 'n_people')],
                                matcher=lambda x : 'Village' in x.name)
 
 lake = Lake(INIT_FISHES_LAKE, LAKE_SIZE, SPAWN_PROB, CAPACITY)
-lake_sampler = EnvSampler(sample_env, common_env=lake, sample_steps=5)
+lake_sampler = EnvSampler(sample_env, common_env=True, sample_steps=5)
 
 world = World('Around the Lake', collection, lake)
 

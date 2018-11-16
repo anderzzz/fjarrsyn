@@ -3,9 +3,7 @@ digestion, analysis or writing to disk. The samplers include agent properties,
 environment properties and system topological properties.
 
 '''
-import os
-import pandas as pd
-from pandas import DataFrame
+from pandas import DataFrame, Series, Index
 from collections import Iterable
 import networkx as nx
 import operator
@@ -13,6 +11,32 @@ import operator
 class AgentSampler(object):
     '''Given an Agent Management System, the state of the agents are sampled in
     an easy to use data format.
+
+    Parameters
+    ----------
+    resource_args : list or tuple, optional
+        If provided, the container should include semantic elements, which
+        define one resource of the agent that should be sampled. The format of 
+        each semantic element is as defined in the Notes. 
+    essence_args : list or tuple, optional
+        If provided, the container should include semantic elements, which
+        define one essence of the agent that should be sampled. The format of 
+        each semantic element is as defined in the Notes. 
+    belief_args : list or tuple, optional
+        If provided, the container should include semantic elements, which
+        define one belief of the agent that should be sampled. The format of 
+        each semantic element is as defined in the Notes. 
+    agent_matcher : callable, optional
+        If provided, the callable takes one input, an Agent, and based on some
+        of its attributes should compute a boolean return. If the returned
+        boolean is True, this agent is to be sampled, if False, the agent
+        should not be sampled. This is typically used if the system contains
+        qualitatively very different agents, which should be sampled in
+        separate ways. A convenient way is to match based on agent name. If not
+        provided, all agents are sampled.
+    sample_steps : int, optional
+        Integer that instructs a simulator or IO class at what multiples of
+        simulated steps to execute the Agent Sampler.
 
     Notes
     -----
@@ -29,32 +53,6 @@ class AgentSampler(object):
     For a belief defined as `Belief('Time', ('Season','Time of Day'))` the
     semantic elements can be ('Time', 'Season') or ('Time', 'Time of Day')
 
-    Parameters
-    ----------
-    resource_args : list or tuple, optional
-        If provided, the container should include semantic elements, which
-        define one resource of the agent that should be sampled. The format of 
-        each semantic element is as defined in the Notes. 
-    essence_args : list or tuple, optional
-        If provided, the container should include semantic elements, which
-        define one essence of the agent that should be sampled. The format of 
-        each semantic element is as defined in the Notes. 
-    belief_args : list or tuple, optional
-        If provided, the container should include semantic elements, which
-        define one belief of the agent that should be sampled. The format of 
-        each semantic element is as defined in the Notes. 
-    matcher : callable, optional
-        If provided, the callable takes one input, an Agent, and based on some
-        of its attributes should compute a boolean return. If the returned
-        boolean is True, this agent is to be sampled, if False, the agent
-        should not be sampled. This is typically used if the system contains
-        qualitatively very different agents, which should be sampled in
-        separate ways. A convenient way is to match based on agent name. If not
-        provided, all agents are sampled.
-    sample_steps : int, optional
-        Integer that instructs a simulator or IO class at what multiples of
-        simulated steps to execute the Agent Sampler.
-
     Raises
     ------
     TypeError
@@ -66,13 +64,6 @@ class AgentSampler(object):
     '''
     def __call__(self, ams, generation=0):
         '''Perform a sampling of agents of a system
-
-        Notes
-        -----
-        The sampling data is in the form of a pandas DataFrame. The Pandas
-        library provides several methods to filter and reformat the data if
-        desired. The sampled data is easily turned into a CSV file by invoking
-        the method `.to_csv('output.csv')` to the DataFrame output.
 
         Parameters
         ----------
@@ -89,6 +80,13 @@ class AgentSampler(object):
         -------
         df : Pandas DataFrame
             A stacked pandas DataFrame of sampled agent data. 
+
+        Notes
+        -----
+        The sampling data is in the form of a pandas DataFrame. The Pandas
+        library provides several methods to filter and reformat the data if
+        desired. The sampled data is easily turned into a CSV file by invoking
+        the method `.to_csv('output.csv')` to the DataFrame output.
 
         '''
         #
@@ -139,7 +137,7 @@ class AgentSampler(object):
                                 label = ':'.join([imprint_type, array_name, key])
                                 d_out[label] = value
 
-                df_row = pd.Series(d_out)
+                df_row = Series(d_out)
                 rows.append(df_row)
 
         #
@@ -147,7 +145,7 @@ class AgentSampler(object):
         # 2. Stack the data columns, such that there is one row per data entry
         # 3 & 4. Adjust labels and ordering of rows to be intuitive
         #
-        df = pd.DataFrame(rows)
+        df = DataFrame(rows)
         df = df.melt(id_vars=self.indexer)
         df = df.set_index(self.indexer + ['variable'])
         df = df.sort_values(self.indexer)
@@ -155,7 +153,7 @@ class AgentSampler(object):
         return df
 
     def __init__(self, resource_args=None, essence_args=None, belief_args=None,
-                 matcher=None, sample_steps=1):
+                 agent_matcher=None, sample_steps=1):
 
         self.indexer = ['generation', 'name', 'agent_index']
 
@@ -176,32 +174,95 @@ class AgentSampler(object):
         self.essence_args = essence_args
         self.belief_args = belief_args
 
-        if not matcher is None:
-            if not callable(matcher):
-                raise TypeError('The matcher should be a callable')
-            self.matcher = matcher
+        if not agent_matcher is None:
+            if not callable(agent_matcher):
+                raise TypeError('The agent_matcher should be a callable')
+            self.matcher = agent_matcher
         else:
             self.matcher = lambda x: True
 
         self.sample_steps = sample_steps
 
 class EnvSampler(object):
-    '''Basic Environment sampler
+    '''Given an Agent Management System, the state of the environment is
+    sampled in an easy to use data format.
 
-    Bla BLA
+    Parameters
+    ----------
+    sampler_func : callable
+        Function that given an instance of an environment class, however
+        defined, returns a dictionary. Each entry in the dictionary extracts an
+        attribute, or other property of the environment instance, and
+        associates it with a string key that will be used in the data format of
+        the sample.
+    common_env : bool, optional
+        If the sampler is of a common environment of the Agent Management
+        System, set this argument to True, while if the sampler is of local
+        agent environments, the argument should be set to False.
+    agent_matcher : callable, optional
+        If provided, the callable takes one input, an Agent, and based on some
+        of its attributes should compute a boolean return. If the returned
+        boolean is True, the local environment of this 
+        agent is to be sampled, if False, the local environment of this agent
+        should not be sampled. This is typically used if the system contains
+        qualitatively very different agents, which should be sampled in
+        separate ways. A convenient way is to match based on agent name. If not
+        provided, all agents are sampled.
+    sample_steps : int, optional
+        Integer that instructs a simulator or IO class at what multiples of
+        simulated steps to execute the Agent Sampler.
+    
+    Raises
+    ------
+    TypeError
+        If the agent_matcher is not callable
 
     '''
     def __call__(self, ams, generation=0):
-        '''Bla bla
+        '''Perform a sampling of environment of a system
+
+        Parameters
+        ----------
+        ams : AgentManagementSystem
+            An agent management system populated with Agents, not necessarily
+            identical ones
+        generation : int, optional
+            If the sampling is part of a simulation, this parameter enables to
+            provide the current generation or iteration of the sampling, such
+            that this value becomes included as meta data in the sampling
+            output
+
+        Returns
+        -------
+        df : Pandas DataFrame
+            A stacked pandas DataFrame of sampled environment data. 
+
+        Notes
+        -----
+        The sampling data is in the form of a pandas DataFrame. The Pandas
+        library provides several methods to filter and reformat the data if
+        desired. The sampled data is easily turned into a CSV file by invoking
+        the method `.to_csv('output.csv')` to the DataFrame output.
+
+        The construction of the environment class object is relatively 
+        unconstrained, therefore the environment sampler relies on a
+        user-defined sampler function that extracts the relevant data in a
+        format required.
 
         '''
-        if not self.common_env is None:
+        #
+        # If the sampling is done of a common environment, the data is
+        # comprised of a single row indexed on generation only
+        #
+        if self.common_env:
+            df = DataFrame(self.sampler_func(ams.common_env),
+                     index=Index([generation], name='generation'))
 
-            df = pd.DataFrame(self.sampler_func(ams.common_env),
-                     index=pd.Index([generation], name='generation'))
-
+        #
+        # If the sampling is done of local environments to a subset of agents
+        # of the system.
+        #
         else:
-
             rows = []
             for agent, aux in ams:
 
@@ -217,10 +278,15 @@ class EnvSampler(object):
                     data_dict = self.sampler_func(aux)
                     d_out.update(data_dict)
 
-                    df_row = pd.Series(d_out)
+                    df_row = Series(d_out)
                     rows.append(df_row)
 
-            df = pd.DataFrame(rows)
+            #
+            # 1. Create a DataFrame, pivotted, such that there is one row per agent
+            # 2. Stack the data columns, such that there is one row per data entry
+            # 3 & 4. Adjust labels and ordering of rows to be intuitive
+            #
+            df = DataFrame(rows)
             df = df.melt(id_vars=self.indexer)
             df = df.set_index(self.indexer + ['variable'])
             df = df.sort_values(self.indexer)
@@ -228,8 +294,7 @@ class EnvSampler(object):
         return df
 
     def __init__(self, sampler_func, 
-                 common_env=None, 
-                 agent_matcher=None, agent_data_index=['generation'],
+                 common_env=False, agent_matcher=None, 
                  sample_steps=1):
 
         self.sampler_func = sampler_func
@@ -244,12 +309,38 @@ class EnvSampler(object):
 
         else:
             self.matcher = lambda x: True
-        self.agent_data_index = agent_data_index
 
         self.sample_steps = sample_steps
 
 class GraphSampler(object):
-    '''Bla bla
+    '''Perform a sampling of the agent systems network
+
+    Parameters
+    ----------
+    key_occ_node : callable, optional
+        If a callable, the function takes a Node object as input, the Node
+        object containing an agent object, and returns a string key. Typically
+        the agent name or agent ID is returned. If not set, the label
+        substitution defaults to the agent ID.
+    key_unocc_node : callable, optional
+        If a callable, the function takes a Node object as input, the Node
+        object being without an agent object, and returns a string key. 
+        Typically this is a constant string, or some node attribute. If not 
+        set, the label substitution defaults to string `unoccupied`.
+    report_empty_to_empty : bool, optional
+        If True, the entire graph is sampled, including edges between nodes
+        that contain no Agent. If False, only the part of the graph with edges
+        comprised of at least one node containing an Agent is sampled.
+    sample_steps : int, optional
+        Integer that instructs a simulator or IO class at what multiples of
+        simulated steps to execute the Agent Sampler.
+        
+    Notes
+    -----
+    The graph sampling operates by replicating the network topology of the
+    agent system, and by substituting the agent objects with labels for easy
+    interpretation and cross-referencing. The mapping from agent object to
+    label is defined during initialization.
 
     '''
     def _make_labels_only(self, network):
@@ -286,6 +377,10 @@ class GraphSampler(object):
             else:
                 mapping[node] = self.key_unocc_(node)
 
+        #
+        # In the event that node labels are identical, they are uniquified in a
+        # predictable manner.
+        #
         if len(set(mapping.values())) < nx.number_of_nodes(network):
 
             value_values = set(mapping.values())
@@ -303,6 +398,9 @@ class GraphSampler(object):
                 mapping_unique[key] = v_map[value].pop(0)
             mapping = mapping_unique
 
+        #
+        # The relabelling
+        #
         network_agent_labels = nx.relabel_nodes(network, mapping)
 
         if nx.number_of_nodes(network_agent_labels) != nx.number_of_nodes(network):
@@ -312,19 +410,57 @@ class GraphSampler(object):
         return network_agent_labels
 
     def __call__(self, ams, generation=0):
-        '''Bla bla
+        '''Perform a sampling of the system graph
+
+        Parameters
+        ----------
+        ams : AgentManagementSystem
+            An agent management system populated with Agents, not necessarily
+            identical ones
+        generation : int, optional
+            If the sampling is part of a simulation, this parameter enables to
+            provide the current generation or iteration of the sampling, such
+            that this value becomes included as meta data in the sampling
+            output
+
+        Returns
+        -------
+        network_labels_only : networkx Graph
+            A Graph object from the networkx library where all nodes have been
+            substituted for unique string labels for easy writing
+
+        Notes
+        -----
+        The sampling data is in the form of a networkx Graph. The networkx
+        library provides several methods to analyze and reformat the data if
+        desired. The sampled data is easily turned into a standardized network
+        file by passing the return object to `networkx.readwrite.gexf.write_gexf` 
+        for example.
 
         '''
-        network_labels_only = self._make_labels_only(ams.agents_graph)
-        
+        if not self.report_empty_to_empty:
+            remove_set = []
+            for node_1, node_2 in ams.agents_graph.edges:
+                if node_1.agent_content is None and \
+                   node_2.agent_content is None:
+                    remove_set.append((node_1, node_2))
+
+            graph_transform = ams.agents_graph.copy()
+            graph_transform.remove_edges_from(remove_set)
+
+        else:
+            graph_transform = ams.agents_graph.copy()
+
+        network_labels_only = self._make_labels_only(graph_transform)
+
         return network_labels_only
 
     def __init__(self, 
-                 key_occ_node='agent_id_system', 
-                 key_unocc_node='unoccupied', 
+                 key_occ_node=None,
+                 key_unocc_node=None,
                  report_empty_to_empty=True, sample_steps=1):
 
-        if isinstance(key_occ_node, str):
+        if key_occ_node is None:
             self.key_occ_ = lambda x: x.agent_content.agent_id_system
 
         elif callable(key_occ_node):
@@ -333,8 +469,8 @@ class GraphSampler(object):
         else:
             raise TypeError('The `key_occ_node` argument must be string or callable')
 
-        if isinstance(key_unocc_node, str):
-            self.key_unocc_ = lambda x: key_unocc_node
+        if key_unocc_node is None:
+            self.key_unocc_ = lambda x: 'unoccupied'
 
         elif callable(key_unocc_node):
             self.key_unocc_ = lambda x: getattr(x, key_unocc_node)
@@ -346,11 +482,47 @@ class GraphSampler(object):
         self.sample_steps = sample_steps
 
 class SystemIO(object):
-    '''Bla bla
+    '''Write sampled data of the Agent System to disk by some control logic
+
+    Parameters
+    ----------
+    io_objects : list, optional
+        A list of io_objects. The io_objects are tuples that are passed as
+        arguments to the class method `set_write_rule`. Therefore, the current
+        input parameter is optional and is equivalent to a sequence of calls to
+        said class method
 
     '''
     def stamp(self, system, generation, sampler, io_method, filename, io_method_kwargs={}):
-        '''Bla bla
+        '''Perform the output operation to disk. The preferred public method is
+        `try_stamp` preceeded by a set of write rules through `set_write_rule`.
+
+        Parameters
+        ----------
+        system : AgentManagementSystem
+            Agent system under study
+        generation : int
+            The generation or iteration of a simulation, or an arbitrary index
+            in other contexts
+        sampler : AgentSampler, EnvSampler or GraphSampler
+            A sampler class instance that retrieves the data to write, as well
+            as defines the frequency at which to sample and write the data
+        method_key : str
+            The library method to convert a sampled piece of data into a file
+            of desired format. For agent and environment sampling, the
+            available methods are all IO methods of a Pandas library DataFrame.
+            For graph sampling, the available methods are all IO methods of a 
+            networkx library Graph. See documentation for `set_write_rule` for
+            further details.
+        filename : str
+            Full filename or path to write data to
+        io_method_kwargs : dict, optional
+            Named arguments to the method implied by the `method_key`
+
+        Raises
+        ------
+        TypeError
+            If unknown sampler type provided
 
         '''
         if isinstance(sampler, (AgentSampler, EnvSampler)):
@@ -366,7 +538,23 @@ class SystemIO(object):
             TypeError('Unknown sampler type %s' %(str(type(sampler))))
 
     def try_stamp(self, system, generation):
-        '''Bla bla
+        '''Attempt to stamp data onto disk. This is the preferred public method
+        in a simulation context, since only if a multiple of the sampler
+        frequency is provided does this method become an actual output
+        operation
+
+        Parameters
+        ----------
+        system : AgentManagementSystem
+            Agent system under study
+        generation : int
+            The generation or iteration of a simulation against which a
+            sampling frequency is compared
+
+        Returns
+        -------
+        stamped_one : bool
+            True if an output operation took place, False otherwise
 
         '''
         stamped_one = False
@@ -377,7 +565,28 @@ class SystemIO(object):
         return stamped_one
 
     def _samplers_to_sample_at_(self, generation):
-        '''Bla bla
+        '''Iterator over write rules given a generation index. If the
+        generation is not a multiple of the sampling frequency set in any of
+        the system samplers, the iterator yield is empty.
+
+        Parameters
+        ----------
+        generation : int
+            The generation or iteration of a simulation against which a
+            sampling frequency is compared
+
+        Returns
+        -------
+        sampler : AgentSampler, EnvSampler or GraphSampler
+            A sampler class instance to retrieve data sample,
+        io_method : str
+            The library method to convert a sampled piece of data into a file
+            of desired format. See documentation for `set_write_rule` for
+            further details.
+        filename : str
+            Full filename or path to write data to
+        io_method_kwargs : dict, optional
+            Named arguments to the method implied by the `method_key`
 
         '''
         for rule in self.io_rules:
@@ -392,8 +601,48 @@ class SystemIO(object):
 
                 yield sampler, io_method, filename, io_method_kwargs
 
-    def set_write_rule(self, name, method_key, sampler, method_kwargs={}):
-        '''Bla bla
+    def set_write_rule(self, name, sampler, method_key, method_kwargs={}):
+        '''Define a write rule, that is how to acquire data from the an agent
+        system, and where to write it.
+
+        Parameters
+        ----------
+        name : str
+            The file name prefix to which data is written
+        sampler : AgentSampler, EnvSampler or GraphSampler
+            A sampler class instance that retrieves the data to write, as well
+            as defines the frequency at which to sample and write the data
+        method_key : str
+            The library method to convert a sampled piece of data into a file
+            of desired format. For agent and environment sampling, the
+            available methods are all IO methods of a Pandas library DataFrame.
+            A partial list is provided in the Notes. For graph sampling, the
+            available methods are all IO methods of a networkx library Graph. A
+            partial list is provided in the Notes.
+        method_kwargs : dict, optional
+            Any named arguments to pass to the library IO method invoked.
+
+        Raises
+        ------
+        AttributeError
+            If an unknown `method_key` is provided
+        TypeError
+            If an unknown sampler type is provided
+
+        Notes
+        -----
+        The complete list of available IO methods can be found in the Pandas
+        and networkx library documentation. The following is a list of the most
+        common formats
+
+        `to_csv` : From Pandas, write in CSV format
+        `to_json` : From Pandas, write in JSON format
+        `to_pickle` : From Pandas, pickle the DataFrame
+        `to_sql` : From Pandas, write to SQL database
+        `edgelist.write_edgelist` : From networkx, write edge list as text file
+        `gexf.write_gexf` : From networkx, write in GEXF format
+        `gml.write_gml` : From networkx, write in GML format
+        `gpickle.write_gpickle` : From networkz, pickle the network
 
         '''
         rule = {}

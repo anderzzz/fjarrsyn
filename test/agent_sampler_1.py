@@ -128,19 +128,19 @@ for agent, aux in ams:
 central_a_sampler = AgentSampler(essence_args=[('Coordinator Essence', 'param_2'),
                                                ('Coordinator Essence', 'param_6')],
                                  resource_args=[('Coordinator Resource', 'Energy Status')],
-                                 matcher=_match_c)
+                                 agent_matcher=_match_c)
 leaf_a_sampler = AgentSampler(resource_args=[('Sensor Resource', 'Battery Power')],
                               belief_args=[('Is There Motion', 'size'),
                                            ('Is There Motion', 'speed')],
-                              matcher=_match_l)
+                              agent_matcher=_match_l)
 env_sampler = EnvSampler(env_stuff, agent_matcher=_match_l)
 graph_sampler = GraphSampler(lambda x: x.name)
 
 io = SystemIO()
-io.set_write_rule('central', 'to_csv', central_a_sampler)
-io.set_write_rule('leaf', 'to_csv', leaf_a_sampler)
-io.set_write_rule('env', 'to_json', env_sampler)
-io.set_write_rule('graph_props', 'gexf.write_gexf', graph_sampler)
+io.set_write_rule('central', central_a_sampler, 'to_csv')
+io.set_write_rule('leaf', leaf_a_sampler, 'to_csv')
+io.set_write_rule('env', env_sampler, 'to_json')
+io.set_write_rule('graph_props', graph_sampler, 'gexf.write_gexf')
 
 io.try_stamp(ams, 0)
 
