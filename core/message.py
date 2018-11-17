@@ -1,6 +1,8 @@
 '''Message classes
 
 '''
+from collections import Iterable
+
 from core.array import _Imprint, _Flash
 
 class Buzz(_Flash):
@@ -17,8 +19,7 @@ class Buzz(_Flash):
         some relevant semantics
 
     '''
-    def __name__(self):
-        return 'Buzz'
+    mtype = 'Buzz'
 
 class Direction(_Flash):
     '''The Direction class that is used to define the output of moulders
@@ -34,8 +35,7 @@ class Direction(_Flash):
         some relevant semantics
 
     '''
-    def __name__(self):
-        return 'Direction'
+    mtype = 'Direction'
 
 class Feature(_Flash):
     '''The Feature class that is used to define the output of cortex. The class
@@ -51,8 +51,7 @@ class Feature(_Flash):
         some relevant semantics
 
     '''
-    def __name__(self):
-        return 'Feature'
+    mtype = 'Feature'
 
 class Belief(_Imprint):
     '''The Belief class that is used to define the persistent output of
@@ -69,8 +68,7 @@ class Belief(_Imprint):
         some relevant semantics
 
     '''
-    def __name__(self):
-        return 'Belief'
+    mtype = 'Belief'
 
 class Resource(_Imprint):
     '''The Resource class that is used to define the items organs can
@@ -87,8 +85,7 @@ class Resource(_Imprint):
         some relevant semantics
 
     '''
-    def __name__(self):
-        return 'Resource'
+    mtype = 'Resource'
 
 class Essence(_Imprint):
     '''The Essence class that is used to define the items of the agent that are
@@ -105,8 +102,7 @@ class Essence(_Imprint):
         some relevant semantics
 
     '''
-    def __name__(self):
-        return 'Essence'
+    mtype = 'Essence'
 
 class MessageOperator(object):
     '''Provides different ways to dynamically access subsets or supersets of a
@@ -183,6 +179,12 @@ class MessageOperator(object):
         self.slice_labels = slice_labels
         self.merger = merger
         self.new_name = new_name
+
+        if isinstance(self.base_messages, Iterable):
+            self.mtype = self.base_messages[0].mtype
+
+        else:
+            self.mtype = self.base_messages.mtype
 
         if (not slice_labels is None) and merger:
             raise TypeError('Cannot handle slicing and merging simultaneously')
