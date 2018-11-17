@@ -12,7 +12,7 @@ from core.scaffold_map import ResourceMap, EssenceMap, \
                               MapCollection, _Map
 from core.message import Buzz, Direction, Feature, \
                          Belief, Resource, Essence, \
-                         ImprintOperator
+                         MessageOperator
 
 class _Instructor(object):
     '''Base class for all instructors. Common attributes are defined and type
@@ -204,10 +204,10 @@ class Actuator(_Instructor):
         The function that defines the engine of the actuator that consumes the
         input direction. Conventionally the function is defined within the scope of
         the Agent Managament System
-    direction : Direction
-        Direction object with defined semantics, whose values the actuator engine
-        consumes upon execution. Conventionally the Direction object has been
-        produced by a moulder
+    inputer : Direction or callable to access objects of such type
+        The input to the engine, or an executable that returns the input the
+        engine consumes. Conventionally the Direction object has been produced by a
+        moulder.
     resource_map : ResourceMap or MapCollection, optional
         In case the execution of the actuator produces tangible output to alter
         agent resources, a map with defined semantics is given
@@ -240,7 +240,7 @@ class Actuator(_Instructor):
             execution created Exception, return value is False     
 
         '''
-        direction_values = self.message_input.values()
+        direction_values = self.message_input().values()
 
         if self.func_get_agent_id:
             kwargs = copy.copy(self.kwargs)
@@ -260,15 +260,21 @@ class Actuator(_Instructor):
 
         return True
 
-    def __init__(self, actuator_name, actuator_func, direction,
+    def __init__(self, actuator_name, actuator_func, inputer, 
                  resource_map=None, func_get_agent_id=True,
                  actuator_func_kwargs={}):
 
-        if not isinstance(direction, Direction):
-            raise TypeError('Actuator cannot handle input other than Direction')
+        if isinstance(inputer, Direction):
+            inputer_actual = MessageOperator(inputer).identity
+
+        elif isinstance(inputer, (Buzz, Belief, Feature)):
+            raise TypeError('Actuator cannot handle Buzz, Belief or Feature as input')
+
+        else:
+            inputer_actual = inputer
 
         super().__init__(actuator_name, actuator_func, 
-                         message_input=direction,
+                         message_input=inputer_actual,
                          scaffold_map=resource_map, 
                          engine_kwargs=actuator_func_kwargs)
         self.func_get_agent_id = func_get_agent_id
@@ -351,7 +357,7 @@ class Interpreter(_Instructor):
                  belief_updater=False):
 
         if isinstance(inputer, (Buzz, Belief, Resource)):
-            inputer_actual = ImprintOperator(inputer).identity
+            inputer_actual = MessageOperator(inputer).identity
 
         elif isinstance(inputer, (Buzz, Direction, Feature)):
             raise TypeError('Interpreter cannot handle Direction, Buzz or Feature as input')
@@ -432,7 +438,7 @@ class Moulder(_Instructor):
                  resource_map=None, moulder_func_kwargs={}):
 
         if isinstance(inputer, Belief):
-            inputer_actual = ImprintOperator(inputer).identity
+            inputer_actual = MessageOperator(inputer).identity
 
         elif isinstance(inputer, (Buzz, Direction, Feature)):
             raise TypeError('Moulder cannot handle Direction, Buzz or Feature as input')
@@ -504,7 +510,7 @@ class Cortex(_Instructor):
                  cortex_func_kwargs={}):
 
         if isinstance(inputer, (Essence, Resource, Belief)):
-            inputer_actual = ImprintOperator(inputer).identity
+            inputer_actual = MessageOperator(inputer).identity
 
         elif isinstance(inputer, (Direction, Feature, Buzz)):
             raise TypeError('Cortex cannot handle Direction, Buzz or Feature as input')

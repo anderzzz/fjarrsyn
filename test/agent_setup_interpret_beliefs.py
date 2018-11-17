@@ -5,7 +5,7 @@ as input and creates belief as output
 from core.agent import Agent
 
 from core.instructor import Interpreter
-from core.message import Belief, ImprintOperator
+from core.message import Belief, MessageOperator
 
 REFVALUES = ['Yes', 'Doubt it', 'YES!']
 
@@ -26,7 +26,7 @@ belief_input_2 = Belief('i_am_followed', ['probability'])
 
 belief_output = Belief('i_am_about_to_be_mugged', ['best_guess'])
 
-belief_merge_input = ImprintOperator([belief_input_1, belief_input_2],
+belief_merge_input = MessageOperator([belief_input_1, belief_input_2],
                      merger=True).merge
 #
 # Define Organs and their associated messages

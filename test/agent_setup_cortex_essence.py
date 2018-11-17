@@ -9,7 +9,7 @@ np.random.seed(79)
 from core.agent import Agent
 
 from core.instructor import Cortex 
-from core.message import Feature, Essence, ImprintOperator
+from core.message import Feature, Essence, MessageOperator
 
 REF1 = [0.9000, 0.3984, 1.0000]
 REF2 = [0.8825, 0.4160, 0.9911]
@@ -36,7 +36,7 @@ feature = Feature('colour', ('hue', 'saturation', 'lightness'))
 #
 agent_essence = Essence('my_parameters', ('hue', 'saturation', 'lightness', 'mood'))
 agent_essence.set_values([0.9, 0.4, 1.0, 'jubilant'])
-slicer_of_essence = ImprintOperator(agent_essence, 
+slicer_of_essence = MessageOperator(agent_essence, 
                         slice_labels=['hue', 'saturation', 'lightness']).slicer
 #
 # Define Organs and their associated messages

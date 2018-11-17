@@ -4,7 +4,7 @@
 from core.agent import Agent
 
 from core.instructor import Moulder, Interpreter 
-from core.message import Buzz, Belief, Direction, Resource, ImprintOperator
+from core.message import Buzz, Belief, Direction, Resource, MessageOperator
 from core.scaffold_map import ResourceMap
 
 REF = [[True, 'yellow'], [True, 'black'], [False, None]]
@@ -62,7 +62,7 @@ interpreter_1 = Interpreter('will_it_rain', rain_predictor, buzz, belief_1,
                             resource_map=change_energy)
 interpreter_2 = Interpreter('am_i_unlucky', mood_maker, belief_1, belief_2,
                             resource_map=change_energy)
-total_belief = ImprintOperator([belief_1, belief_2], merger=True).merge
+total_belief = MessageOperator([belief_1, belief_2], merger=True).merge
 moulder = Moulder('fetch_umbrella_type', make_decision, total_belief, direction,
                    change_energy)
 
