@@ -180,9 +180,6 @@ class ResourceMap(_Map):
 
         self._apply_to(agent.resource, empty_to_identity)
 
-    def __name__(self):
-        return 'ResourceMap'
-
     def __init__(self, map_name, map_func, resource_key, map_args_keys):
 
         super().__init__(map_name, map_func, resource_key, map_args_keys)
@@ -244,9 +241,6 @@ class EssenceMap(_Map):
 
         self._apply_to(agent.essence, empty_to_identity)
 
-    def __name__(self):
-        return 'EssenceMap'
-
     def __init__(self, map_name, map_func, essence_key, map_args_keys):
 
         super().__init__(map_name, map_func, essence_key, map_args_keys)
@@ -293,19 +287,23 @@ class MapCollection(_SupraArray):
         for _map in self:
             _map.apply_to(agent, empty_to_identity)
 
-    def __name__(self):
-        return 'MapCollection'
-
     def __init__(self, container):
 
         super().__init__(container)
         self.scaffold_keys = [s.scaffold_key for s in self]
+        self.mtype = 'DUMMY'
 
 class _ForceFunctions(object):
     '''Bunch of pre-defined object force functions that other classes can use
     to associate a callable force function to a scaffold name
 
     '''
+    def force_func_reset(self, old_value, new_value):
+        '''Bla bla
+
+        '''
+        return new_value
+
     def force_func_delta(self, old_value, increment):
         '''Bla bla
 
@@ -377,4 +375,26 @@ class _ForceFunctions(object):
                     old_value[index_flip + 1:]
 
         return new_value
+
+def universal_map_maker(scaffold, func, func_args, name_maker=None):
+    '''Bla bla
+
+    '''
+    if isinstance(scaffold, Resource):
+        map_root = ResourceMap
+
+    elif isinstance(scaffold, Essence):
+        map_root = EssenceMap
+
+    else:
+        raise TypeError('Unknown scaffold type: %s' %(str(type(scaffold))))
+
+    name_maker_f = name_maker
+    if name_maker is None:
+        name_maker_f = lambda x: 'map collection'
+
+    mappers = [map_root(name_maker_f(key), func, key, func_args) \
+                   for key in scaffold.keys()]
+
+    return MapCollection(mappers)
 

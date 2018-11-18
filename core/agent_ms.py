@@ -2,7 +2,7 @@
 
 '''
 from uuid import uuid4
-from collections import OrderedDict
+from collections import OrderedDict, Iterable
 import numpy as np
 import numpy.random
 import networkx as nx
@@ -253,6 +253,48 @@ class AgentManagementSystem(object):
         '''
         for node in self.agents_graph:
             yield node.agent_content, node.aux_content
+
+    def get(self, key, get_node=False, get_agent=False, get_aux=False):
+        '''Get a selection of objects associated with a given key
+
+        Parameters
+        ----------
+        key : str
+            Agent system ID
+        get_node : bool, optional
+            If True, node will be returned
+        get_agent : bool, optional
+            If True, agent will be returned
+        get_aux : bool, optional
+            If True, agent environment will be returned
+
+        Returns
+        -------
+        objects : tuple
+            Container of the selected objects. The size depends on how many
+            parameters are True. The order of objects in the tuple is, node
+            precede agent precede aux.
+
+        '''
+        ret = []
+
+        node = self.node_from_agent_id_[key]
+        if get_node:
+            ret.append(node)
+
+        if get_agent:
+            ret.append(node.agent_content)
+
+        if get_aux:
+            ret.append(node.aux_content)
+
+        if len(ret) == 1:
+            ret_this = ret[0]
+
+        else:
+            ret_this = tuple(ret)
+
+        return ret_this 
 
     def __getitem__(self, key):
         '''Return agent in agent system based on agent system id
@@ -555,7 +597,7 @@ class AgentManagementSystem(object):
         return len(self.agents_in_scope)
 
     def __init__(self, name, agents, full_agents_graph=None,
-                 common_env=None, strict_engine=False):
+                 agent_env=None, common_env=None, strict_engine=False):
 
         self.name = name
         self.strict_engine = strict_engine
@@ -565,9 +607,29 @@ class AgentManagementSystem(object):
         # graph in case nothing specific is given.
         #
         if full_agents_graph is None:
-            nodes = [Node('agent_%s'%(str(k)), agent) for k, agent in enumerate(agents)]
+            if not agent_env is None:
+                if (not isinstance(agent_env, Iterable)) or isinstance(agent_env, str):
+                    agent_envs = [agent_env] * len(agents)
+
+                else:
+                    if len(agent_env) != len(agents):
+                        raise ValueError('An iterable of agent environments ' + \
+                                         'of wrong length %s' %(str(len(agent_env))))
+
+                    agent_envs = agents
+
+            else:
+                agent_envs = [None] * len(agents)
+
+            nodes = []
+            for k, (agent, agent_env) in enumerate(zip(agents, agent_envs)):
+                nodes.append(Node('agent_%s'%(str(k)), agent, agent_env))
             self.agents_graph = nx.complete_graph(nodes)
 
+        #
+        # If a network is given it is assumed to contain all objects, and hence
+        # swapped directly into the graph attribute
+        #
         else:
             if isinstance(full_agents_graph, nx.Graph):
                 self.agents_graph = full_agents_graph

@@ -151,6 +151,17 @@ class MessageOperator(object):
 
         return class_slice
 
+    def mix(self):
+        '''Bla bla
+
+        '''
+        template_array = self.base_messages[0]
+        ret_array = template_array.__class__(self.new_name, template_array.keys())
+        for key in ret_array.keys():
+            ret_array[key] = self.base_message[self.mix_index[key]][key]
+
+        return ret_array
+
     def merge(self):
         '''To handle case where an organ operates on a merged set of multiple
         non-overlapping messages 
@@ -173,11 +184,12 @@ class MessageOperator(object):
         return ret_array
 
     def __init__(self, base_messages, slice_labels=None, merger=False,
-                 new_name='new message'):
+                 mix_index=None, new_name='new message'):
 
         self.base_messages = base_messages
         self.slice_labels = slice_labels
         self.merger = merger
+        self.mix_index = mix_index
         self.new_name = new_name
 
         if isinstance(self.base_messages, Iterable):
@@ -200,4 +212,13 @@ class MessageOperator(object):
                 if type(base_message) != type(base_messages[0]):
                     raise ValueError('Merger can only be done on messages of ' + \
                                      'the identical type')
+
+        if not mix_index is None:
+            if len(base_messages) < 2:
+                raise TypeError('Message mixing requires at least two base messages')
+            for base_message in base_messages[1:]:
+                if type(base_message) != type(base_messages[0]):
+                    raise ValueError('Mixing can only be done on messages of ' + \
+                                     'the identical type')
+
 

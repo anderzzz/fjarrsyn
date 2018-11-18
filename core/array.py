@@ -110,7 +110,7 @@ class _Array(object):
         '''Return the OrderedDictionary view'''
 
         str_out = str(self._items)
-        str_out = str_out.replace('OrderedDict', str(self.__name__()))
+        str_out = str_out.replace('OrderedDict', str(self.__class__.__name__))
 
         return str_out
 
