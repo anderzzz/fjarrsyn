@@ -4,6 +4,7 @@ a third new agent
 '''
 import numpy as np
 import numpy.random
+np.random.seed(79)
 
 from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
@@ -12,6 +13,8 @@ from core.message import Belief, Direction, Buzz, Resource, Essence
 from core.instructor import Sensor, Interpreter, Moulder, Actuator
 from core.scaffold_map import EssenceMap, ResourceMap, universal_map_maker, \
                               MapCollection
+
+SELECT = {'rude' : 0, 'loud' : 0, 'big' : 1, 'foul' : 1}
 
 class Person(Agent):
 
@@ -46,7 +49,7 @@ class Person(Agent):
         for scaffold_key in the_baby.essence.keys():
             array_1 = parent_1_essence_map[scaffold_key]
             array_2 = parent_2_essence_map[scaffold_key]
-            array_transmit = np.random.choice([array_1, array_2])
+            array_transmit = [array_1, array_2][SELECT[scaffold_key]] 
             container.append(array_transmit.values()[0])
 
         the_baby_essence_map.set_values(container)
@@ -54,14 +57,14 @@ class Person(Agent):
         the_baby_essence_map.apply_to(the_baby)
         parent_1_resource_map.apply_to(the_baby)
 
-        return the_baby
+        return the_baby, 0 
 
     def __init__(self, name, rude, loud, big, foul):
 
         super().__init__(name, strict_engine=True)
 
         resource = Resource('Storage', ('item_1', 'item_2', 'External gene'))
-        resource.set_values([2, 4, None])
+        resource.set_values([2, 4, 0])
         essence = Essence('Persona', ('rude', 'loud', 'big', 'foul'))
         essence.set_values([rude, loud, big, foul])
 
@@ -79,8 +82,9 @@ class Person(Agent):
         r_map = MapCollection([r1_map, r2_map]) 
         moulder_e = Moulder('Eject gene', self.ejector, belief_eject,
                             direction_e, r_map)
+        consume_payload = ResourceMap('consume', 'reset', 'External gene', ('value',))
         moulder_cross = Moulder('Make cross-over baby', self.make_baby,
-                                belief_eject, direction_e)
+                                belief_eject, direction_e, consume_payload)
 
         self.set_organs(interpreter, moulder_r, moulder_e, moulder_cross)
         self.set_messages(buzz, belief, direction_r, direction_e)
@@ -112,7 +116,7 @@ class Arena(AgentManagementSystem):
     def ejecter(self, payload, agent_index):
 
         node_neighbours = list(self.neighbours_to(agent_index, False))
-        node = np.random.choice(node_neighbours)
+        node = node_neighbours[0]
         aux_to_eject_to = node.aux_content
 
         aux_to_eject_to.content = payload 
@@ -159,8 +163,35 @@ agent_2.mould('Make cross-over baby')
 agent_2.act('Birth baby')
 
 for a, e in ams:
-    print (a)
-    print (a.essence)
+    if a.name == 'A':
+        assert (a.essence['rude'] == True)
+        assert (a.essence['loud'] == True)
+        assert (a.essence['big'] == True)
+        assert (a.essence['foul'] == True)
+        assert (int(a.resource['item_1']) == 1) 
+        assert (int(a.resource['item_2']) == 2) 
+        assert (a.resource['External gene'] == 0) 
+    if a.name == 'B':
+        assert (a.essence['rude'] == False)
+        assert (a.essence['loud'] == False)
+        assert (a.essence['big'] == False)
+        assert (a.essence['foul'] == False)
+        assert (int(a.resource['item_1']) == 2) 
+        assert (int(a.resource['item_2']) == 4) 
+        assert (a.resource['External gene'] == 0) 
+    if a.name == 'arnold':
+        agent_child = a
+        assert (a.essence['rude'] == True)
+        assert (a.essence['loud'] == True)
+        assert (a.essence['big'] == False)
+        assert (a.essence['foul'] == False)
+        assert (int(a.resource['item_1']) == 3) 
+        assert (int(a.resource['item_2']) == 6) 
+        assert (a.resource['External gene'] == 0) 
 
-for a1, a2 in ams.agents_graph.edges:
-    print (a1.agent_content.name, a2.agent_content.name)
+node_1 = ams.get(agent_1.agent_id_system, get_node=True)
+node_2 = ams.get(agent_2.agent_id_system, get_node=True)
+node_child = ams.get(agent_child.agent_id_system, get_node=True)
+assert ((node_1, node_2) in ams.agents_graph.edges)
+assert ((node_child, node_2) in ams.agents_graph.edges)
+assert (not (node_child, node_1) in ams.agents_graph.edges)

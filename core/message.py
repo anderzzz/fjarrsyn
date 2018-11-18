@@ -128,7 +128,10 @@ class MessageOperator(_ArrayOperator):
 
     Notes
     -----
-    BLA BLA
+    The message operator is used to access some combination or subset of
+    message values. Observe that the message operator is not used to create new
+    message instances, it is only meant to be a means to retrieve values for
+    reading and further processing by an instructor.
 
     '''
     def __init__(self, base_messages, 

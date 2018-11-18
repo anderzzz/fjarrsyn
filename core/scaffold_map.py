@@ -288,7 +288,23 @@ class MapCollection(_SupraArray):
             _map.apply_to(agent, empty_to_identity)
 
     def __getitem__(self, key):
-        '''Bla bla
+        '''Retrieve an individual map from the collection
+
+        Parameters
+        ----------
+        key 
+            The scaffold key to retrieve the map for
+
+        Returns
+        -------
+        map
+            The map associated with the given key in the map collection
+
+        Raises
+        ------
+        KeyError
+            In case the given key is not associated with any map in the
+            collection
 
         '''
         if not key in self.scaffold_keys:
@@ -386,8 +402,31 @@ class _ForceFunctions(object):
 
         return new_value
 
-def universal_map_maker(scaffold, func, func_args, name_maker=None):
-    '''Bla bla
+def universal_map_maker(scaffold, map_func, func_args, name_maker=None):
+    '''Convenience function to generate a map collection for an entire scaffold
+    using a single function and argument
+
+    Parameters
+    ----------
+    scaffold : Resource or Essence
+        The scaffold for which to generate a complete map collection
+    map_func : callable or str
+        Function that processes the input in order to evaluate the new scaffold
+        values. The function can be specified as a string denoting one of the
+        library functions, see further below. The function can be specified as
+        a callable. The callable must accept at least as input the value of the
+        scaffold and must return the new value
+    func_args : Iterable
+        A tuple or list of array semantics that the map_func accepts as input
+    name_maker : callable, optional
+        A function that given a scaffold key returns a string that is used as
+        name for the associated map. If not given, the name defaults to `map
+        collection`
+
+    Returns
+    -------
+    mapcollection : MapCollection
+        The map collection of maps for the complete scaffold
 
     '''
     if isinstance(scaffold, Resource):
@@ -403,7 +442,7 @@ def universal_map_maker(scaffold, func, func_args, name_maker=None):
     if name_maker is None:
         name_maker_f = lambda x: 'map collection'
 
-    mappers = [map_root(name_maker_f(key), func, key, func_args) \
+    mappers = [map_root(name_maker_f(key), map_func, key, func_args) \
                    for key in scaffold.keys()]
 
     return MapCollection(mappers)

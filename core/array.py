@@ -383,7 +383,17 @@ class _SupraArray(object):
                              'is invalid')
 
     def append(self, _array):
-        '''Bla bla
+        '''Add an array to the supra-array
+
+        Parameters
+        ----------
+        _array : _Array
+            The array to be added
+
+        Notes
+        -----
+        The appending creates a concatenated name, which can be reset through
+        the attribute `name`
 
         '''
         self._arrays.append(_array)
@@ -424,17 +434,71 @@ class _SupraArray(object):
             self.append(_array)
 
 class _ArrayOperator(object):
-    '''
+    '''Define operations on one array, or several arrays, in order to obtain 
+    some variation of array values.
+
+    Parameters
+    ----------
+    base_arrays
+        A single instance of _Array (or child class) or an iterable of two or
+        more instances of _Array (or child class)
+    slice_labels : iterable, optional
+        An iterable of labels that denote a subset of elements in the input
+        array. Only works when `base_array` is a single array
+    extend : bool, optional
+        In case the arrays in the iterable `base_arrays` should be joined
+        together, or extended, into one larger array
+    mix_index : dict, optional
+        A dictionary with keys being the element names of the input arrays, and
+        the values being the index of an array in the container of input
+        arrays. The dictionary instructs from which of the two or more input
+        arrays a certain element should be retrieved
+    new_name : str, optional
+        Name of new array
+    return_values_only : bool, optional
+        If True, the operator when executed returns only the values of the
+        array operations. This is the preferred way to use the array operator
+        since it ensures a read-only use. If False, the operator returns the
+        array, semantics included, that the operations yield. See Notes for
+        details.
+
+    Notes
+    -----
+    The array operator should mostly be used as a means to access values from base
+    arrays for the purpose of reading by some function, like an instructor. 
+    The preferred usage does not include using the operator to create new base 
+    arrays with altered semantics or copies. The typical steps should be:
+
+    1. Define the operator through initilization
+    2. Call the operator, retrieve the values it returns
+    3. Pass the values as input to relevant function
+
+    The second step can return the entire array, semantics included, if the
+    `return_values_only` parameter is set to False. However, this should be
+    used carefully since array thus produced is no longer connected to the
+    input array or arrays. Therefore writing to either the input or output
+    arrays does not affected the other. 
 
     '''
     def _identity(self):
-        '''
+        '''Identity operator
+
+        Returns
+        -------
+        base_array_ret 
+            The input array of the operator is returned unchanged
 
         '''
         return self.base_arrays
 
     def _slice(self):
-        '''
+        '''Slice operator
+
+        Returns
+        -------
+        slice_array 
+            The subset of data of the input array that has labels as in the
+            slice_labels initilization
 
         '''
         class_slice = self.base_arrays.__class__(self.new_name, self.slice_labels)
@@ -444,7 +508,14 @@ class _ArrayOperator(object):
         return class_slice
 
     def _mix(self):
-        '''Bla bla
+        '''Mix operator
+
+        Returns
+        -------
+        mix_array
+            The combination of array elements into an array of identical form
+            to base arrays, but with element values selected from the container
+            of base arrays as defined in the mix index initilization
 
         '''
         template_array = self.base_arrays[0]
@@ -455,7 +526,13 @@ class _ArrayOperator(object):
         return ret_array
 
     def _extend(self):
-        '''
+        '''Extend operator
+
+        Returns
+        -------
+        extend_array
+            The extensions of concatenation of the input arrays into one larger
+            array, all data preserved. 
 
         '''
         union_semantics = []
@@ -470,7 +547,15 @@ class _ArrayOperator(object):
         return ret_array
 
     def __call__(self):
-        '''
+        '''Operator execution
+
+        Returns
+        -------
+        ret : 
+            Either a collection of array values (if `return_values_only` is 
+            True) as defined by the initilized operation, or the entire array,
+            semantics included (if `return_values_only` is False) as defined by
+            the initialized operation.
 
         '''
         if self.return_values_only:
