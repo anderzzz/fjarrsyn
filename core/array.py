@@ -382,6 +382,23 @@ class _SupraArray(object):
                              'unique keys, hence getting with keys ' + \
                              'is invalid')
 
+    def append(self, _array):
+        '''Bla bla
+
+        '''
+        self._arrays.append(_array)
+
+        if len(self._array_indeces) == 0:
+            left = 0
+        else:
+            left = self._array_indeces[-1][1]
+
+        right = left + _array.n_elements
+        self._array_indeces.append((left, right))
+
+        self.name = self.name + '+' + _array.name
+        self.n_elements += _array.n_elements
+
     def __init__(self, container):
 
         if not isinstance(container, (list, tuple)):
@@ -398,15 +415,105 @@ class _SupraArray(object):
         else:
             raise TypeError('Array collection must be comprised of either ' + \
                             '_Flash or _Imprint type')
-        self._arrays = container
-
+        self._arrays = []
         self._array_indeces = []
-        left = 0
-        for _array in self._arrays:
-            right = left + _array.n_elements
-            self._array_indeces.append((left, right))
-            left = right
+        self.name = ''
+        self.n_elements = 0
 
-        self.name = '+'.join([a.name for a in self._arrays])
-        self.n_elements = sum([a.n_elements for a in self._arrays])
+        for _array in container:
+            self.append(_array)
 
+class _ArrayOperator(object):
+    '''
+
+    '''
+    def _identity(self):
+        '''
+
+        '''
+        return self.base_arrays
+
+    def _slice(self):
+        '''
+
+        '''
+        class_slice = self.base_arrays.__class__(self.new_name, self.slice_labels)
+        value_slice = [self.base_arrays[key] for key in self.slice_labels]
+        class_slice.set_values(value_slice)
+
+        return class_slice
+
+    def _mix(self):
+        '''Bla bla
+
+        '''
+        template_array = self.base_arrays[0]
+        ret_array = template_array.__class__(self.new_name, template_array.keys())
+        for key in ret_array.keys():
+            ret_array[key] = self.base_arrays[self.mix_index[key]][key]
+
+        return ret_array
+
+    def _extend(self):
+        '''
+
+        '''
+        union_semantics = []
+        union_values = []
+        for base_array in self.base_arrays:
+            union_semantics.extend(base_array.keys())
+            union_values.extend(base_array.values())
+
+        ret_array = self.base_arrays[0].__class__(self.new_name, union_semantics)
+        ret_array.set_values(union_values)
+
+        return ret_array
+
+    def __call__(self):
+        '''
+
+        '''
+        if self.return_values_only:
+            return self._executor().values()
+
+        else:
+            return self._executor()
+
+    def __init__(self, base_arrays,
+                 slice_labels=None, extend=False, mix_index=None, 
+                 new_name=None, return_values_only=True):
+
+        self.base_arrays = base_arrays
+
+        self.slice_labels = slice_labels
+        self.extend = extend
+        self.mix_index = mix_index
+
+        if new_name is None:
+            self.new_name = 'Operated Array'
+        else:
+            self.new_name = new_name
+
+        if not slice_labels is None:
+            if not set(slice_labels).issubset(set(self.base_arrays.keys())):
+                raise ValueError('Labels to the slicer not found in the current array')
+
+            self._executor = self._slice
+
+        elif extend or (not mix_index is None):
+            if len(base_arrays) < 2:
+                raise TypeError('At least two base arrays required')
+            for base_array in base_arrays[1:]:
+                if type(base_array) != type(base_arrays[0]):
+                    raise ValueError('Arrays of non-identical type encountered')
+
+            if extend:
+                self._executor = self._extend
+
+            elif not mix_index is None:
+                self._executor = self._mix
+
+        else:
+            self._executor = self._identity
+
+        self.return_values_only = return_values_only

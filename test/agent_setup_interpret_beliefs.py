@@ -26,8 +26,7 @@ belief_input_2 = Belief('i_am_followed', ['probability'])
 
 belief_output = Belief('i_am_about_to_be_mugged', ['best_guess'])
 
-belief_merge_input = MessageOperator([belief_input_1, belief_input_2],
-                     merger=True).merge
+belief_merge_input = MessageOperator([belief_input_1, belief_input_2], extend=True)
 #
 # Define Organs and their associated messages
 #

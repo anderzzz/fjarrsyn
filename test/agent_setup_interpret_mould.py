@@ -62,7 +62,7 @@ interpreter_1 = Interpreter('will_it_rain', rain_predictor, buzz, belief_1,
                             resource_map=change_energy)
 interpreter_2 = Interpreter('am_i_unlucky', mood_maker, belief_1, belief_2,
                             resource_map=change_energy)
-total_belief = MessageOperator([belief_1, belief_2], merger=True).merge
+total_belief = MessageOperator([belief_1, belief_2], extend=True)
 moulder = Moulder('fetch_umbrella_type', make_decision, total_belief, direction,
                    change_energy)
 

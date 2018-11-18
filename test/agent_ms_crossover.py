@@ -8,8 +8,7 @@ import numpy.random
 from core.agent import Agent
 from core.agent_ms import AgentManagementSystem
 from core.graph import Node
-from core.message import Belief, Direction, Buzz, Resource, Essence, \
-                         MessageOperator
+from core.message import Belief, Direction, Buzz, Resource, Essence
 from core.instructor import Sensor, Interpreter, Moulder, Actuator
 from core.scaffold_map import EssenceMap, ResourceMap, universal_map_maker, \
                               MapCollection
@@ -35,17 +34,25 @@ class Person(Agent):
 
     def make_baby(self, dummy):
 
-        stuff_essence, stuff_resource = self.resource['External gene']
         the_baby = self.__class__('arnold', True, True, True, True)
-        stuff_resource.apply_to(the_baby)
+        the_baby_essence_map = universal_map_maker(the_baby.essence, 'reset', ('value',)) 
 
-        e_map = universal_map_maker(self.essence, 'reset', ('value',)) 
-        e_map.set_values(self.essence.values())
-        mo_mix = MessageOperator([stuff_essence, e_map], 
-            mix_index={'rude' : 0, 'loud' : 1, 'big' : 0, 'fould' : 1})
-        e_map_mix = mo_mix.mix()
+        parent_1_essence_map, parent_1_resource_map = self.resource['External gene']
 
-        e_map_mix.apply_to(the_baby)
+        parent_2_essence_map = universal_map_maker(self.essence, 'reset', ('value',)) 
+        parent_2_essence_map.set_values(self.essence.values())
+
+        container = []
+        for scaffold_key in the_baby.essence.keys():
+            array_1 = parent_1_essence_map[scaffold_key]
+            array_2 = parent_2_essence_map[scaffold_key]
+            array_transmit = np.random.choice([array_1, array_2])
+            container.append(array_transmit.values()[0])
+
+        the_baby_essence_map.set_values(container)
+
+        the_baby_essence_map.apply_to(the_baby)
+        parent_1_resource_map.apply_to(the_baby)
 
         return the_baby
 
@@ -151,5 +158,9 @@ agent_2.act('Suck up gene')
 agent_2.mould('Make cross-over baby')
 agent_2.act('Birth baby')
 
-for a in ams:
+for a, e in ams:
     print (a)
+    print (a.essence)
+
+for a1, a2 in ams.agents_graph.edges:
+    print (a1.agent_content.name, a2.agent_content.name)

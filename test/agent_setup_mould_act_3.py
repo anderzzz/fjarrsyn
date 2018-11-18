@@ -71,9 +71,9 @@ moulder = Moulder('take evasive action?', make_decision,
                   belief, direction, 
                   change_energy)
 splitter_1 = MessageOperator(direction, slice_labels=['horizontal direction', 
-                             'horizontal magnitude']).slicer
+                                                      'horizontal magnitude'])
 splitter_2 = MessageOperator(direction, slice_labels=['vertical direction', 
-                             'vertical magnitude']).slicer
+                                                      'vertical magnitude'])
 actuator1 = Actuator('move left right', move_rule_horizontal, splitter_1,
                      func_get_agent_id=False)
 actuator2 = Actuator('move up down', move_rule_vertical, splitter_2,

@@ -240,7 +240,7 @@ class Actuator(_Instructor):
             execution created Exception, return value is False     
 
         '''
-        direction_values = self.message_input().values()
+        direction_values = self.message_input()
 
         if self.func_get_agent_id:
             kwargs = copy.copy(self.kwargs)
@@ -265,7 +265,7 @@ class Actuator(_Instructor):
                  actuator_func_kwargs={}):
 
         if isinstance(inputer, Direction):
-            inputer_actual = MessageOperator(inputer).identity
+            inputer_actual = MessageOperator(inputer)
 
         elif isinstance(inputer, (Buzz, Belief, Feature)):
             raise TypeError('Actuator cannot handle Buzz, Belief or Feature as input')
@@ -329,7 +329,7 @@ class Interpreter(_Instructor):
             execution created Exception, return value is False     
 
         '''
-        inp_values = self.message_input().values()
+        inp_values = self.message_input()
 
         if self.belief_updater:
             current_beliefs = self.message_output.values()
@@ -357,7 +357,7 @@ class Interpreter(_Instructor):
                  belief_updater=False):
 
         if isinstance(inputer, (Buzz, Belief, Resource)):
-            inputer_actual = MessageOperator(inputer).identity
+            inputer_actual = MessageOperator(inputer)
 
         elif isinstance(inputer, (Buzz, Direction, Feature)):
             raise TypeError('Interpreter cannot handle Direction, Buzz or Feature as input')
@@ -418,7 +418,7 @@ class Moulder(_Instructor):
             execution created Exception, return value is False     
 
         '''
-        belief_values = self.message_input().values()
+        belief_values = self.message_input()
 
         try:
             out_values = self.engine(*belief_values, **self.kwargs)
@@ -438,7 +438,7 @@ class Moulder(_Instructor):
                  resource_map=None, moulder_func_kwargs={}):
 
         if isinstance(inputer, Belief):
-            inputer_actual = MessageOperator(inputer).identity
+            inputer_actual = MessageOperator(inputer)
 
         elif isinstance(inputer, (Buzz, Direction, Feature)):
             raise TypeError('Moulder cannot handle Direction, Buzz or Feature as input')
@@ -495,7 +495,7 @@ class Cortex(_Instructor):
             execution created Exception, return value is False     
 
         '''
-        agent_state_values = self.message_input().values()
+        agent_state_values = self.message_input()
 
         try:
             out_values = self.engine(*agent_state_values, **self.kwargs)
@@ -510,7 +510,7 @@ class Cortex(_Instructor):
                  cortex_func_kwargs={}):
 
         if isinstance(inputer, (Essence, Resource, Belief)):
-            inputer_actual = MessageOperator(inputer).identity
+            inputer_actual = MessageOperator(inputer)
 
         elif isinstance(inputer, (Direction, Feature, Buzz)):
             raise TypeError('Cortex cannot handle Direction, Buzz or Feature as input')

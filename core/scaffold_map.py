@@ -287,11 +287,21 @@ class MapCollection(_SupraArray):
         for _map in self:
             _map.apply_to(agent, empty_to_identity)
 
-    def __init__(self, container):
+    def __getitem__(self, key):
+        '''Bla bla
+
+        '''
+        if not key in self.scaffold_keys:
+            raise KeyError('%s not in keys' %(key))
+
+        ind = self.scaffold_keys.index(key)
+
+        return self._arrays[ind]
+
+    def __init__(self, container, mix_indeces=None):
 
         super().__init__(container)
         self.scaffold_keys = [s.scaffold_key for s in self]
-        self.mtype = 'DUMMY'
 
 class _ForceFunctions(object):
     '''Bunch of pre-defined object force functions that other classes can use

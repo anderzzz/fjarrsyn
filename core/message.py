@@ -3,7 +3,7 @@
 '''
 from collections import Iterable
 
-from core.array import _Imprint, _Flash
+from core.array import _Imprint, _Flash, _ArrayOperator
 
 class Buzz(_Flash):
     '''The Buzz class that is used to define the output of sensors and input to
@@ -19,7 +19,7 @@ class Buzz(_Flash):
         some relevant semantics
 
     '''
-    mtype = 'Buzz'
+    pass
 
 class Direction(_Flash):
     '''The Direction class that is used to define the output of moulders
@@ -35,7 +35,7 @@ class Direction(_Flash):
         some relevant semantics
 
     '''
-    mtype = 'Direction'
+    pass
 
 class Feature(_Flash):
     '''The Feature class that is used to define the output of cortex. The class
@@ -51,7 +51,7 @@ class Feature(_Flash):
         some relevant semantics
 
     '''
-    mtype = 'Feature'
+    pass
 
 class Belief(_Imprint):
     '''The Belief class that is used to define the persistent output of
@@ -68,7 +68,7 @@ class Belief(_Imprint):
         some relevant semantics
 
     '''
-    mtype = 'Belief'
+    pass
 
 class Resource(_Imprint):
     '''The Resource class that is used to define the items organs can
@@ -85,7 +85,7 @@ class Resource(_Imprint):
         some relevant semantics
 
     '''
-    mtype = 'Resource'
+    pass
 
 class Essence(_Imprint):
     '''The Essence class that is used to define the items of the agent that are
@@ -102,123 +102,40 @@ class Essence(_Imprint):
         some relevant semantics
 
     '''
-    mtype = 'Essence'
+    pass
 
-class MessageOperator(object):
-    '''Provides different ways to dynamically access subsets or supersets of a
-    Message. Enables multiple organs to operate on different but overlapping 
-    sets of messages
+class MessageOperator(_ArrayOperator):
+    '''Operator to retrieve some selection or combination of message values. 
 
     Parameters
     ----------
     base_messages
-        One or an iterable of messages on which to operate
+        One or an iterable of messages on which to operate. Note that only
+        messages of identical type can be operated on simultaneously.
     slice_labels : iterable, optional
-        In case the base message should be sliced to a subset of elements, this
-        iterable should contain the element labels to keep in the final message
-    merger : bool, optional
-        In case the base messages should be merged to a larger set of element,
+        In case the base message should be sliced to yield a subset of value 
+        elements, this iterable should contain the corresponding element labels
+    extend : bool, optional
+        In case the base messages should be extended to a larger set of values,
         this flag should be set to True
+    mix_indeces : dict, optional
+        If the values from two or more messages should be combined into an
+        output that mixes values from the plurality of base messages, this
+        dictionary should as keys have the semantic labels and the value should
+        be the index in the `base_messages` iterable
     new_name : str, optional
-        The name to give the final message after operation
+        The name to give the final message after operation. 
+
+    Notes
+    -----
+    BLA BLA
 
     '''
-    def identity(self):
-        '''To handle case where an organ has been initialized with one specific
-        message, hence no operations are needed.
+    def __init__(self, base_messages, 
+                 slice_labels=None, extend=False, mix_indeces=None,
+                 new_namer=None):
 
-        Returns
-        -------
-        message 
-            The single message of the operator
-
-        '''
-        return self.base_messages
-
-    def slicer(self):
-        '''To handle case where an organ operates on a subset of elements of
-        some message 
-
-        Returns
-        -------
-        message  
-            The sliced message as defined by the operator initialization
-
-        '''
-        class_slice = self.base_messages.__class__(self.new_name, self.slice_labels)
-        value_slice = [self.base_messages[key] for key in self.slice_labels]
-        class_slice.set_values(value_slice)
-
-        return class_slice
-
-    def mix(self):
-        '''Bla bla
-
-        '''
-        template_array = self.base_messages[0]
-        ret_array = template_array.__class__(self.new_name, template_array.keys())
-        for key in ret_array.keys():
-            ret_array[key] = self.base_message[self.mix_index[key]][key]
-
-        return ret_array
-
-    def merge(self):
-        '''To handle case where an organ operates on a merged set of multiple
-        non-overlapping messages 
-
-        Returns
-        -------
-        message 
-            The merged message as defined by the operator initialization
-
-        '''
-        union_semantics = []
-        union_values = []
-        for base_message in self.base_messages:
-            union_semantics.extend(base_message.keys())
-            union_values.extend(base_message.values())
-
-        ret_array = self.base_messages[0].__class__(self.new_name, union_semantics)
-        ret_array.set_values(union_values)
-
-        return ret_array
-
-    def __init__(self, base_messages, slice_labels=None, merger=False,
-                 mix_index=None, new_name='new message'):
-
-        self.base_messages = base_messages
-        self.slice_labels = slice_labels
-        self.merger = merger
-        self.mix_index = mix_index
-        self.new_name = new_name
-
-        if isinstance(self.base_messages, Iterable):
-            self.mtype = self.base_messages[0].mtype
-
-        else:
-            self.mtype = self.base_messages.mtype
-
-        if (not slice_labels is None) and merger:
-            raise TypeError('Cannot handle slicing and merging simultaneously')
-        
-        if not slice_labels is None:
-            if not set(slice_labels).issubset(set(self.base_messages.keys())):
-                raise ValueError('Labels to the slicer not found in the current array')
-
-        if merger:
-            if len(base_messages) < 2:
-                raise TypeError('Message merger requires at least two base messages')
-            for base_message in base_messages[1:]:
-                if type(base_message) != type(base_messages[0]):
-                    raise ValueError('Merger can only be done on messages of ' + \
-                                     'the identical type')
-
-        if not mix_index is None:
-            if len(base_messages) < 2:
-                raise TypeError('Message mixing requires at least two base messages')
-            for base_message in base_messages[1:]:
-                if type(base_message) != type(base_messages[0]):
-                    raise ValueError('Mixing can only be done on messages of ' + \
-                                     'the identical type')
+        super().__init__(base_messages, slice_labels, extend, mix_indeces,
+                         new_namer, True)
 
 

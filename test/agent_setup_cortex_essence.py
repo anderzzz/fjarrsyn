@@ -37,7 +37,7 @@ feature = Feature('colour', ('hue', 'saturation', 'lightness'))
 agent_essence = Essence('my_parameters', ('hue', 'saturation', 'lightness', 'mood'))
 agent_essence.set_values([0.9, 0.4, 1.0, 'jubilant'])
 slicer_of_essence = MessageOperator(agent_essence, 
-                        slice_labels=['hue', 'saturation', 'lightness']).slicer
+                        slice_labels=['hue', 'saturation', 'lightness'])
 #
 # Define Organs and their associated messages
 #
