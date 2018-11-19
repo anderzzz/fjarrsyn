@@ -35,8 +35,8 @@ class Person(Agent):
 
         return tuple(ret)
 
-    def make_baby(self, dummy):
-
+    def make_baby(self):
+     
         the_baby = self.__class__('arnold', True, True, True, True)
         the_baby_essence_map = universal_map_maker(the_baby.essence, 'reset', ('value',)) 
 
@@ -84,7 +84,7 @@ class Person(Agent):
                             direction_e, r_map)
         consume_payload = ResourceMap('consume', 'reset', 'External gene', ('value',))
         moulder_cross = Moulder('Make cross-over baby', self.make_baby,
-                                belief_eject, direction_e, consume_payload)
+                                None, direction_e, consume_payload)
 
         self.set_organs(interpreter, moulder_r, moulder_e, moulder_cross)
         self.set_messages(buzz, belief, direction_r, direction_e)
@@ -153,11 +153,10 @@ person_1 = Person('A', True, True, True, True)
 person_2 = Person('B', False, False, False, False)
 ams = Arena('A Place', [person_1, person_2], SimpleEnv(None))
 
-agent_1, dummy = ams.choice()
-agent_1.mould('Eject gene')
-agent_1.act('Eject gene')
+person_1.mould('Eject gene')
+person_1.act('Eject gene')
 
-agent_2 = ams.neighbours_to(agent_1.agent_id_system).pop()
+agent_2 = ams.neighbours_to(person_1.agent_id_system).pop()
 agent_2.sense('Feel for gene in Env')
 agent_2.interpret('Is gene in env?')
 agent_2.mould('Receive gene')
@@ -192,7 +191,7 @@ for a, e in ams:
         assert (int(a.resource['item_2']) == 6) 
         assert (a.resource['External gene'] == 0) 
 
-node_1 = ams.get(agent_1.agent_id_system, get_node=True)
+node_1 = ams.get(person_1.agent_id_system, get_node=True)
 node_2 = ams.get(agent_2.agent_id_system, get_node=True)
 node_child = ams.get(agent_child.agent_id_system, get_node=True)
 assert ((node_1, node_2) in ams.agents_graph.edges)

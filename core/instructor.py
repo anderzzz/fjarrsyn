@@ -27,16 +27,25 @@ class _Instructor(object):
         produce output to the agent (if any). The function can perform
         additional operations outside the agent. Conventionally, the only
         operations within the agent should be encoded as part of the message
-        and scaffold_map output, not performed by the engine
+        and scaffold_map output, not performed by the engine. The order of
+        engine input and output are constrained by the child classes, see their
+        documentation
     message_input : optional
         Object encoding any agent input to the instructor. The input
-        message is conventionally output from another instructor.
+        message is conventionally output from another instructor. This
+        parameter can be a message operator.
     message_output : optional
         Object encoding any agent output from the instructor. The
         engine populates the values of the Message object given here.
-    scaffold_map : _Map or MapCollection, optional
+    scaffold_map_output : _Map or MapCollection, optional
         Map object encoding any changes to the tangible Messages of the agent.
         The engine populates the values of the Map object given here.
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
     engine_kwargs : dict, optional
         Named arguments for the engine function.
 
@@ -175,15 +184,22 @@ class Sensor(_Instructor):
     sensor_func : callable
         The function that defines the engine of the sensor that produces the
         output buzz. Conventionally the function is defined within the scope of
-        the Agent Managament System
+        the Agent Managament System, but not required.
     buzz : Buzz
         Buzz object with defined semantics, which the sensor engine populates
         upon execution
-    resource_map : ResourceMap or MapCollection, optional
+    resource_map_output : ResourceMap or MapCollection, optional
         In case the execution of the sensor produces tangible output to alter
         agent resources, a map with defined semantics is given
-    resource_op_input : XXX
-    essence_op_input : XXX
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the sensor function
     sensor_func_kwargs : dict, optional
         Named arguments to the sensor function
 
@@ -191,6 +207,16 @@ class Sensor(_Instructor):
     ------
     TypeError
         If the `buzz` parameter provides a message of type other than Buzz
+
+    Notes
+    -----
+    The engine input parameters are constrained in the following order: First, any resource
+    values from the `resource_op_input`, second, any essence values from the
+    `essence_op_input`, third, any agent ID, last any keyword arguments.
+
+    The engine output parameters are constrained in the following order: First,
+    any data to populate the buzz output, second, any data to populate the
+    output resource map.
 
     '''
     def __call__(self, agent_id):
@@ -267,13 +293,18 @@ class Actuator(_Instructor):
         The input to the engine, or an executable that returns the input the
         engine consumes. Conventionally the Direction object has been produced by a
         moulder.
-    resource_map : ResourceMap or MapCollection, optional
+    resource_map_output : ResourceMap or MapCollection, optional
         In case the execution of the actuator produces tangible output to alter
         agent resources, a map with defined semantics is given
-    agent_id_name : str, optional
-        Name of argument for the sensor function through which the agent index
-        of the calling agent. Default is `agent_index`. If `None` no argument
-        to the sensor function contains the agent index.
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the actuator function
     actuator_func_kwargs : dict, optional
         Named arguments to the actuator function
 
@@ -282,6 +313,16 @@ class Actuator(_Instructor):
     TypeError
         If the `direction` parameter provides a message of type other than
         Direction
+
+    Notes
+    -----
+    The engine input parameters are constrained in the following order: First,
+    any values from the input direction, second, any resource
+    values from the `resource_op_input`, third, any essence values from the
+    `essence_op_input`, fourth, any agent ID, last any keyword arguments.
+
+    The engine output parameters are constrained in the following order: First
+    and only,any data to populate the output resource map.
 
     '''
     def __call__(self, agent_id):
@@ -358,9 +399,18 @@ class Interpreter(_Instructor):
     belief : Belief
         Belief object with defined semantics, which the interpreter engine populates
         upon execution
-    resource_map : ResourceMap or MapCollection, optional
+    resource_map_output : ResourceMap or MapCollection, optional
         In case the execution of the interpreter produces tangible output to alter
         agent resources, a map with defined semantics is given
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the interpreter function
     interpreter_func_kwargs : dict, optional
         Named arguments to the interpreter function
     belief_updater : bool, optional
@@ -377,6 +427,18 @@ class Interpreter(_Instructor):
         Belief or if the `inputer` parameter provides a message of type other
         than Buzz or Belief.
 
+    Notes
+    -----
+    The engine input parameters are constrained in the following order: First,
+    any values from the input buzz (or belief), second, any resource
+    values from the `resource_op_input`, third, any essence values from the
+    `essence_op_input`, fourth, any belief to be updated if `belief_updater` is
+    True, fifth, any agent ID, last any keyword arguments.
+
+    The engine output parameters are constrained in the following order: First,
+    any value output to populate the output belief, second, any data to populate 
+    the output resource map.
+
     '''
     def __call__(self, agent_id):
         '''Execute the interpreter to consume input and produce the output
@@ -388,7 +450,7 @@ class Interpreter(_Instructor):
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
             execution of engine created Exception, that Exception is returned     
 
@@ -462,9 +524,18 @@ class Moulder(_Instructor):
     direction : Direction
         Direction object with defined semantics, which the moulder engine populates
         upon execution
-    resource_map : ResourceMap or MapCollection, optional
+    resource_map_output : ResourceMap or MapCollection, optional
         In case the execution of the moulder produces tangible output to alter
         agent resources, a map with defined semantics is given
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the moulder function
     moulder_func_kwargs : dict, optional
         Named arguments to the moulder function
 
@@ -474,6 +545,17 @@ class Moulder(_Instructor):
         If the `direction` parameter provides a message of type other than
         Direction or if the `inputer` parameter provides a message of type other
         than Belief.
+
+    Notes
+    -----
+    The engine input parameters are constrained in the following order: First,
+    any values from the input belief, second, any resource
+    values from the `resource_op_input`, third, any essence values from the
+    `essence_op_input`, fourth, any agent ID, last any keyword arguments.
+
+    The engine output parameters are constrained in the following order: First,
+    any value output to populate the output direction, second, any data to populate 
+    the output resource map.
 
     '''
     def __call__(self, agent_id):
@@ -486,7 +568,7 @@ class Moulder(_Instructor):
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
             execution of engine created Exception, that Exception is returned     
 
@@ -555,6 +637,15 @@ class Cortex(_Instructor):
     feature : Feature
         Feature object with defined semantics, which the cortex engine populates
         upon execution
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the cortex function
     cortex_func_kwargs : dict, optional
         Named arguments to the cortex function
 
@@ -564,6 +655,16 @@ class Cortex(_Instructor):
         If the `inputer` parameter provides a message of type other than
         Essence, Resource or Belief, or if the `feature` parameter is a 
         message of type other than Feature.
+
+    Notes
+    -----
+    The engine input parameters are constrained in the following order: First,
+    any values from the input agent imprints, second, any resource
+    values from the `resource_op_input`, third, any essence values from the
+    `essence_op_input`, fourth, any agent ID, last any keyword arguments.
+
+    The engine output parameters are constrained in the following order: First
+    and only, any data to populate the output feature..
 
     '''
     def __call__(self, agent_id):
@@ -576,7 +677,7 @@ class Cortex(_Instructor):
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
             execution of engine created Exception, that Exception is returned     
 
@@ -633,9 +734,15 @@ class Compulsion(_Instructor):
         the tangible resource mapping for the agent
     resource_map : ResourceMap or MapCollection
         Map with defined semantics to act on agent resources
-    func_get_agent_id : bool, optional
-        If True, the compel function is provided the agent index as one of the
-        input arguments, if False, not so.
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the compulsion function
     compel_func_kwargs : dict, optional
         Named arguments to the compel function
 
@@ -643,6 +750,16 @@ class Compulsion(_Instructor):
     ------
     TypeError
         If the resource map is not an instance of ResourceMap or MapCollection
+
+    Notes
+    -----
+    The engine input parameters are constrained in the following order: First,
+    any resource
+    values from the `resource_op_input`, second, any essence values from the
+    `essence_op_input`, third, any agent ID, last any keyword arguments.
+
+    The engine output parameters are constrained in the following order: First
+    and only, any data to populate the output resource map
 
     '''
     def __call__(self, agent_id):
@@ -655,7 +772,7 @@ class Compulsion(_Instructor):
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
             execution of engine created Exception, that Exception is returned     
 
@@ -709,11 +826,17 @@ class Mutation(_Instructor):
         the tangible resource mapping for the agent
     essence_map : EssenceMap or MapCollection
         Map with defined semantics to act on agent essence
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the mutation function
     mutation_prob : float, optional
         Probability the mutation engine is executed
-    func_get_agent_id : bool, optional
-        If True, the mutate function is provided the agent index as one of the
-        input arguments, if False, not so.
     mutate_func_kwargs : dict, optional
         Named arguments to the mutate function
 
@@ -723,6 +846,16 @@ class Mutation(_Instructor):
         If the essence map is not an instance of EssenceMap or MapCollection
     ValueError
         If the probability is not between 0.0 and 1.0
+
+    Notes
+    -----
+    The engine input parameters are constrained in the following order: First,
+    any resource
+    values from the `resource_op_input`, second, any essence values from the
+    `essence_op_input`, third, any agent ID, last any keyword arguments.
+
+    The engine output parameters are constrained in the following order: First
+    and only, any data to populate the output essence map
 
     '''
     def __call__(self, agent_index):
@@ -736,7 +869,7 @@ class Mutation(_Instructor):
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
             execution of engine created Exception, that Exception is returned.    
             Note that even if mutation attempt did not lead to a mutation, the
@@ -809,11 +942,17 @@ class MultiMutation(Mutation):
         the tangible resource mapping for the agent
     essence_map : EssenceMap or MapCollection
         Map with defined semantics to act on agent essence
+    resource_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the resource 
+        values of the agent calling the instructor
+    essence_op_input : MessageOperator, optional
+        Operator that when called accesses all or a subset of the essence
+        values of the agent calling the instructor
+    agent_id_to_engine : bool, optional
+        If True, the agent ID of the calling agent is passed as an argument to
+        the mutation function
     mutation_prob : float, optional
         Probability the mutation engine is executed
-    func_get_agent_id : bool, optional
-        If True, the mutate function is provided the agent index as one of the
-        input arguments, if False, not so.
     mutate_func_kwargs : dict, optional
         Named arguments to the mutate function
 
@@ -841,7 +980,7 @@ class MultiMutation(Mutation):
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
             execution of engine created Exception, that Exception is returned.    
             Note that even if mutation attempt did not lead to a mutation, the
