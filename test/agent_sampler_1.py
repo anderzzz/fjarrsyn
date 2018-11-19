@@ -33,7 +33,8 @@ class House(AgentManagementSystem):
                 continue
 
             motion_sense = Sensor('Feel microwaves', self.feel_spectrum,
-                                  agent.buzz['Power Spectrum Sample'])
+                                  agent.buzz['Power Spectrum Sample'],
+                                  agent_id_to_engine=True)
             agent.set_organ(motion_sense)
 
 class LocalEnv(object):

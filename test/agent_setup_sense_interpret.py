@@ -13,10 +13,10 @@ np.random.seed(79)
 
 REF_OUTCOME = [0, -1, 0, 0, 2, 3, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3] 
 
-def dice_sensor(agent_index):
+def dice_sensor():
     return list(random_integers(1, 6, 5))
 
-def roll_interpreter(current_joy, d1, d2, d3, d4, d5):
+def roll_interpreter(d1, d2, d3, d4, d5, current_joy):
     dice_values = [d1, d2, d3, d4, d5]
     if sum(dice_values) >= 25:
         up = 2
@@ -55,7 +55,7 @@ interpreter = Interpreter('was_it_good_roll', roll_interpreter, buzz, belief,
 #
 # Initialize Agent
 #
-agent = Agent('test_agent')
+agent = Agent('test_agent', strict_engine=True)
 agent.set_organ(sensor)
 agent.set_organ(interpreter)
 
@@ -63,7 +63,6 @@ beliefs = []
 for k in range(0, 20):
     agent.sense('check_roll')
     agent.interpret('was_it_good_roll')
-#    agent.engage(['check_roll', 'was_it_good_roll'])
     beliefs.append(agent.belief['world_is_good'].values()[0])
 
 assert (beliefs == REF_OUTCOME)

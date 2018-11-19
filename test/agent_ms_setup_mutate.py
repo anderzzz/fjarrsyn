@@ -27,7 +27,7 @@ REF = [[0.7, 1.5, 0.5],
 essence = Essence('inclinations', ['t_1', 't_2', 'volatility']) 
 essence.set_values([0.7, 1.5, 0.5])
 
-agent = Agent('thin agent')
+agent = Agent('thin agent', True)
 agent.set_scaffold(essence)
 
 ams = AgentManagementSystem('exterior laws', [agent])
@@ -35,10 +35,10 @@ ams = AgentManagementSystem('exterior laws', [agent])
 mapper_1 = EssenceMap('tweak_1', 'wiener', 't_1', ('range_step',))
 mapper_2 = EssenceMap('tweak_2', 'wiener', 't_2', ('range_step',))
 mutate_1 = Mutation('jumps_1', essence.__getitem__, mapper_1, 
-                    mutation_prob=0.5, func_get_agent_id=False,
+                    mutation_prob=0.5, 
                     mutate_func_kwargs={'key' : 'volatility'})
 mutate_2 = Mutation('jumps_2', essence.__getitem__, mapper_2, 
-                    mutation_prob=0.5, func_get_agent_id=False, 
+                    mutation_prob=0.5, 
                     mutate_func_kwargs={'key' : 'volatility'})
 ams.set_laws(mutate_1, mutate_2)
 

@@ -135,14 +135,17 @@ class Arena(AgentManagementSystem):
 
         for agent in agents:
             sensor = Sensor('Feel for gene in Env', self.feeler, 
-                            agent.buzz['Env Feeling'])
+                            agent.buzz['Env Feeling'], agent_id_to_engine=True)
             stuff = ResourceMap('Env Payload', 'reset', 'External gene', ('item',))
             actuator_r = Actuator('Suck up gene', self.retriever,
-                                agent.direction['Receive'], stuff)
+                                agent.direction['Receive'], stuff,
+                                agent_id_to_engine=True)
             actuator_e = Actuator('Eject gene', self.ejecter,
-                                agent.direction['Eject'])
+                                agent.direction['Eject'],
+                                agent_id_to_engine=True)
             actuator_b = Actuator('Birth baby', self.birth,
-                                  agent.direction['Eject'])
+                                  agent.direction['Eject'],
+                                  agent_id_to_engine=True)
             agent.set_organs(sensor, actuator_r, actuator_e, actuator_b)
 
 

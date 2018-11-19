@@ -43,7 +43,8 @@ class TestAgentMS(AgentManagementSystem):
 
         for agent, aux_content in self:
             buzz = Buzz('type_discovery', ('type_sense', 'honesty_sense'))
-            sensor = Sensor('discover_neighbour_type', self.type_query, buzz)
+            sensor = Sensor('discover_neighbour_type', self.type_query, buzz,
+                            agent_id_to_engine=True)
             feature = Feature('revealed_type', ('revealed_type',))
             essence = Essence('who_am_i', ('my_type', 'my_mood'))
             cortex = Cortex('my_type', agent.reveal_type, essence, feature)
@@ -58,7 +59,7 @@ class TestAgent(Agent):
         return the_type 
 
 
-agents_init = [TestAgent('LEFT'), TestAgent('RIGHT')]
+agents_init = [TestAgent('LEFT', True), TestAgent('RIGHT', True)]
 agent_ms = TestAgentMS('pair_of_agents', agents_init)
 
 cnt = 0

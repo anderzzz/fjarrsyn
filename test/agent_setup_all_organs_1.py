@@ -11,7 +11,7 @@ np.random.seed(79)
 
 REF = ['Well Gee Maybe', 'Well Gee Maybe', 'Well Gee Maybe', 'Well Oh No', 'Well Oh Yes']
 
-def smeller(agent_index):
+def smeller():
     ENV_STATE = np.random.random()
     if ENV_STATE < 0.25:
         x1 = 0.0
@@ -39,7 +39,7 @@ def word_smith(mood_intensity):
         second_word = 'Yes'
     return first_word, second_word
 
-def speak(w1, w2, well, agent_index):
+def speak(w1, w2, well):
     if well:
         ENV_SPOKEN.append('Well ' + w1 + ' ' + w2)
     else:
@@ -54,7 +54,7 @@ moulder = Moulder('what_to_say', word_smith, belief, direction)
 actuator = Actuator('say_it', speak, direction, 
                     actuator_func_kwargs={'well' : True})
 
-agent = Agent('simple human')
+agent = Agent('simple human', strict_engine=True)
 agent.set_organs(sensor, interpreter, moulder, actuator)
 
 ENV_SPOKEN = []

@@ -310,7 +310,7 @@ class Agent(object):
         else:
             the_cortex = self.cortex[phrase]
 
-        did_it_reveal = the_cortex()
+        did_it_reveal = the_cortex(self.agent_id_system)
         if self.strict_engine and (not did_it_reveal is True):
             raise did_it_reveal
 
@@ -345,7 +345,7 @@ class Agent(object):
         if self.strict_engine and (not did_it_sense is True):
             raise did_it_sense
 
-        self.apply_map(the_sensor.scaffold_map)
+        self.apply_map(the_sensor.scaffold_map_output)
 
     def interpret(self, phrase):
         '''Verb for the agent to execute an Interpreter organ
@@ -372,11 +372,11 @@ class Agent(object):
         else:
             the_interpreter = self.interpreter[phrase]
 
-        did_it_interpret = the_interpreter()
+        did_it_interpret = the_interpreter(self.agent_id_system)
         if self.strict_engine and (not did_it_interpret is True):
             raise did_it_interpret
 
-        self.apply_map(the_interpreter.scaffold_map)
+        self.apply_map(the_interpreter.scaffold_map_output)
 
     def mould(self, phrase):
         '''Verb for the agent to execute a Moulder organ
@@ -403,11 +403,11 @@ class Agent(object):
         else:
             the_moulder = self.moulder[phrase]
 
-        did_it_mould = the_moulder()
+        did_it_mould = the_moulder(self.agent_id_system)
         if self.strict_engine and (not did_it_mould is True):
             raise did_it_mould
 
-        self.apply_map(the_moulder.scaffold_map)
+        self.apply_map(the_moulder.scaffold_map_output)
 
     def act(self, phrase):
         '''Verb for the agent to execute an Actuator organ
@@ -438,7 +438,7 @@ class Agent(object):
         if self.strict_engine and (not did_it_act is True):
             raise did_it_act
 
-        self.apply_map(the_actuator.scaffold_map)
+        self.apply_map(the_actuator.scaffold_map_output)
 
     def engage(self, organ_sequence):
         '''Compound verb for agent to execute a sequence of multiple organs

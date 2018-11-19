@@ -36,7 +36,7 @@ interpreter = Interpreter('about_to_be_mugged', evaluate, belief_merge_input,
 #
 # Initialize Agent
 #
-agent = Agent('test_agent')
+agent = Agent('test_agent', True)
 agent.set_organ(interpreter)
 agent._set('belief', 'hostile_neighbourhood', belief_input_1)
 agent._set('belief', 'i_am_followed', belief_input_2)

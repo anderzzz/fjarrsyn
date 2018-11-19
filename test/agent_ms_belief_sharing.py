@@ -38,23 +38,25 @@ class School(AgentManagementSystem):
         for agent in agents:
             if agent.name == 'Teacher':
                 actuator = Actuator('Share', self.share_to_external, 
-                                    agent.direction['Share this'])
+                                    agent.direction['Share this'],
+                                    agent_id_to_engine=True)
                 agent.set_organ(actuator)
 
             if agent.name == 'Student':
                 sensor = Sensor('Listen for knowledge', self.listen,
-                                agent.buzz['Knowledge feed'])
+                                agent.buzz['Knowledge feed'],
+                                agent_id_to_engine=True)
                 agent.set_organ(sensor)
 
 class Teacher(Agent):
 
-    def what_to_share(self, path, time):
-        if self.essence['degree'] > 90.0:
+    def what_to_share(self, path, time, essence_degree):
+        if essence_degree > 90.0:
             label = 'path to water'
-            unit_to_share = self.belief['Knowledge'][label]
-        elif self.essence['degree'] > 75.0:
+            unit_to_share = path 
+        elif essence_degree > 75.0:
             label = 'time to sow'
-            unit_to_share = self.belief['Knowledge'][label]
+            unit_to_share = time 
         else:
             label = None
             unit_to_share = None
@@ -70,15 +72,16 @@ class Teacher(Agent):
         belief = Belief('Knowledge', ('path to water', 'time to sow'))
         belief.set_values(['dummy_instruction_1', 20180101])
         direction = Direction('Share this', ('knowledge label', 'knowledge unit'))
-        moulder = Moulder('What to share', self.what_to_share, belief, direction)
+        moulder = Moulder('What to share', self.what_to_share, belief, direction,
+                          essence_op_input=essence)
         self.set_organ(moulder)
         self.set_scaffold(essence)
         self.set_message(belief)
 
 class Student(Agent):
     
-    def what_to_accept(self, ptw, tts, words):
-        if self.essence['degree'] > 50.0:
+    def what_to_accept(self, words, essence_degree, ptw, tts):
+        if essence_degree > 50.0:
             if words[0] == 'path to water':
                 ptw_ret = words[1]
             else:
@@ -105,6 +108,7 @@ class Student(Agent):
         buzz = Buzz('Knowledge feed', ('words',))
         interpreter = Interpreter('Should I accept teaching',
                                   self.what_to_accept, buzz, belief,
+                                  essence_op_input=essence,
                                   belief_updater=True)
         self.set_organ(interpreter)
         self.set_scaffold(essence)

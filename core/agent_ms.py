@@ -467,7 +467,7 @@ class AgentManagementSystem(object):
         if self.strict_engine and (not did_it_compel is True):
             raise did_it_compel
 
-        agent.apply_map(the_compulsion.scaffold_map)
+        agent.apply_map(the_compulsion.scaffold_map_output)
 
     def mutate(self, agent, phrase, validate_lawbook=False):
         '''Verb for the agent management system to execute a Mutation or
@@ -517,7 +517,7 @@ class AgentManagementSystem(object):
         if self.strict_engine and (not did_it_mutate is True):
             raise did_it_mutate
 
-        agent.apply_map(the_mutation.scaffold_map)
+        agent.apply_map(the_mutation.scaffold_map_output)
 
     def engage_all_verbs(self, agent, validate_lawbook=False):
         '''Convenience function to apply all verbs to the given agent

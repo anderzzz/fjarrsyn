@@ -32,10 +32,10 @@ def shouter(s1, s2, s3, s4):
     return sum([s1, s2, s3, s4])
 
 class Env(object):
-    def shout_into_void(self, how_loud, agent_index=None):
+    def shout_into_void(self, how_loud):
         self.loud_cumsum += how_loud
 
-    def grabber(self, volume, agent_index):
+    def grabber(self, volume):
         return int(self.conc_carrot * volume), int(self.conc_leek * volume)
 
     def __init__(self):
@@ -75,7 +75,7 @@ actuator2 = Actuator('shout', env.shout_into_void, direction2)
 #
 # Initialize Agent
 #
-agent = Agent('test_agent')
+agent = Agent('test_agent', True)
 agent.set_organ(moulder1)
 agent.set_organ(moulder2)
 agent.set_organ(actuator1)

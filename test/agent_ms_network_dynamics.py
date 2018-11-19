@@ -90,6 +90,9 @@ class AntColony(AgentManagementSystem):
 
         agent_calling = self[agent_index]
 
+        #
+        # This part is not kosher way of doing it, belief should not be
+        # accessed in sensor. Not a key aspect of test 
         while True:
             a_trial, aux = self.choice(True)
             if a_trial.name in agent_calling.belief['Who to connect with'].values():
@@ -116,11 +119,13 @@ class AntColony(AgentManagementSystem):
 
         for agent, aux in sorted(self, key=lambda x: x[0].name):
 
-            sensor = Sensor('Sense odour', self._nose, agent.buzz['Smell perception']) 
+            sensor = Sensor('Sense odour', self._nose, agent.buzz['Smell perception'], 
+                            agent_id_to_engine=True) 
             agent.set_organ(sensor)
 
             actuator = Actuator('Change network', self._change_network,
-                                agent.direction['Formation action'])
+                                agent.direction['Formation action'],
+                                agent_id_to_engine=True)
             agent.set_organ(actuator)
 
 ant1 = Ant('Ant 1', 1.0, 1.0, 'Ant 3')

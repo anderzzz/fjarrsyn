@@ -19,7 +19,7 @@ def make_decision(stress_degree):
     
 
 class Env(object):
-    def excretor(self, intake_volume, agent_index):
+    def excretor(self, intake_volume):
         a_piece = self.a_amount * intake_volume
         b_piece = self.b_amount * intake_volume
         c_piece = self.c_amount * intake_volume
@@ -61,7 +61,7 @@ actuator1 = Actuator('collect', env.excretor, direction1, add_internal)
 #
 # Initialize Agent
 #
-agent = Agent('test_agent')
+agent = Agent('test_agent', True)
 agent.set_organ(moulder1)
 agent.set_organ(actuator1)
 agent.set_scaffold(agent_resources)

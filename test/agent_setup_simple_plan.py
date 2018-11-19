@@ -15,12 +15,12 @@ REF = ['ear','mouth','ear','ear','ear','ear','ear','mouth',
        'ear','mouth','ear','ear','mouth','ear']
 
 class Env(object):
-    def ear(self, agent_index):
+    def ear(self):
         self.env_interactions.append('ear')
         ret = [np.sin(np.sqrt(x))**2 for x in np.random.random_integers(0,50,19)]
         return (ret,)
 
-    def mouth(self, words, agent_index):
+    def mouth(self, words):
         self.env_interactions.append('mouth')
 
     def __init__(self):
@@ -46,7 +46,7 @@ class SlimAgent(Agent):
                 self.clause['response_formation'].apply_to(self)
 
     def __init__(self, name):
-        super().__init__(name)
+        super().__init__(name, strict_engine=True)
 
 # Define Messages
 #

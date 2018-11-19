@@ -44,9 +44,51 @@ class _Instructor(object):
     _INSTRUCTOR_POLARITY = ['producer', 'transformer', 'consumer']
     _INSTRUCTOR_INGREDIENT = ['tangible', 'abstract']
 
+    def _format_op(self, inp, valid_class, invalid_classes):
+        '''Check if input of valid class and turn into message operator if so.
+        This includes creating empty return if input is None
+
+        Parameters
+        ----------
+        inp
+            Input message, message operator or None
+        valid class
+            Class that the base message should be of
+        invalid_classes
+            Single or tuple of classes that the input message should not be an
+            instance of
+
+        Returns
+        -------
+        ret : MessageOperator
+            Validated operator that retrieves the appropriate values upon
+            execution, including empty tuple
+
+        Raises
+        ------
+        TypeError
+            If input is instance of an invalid class
+
+        '''
+        if isinstance(inp, valid_class):
+            ret = MessageOperator(inp)
+
+        elif isinstance(inp, invalid_classes):
+            raise TypeError('Invalid class encountered: %s' %(str(type(inp))))
+
+        elif inp is None:
+            ret = lambda : ()
+
+        else:
+            ret = inp
+
+        return ret
+
     def __init__(self, name, engine, 
                  message_input=None, message_output=None,
-                 scaffold_map=None, engine_kwargs={}):
+                 scaffold_map_output=None, 
+                 resource_op_input=None, essence_op_input=None,
+                 engine_kwargs={}):
 
         def _decorate_always_iterable_output(f):
             '''Decorator to ensure the engine always generates an iterable
@@ -81,15 +123,25 @@ class _Instructor(object):
         self.message_input = message_input
         self.message_output = message_output
 
-        if not scaffold_map is None:
-            if not isinstance(scaffold_map, (_Map, MapCollection)):
+        if not scaffold_map_output is None:
+            if not isinstance(scaffold_map_output, (_Map, MapCollection)):
                 raise TypeError('Scaffold map must be a child to _Map')
-        self.scaffold_map = scaffold_map
+        self.scaffold_map_output = scaffold_map_output
+
+        if not resource_op_input is None:
+            if not callable(resource_op_input):
+                raise TypeError('Resource operator input must be callable')
+        self.resource_op_input = resource_op_input
+
+        if not essence_op_input is None:
+            if not callable(essence_op_input):
+                raise TypeError('Essence operator input must be callable')
+        self.essence_op_input = essence_op_input
 
         #
         # Compute the instructor logical type
         #
-        if (self.message_output is None) and (self.scaffold_map is None):
+        if (self.message_output is None) and (self.scaffold_map_output is None):
             type1 = self._INSTRUCTOR_POLARITY[2]
             
         elif self.message_input is None:
@@ -99,7 +151,7 @@ class _Instructor(object):
             type1 = self._INSTRUCTOR_POLARITY[1]
 
         type2_container = []
-        if not self.scaffold_map is None:
+        if not self.scaffold_map_output is None:
             type2_container.append(self._INSTRUCTOR_INGREDIENT[0])
 
         if (not self.message_input is None) or (not self.message_output is None):
@@ -130,9 +182,8 @@ class Sensor(_Instructor):
     resource_map : ResourceMap or MapCollection, optional
         In case the execution of the sensor produces tangible output to alter
         agent resources, a map with defined semantics is given
-    func_get_agent_id : bool, optional
-        If True, the sensor function is provided the agent index as one of the
-        input arguments, if False, not so.
+    resource_op_input : XXX
+    essence_op_input : XXX
     sensor_func_kwargs : dict, optional
         Named arguments to the sensor function
 
@@ -142,54 +193,62 @@ class Sensor(_Instructor):
         If the `buzz` parameter provides a message of type other than Buzz
 
     '''
-    def __call__(self, agent_index):
+    def __call__(self, agent_id):
         '''Execute the sensor and populate the output
 
         Parameters
         ----------
-        agent_index : str
-            The agent index for the agent whose sensor is executed
+        agent_id : str
+            Agent system ID of the calling agent
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
-            execution created Exception, return value is False     
+            execution of engine created Exception, that Exception is returned 
 
         '''
-        if self.func_get_agent_id:
-            kwargs = copy.copy(self.kwargs)
-            kwargs['agent_index'] = agent_index
-        
-        else:
-            kwargs = self.kwargs
+        resource_values = tuple(self.resource_op_input())
+        essence_values = tuple(self.essence_op_input())
+        args = resource_values + essence_values
 
+        if self.agent_id_to_engine:
+            args += (agent_id,)
+            
         try:
-            out_values = self.engine(**kwargs)
+            out_values = self.engine(*args, **self.kwargs)
         except Exception as err:
             return err
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
 
-        if not self.scaffold_map is None:
+        if not self.scaffold_map_output is None:
             out_values_naturallaw = out_values[self.message_output.n_elements:]
-            self.scaffold_map.set_values(out_values_naturallaw)
+            self.scaffold_map_output.set_values(out_values_naturallaw)
 
         return True
 
     def __init__(self, sensor_name, sensor_func, buzz, 
-                 resource_map=None, func_get_agent_id=True,
+                 resource_map_output=None, 
+                 resource_op_input=None, essence_op_input=None,
+                 agent_id_to_engine=False,
                  sensor_func_kwargs={}):
 
         if not isinstance(buzz, Buzz):
             raise TypeError('Sensor output should be of class Buzz')
 
+        resource_op_actual = self._format_op(resource_op_input, Resource, (Essence,))
+        essence_op_actual = self._format_op(essence_op_input, Essence, (Resource,))
+
         super().__init__(sensor_name, sensor_func, 
                          message_output=buzz, 
-                         scaffold_map=resource_map, 
+                         scaffold_map_output=resource_map_output, 
+                         resource_op_input=resource_op_actual,
+                         essence_op_input=essence_op_actual,
                          engine_kwargs=sensor_func_kwargs)
-        self.func_get_agent_id = func_get_agent_id
+
+        self.agent_id_to_engine = agent_id_to_engine
 
 class Actuator(_Instructor):
     '''Actuator class, which defines how the Agent takes actions onto the
@@ -211,9 +270,10 @@ class Actuator(_Instructor):
     resource_map : ResourceMap or MapCollection, optional
         In case the execution of the actuator produces tangible output to alter
         agent resources, a map with defined semantics is given
-    func_get_agent_id : bool, optional
-        If True, the actuator function is provided the agent index as one of the
-        input arguments, if False, not so.
+    agent_id_name : str, optional
+        Name of argument for the sensor function through which the agent index
+        of the calling agent. Default is `agent_index`. If `None` no argument
+        to the sensor function contains the agent index.
     actuator_func_kwargs : dict, optional
         Named arguments to the actuator function
 
@@ -224,60 +284,59 @@ class Actuator(_Instructor):
         Direction
 
     '''
-    def __call__(self, agent_index):
+    def __call__(self, agent_id):
         '''Execute the actuator to consume input and populate the output (if
         any)
 
         Parameters
         ----------
-        agent_index : str
-            The agent index for the agent whose actuator is executed
+        agent_id : str
+            The agent ID for the agent whose actuator is executed
 
         Returns
         -------
-        success : bool
+        success 
             If execution of engine successful, return value is True. If
-            execution created Exception, return value is False     
+            execution of engine created Exception, that Exception is returned     
 
         '''
-        direction_values = self.message_input()
+        direction_values = tuple(self.message_input())
+        resource_values = tuple(self.resource_op_input())
+        essence_values = tuple(self.essence_op_input())
+        args = direction_values + resource_values + essence_values
 
-        if self.func_get_agent_id:
-            kwargs = copy.copy(self.kwargs)
-            kwargs['agent_index'] = agent_index
-
-        else:
-            kwargs = self.kwargs
+        if self.agent_id_to_engine:
+            args += (agent_id,)
 
         try:
-            out_values = self.engine(*direction_values, **kwargs)
+            out_values = self.engine(*args, **self.kwargs)
         except Exception as err:
             return err
 
-        if not self.scaffold_map is None:
+        if not self.scaffold_map_output is None:
             out_values_naturallaw = out_values
-            self.scaffold_map.set_values(out_values_naturallaw)
+            self.scaffold_map_output.set_values(out_values_naturallaw)
 
         return True
 
     def __init__(self, actuator_name, actuator_func, inputer, 
-                 resource_map=None, func_get_agent_id=True,
+                 resource_map_output=None, 
+                 resource_op_input=None, essence_op_input=None,
+                 agent_id_to_engine=False,
                  actuator_func_kwargs={}):
 
-        if isinstance(inputer, Direction):
-            inputer_actual = MessageOperator(inputer)
-
-        elif isinstance(inputer, (Buzz, Belief, Feature)):
-            raise TypeError('Actuator cannot handle Buzz, Belief or Feature as input')
-
-        else:
-            inputer_actual = inputer
+        resource_op_actual = self._format_op(resource_op_input, Resource, (Essence,))
+        essence_op_actual = self._format_op(essence_op_input, Essence, (Resource,))
+        inputer_actual = self._format_op(inputer, Direction, (Buzz, Belief, Feature))
 
         super().__init__(actuator_name, actuator_func, 
                          message_input=inputer_actual,
-                         scaffold_map=resource_map, 
+                         scaffold_map_output=resource_map_output,
+                         resource_op_input=resource_op_actual,
+                         essence_op_input=essence_op_actual,
                          engine_kwargs=actuator_func_kwargs)
-        self.func_get_agent_id = func_get_agent_id
+
+        self.agent_id_to_engine = agent_id_to_engine
 
 class Interpreter(_Instructor):
     '''Interpreter class, which defines how the Agent interprets buzz or
@@ -319,24 +378,31 @@ class Interpreter(_Instructor):
         than Buzz or Belief.
 
     '''
-    def __call__(self):
+    def __call__(self, agent_id):
         '''Execute the interpreter to consume input and produce the output
+
+        Parameters
+        ----------
+        agent_id : str
+            The agent ID for the agent whose actuator is executed
 
         Returns
         -------
         success : bool
             If execution of engine successful, return value is True. If
-            execution created Exception, return value is False     
+            execution of engine created Exception, that Exception is returned     
 
         '''
-        inp_values = self.message_input()
+        inp_values = tuple(self.message_input())
+        resource_values = tuple(self.resource_op_input())
+        essence_values = tuple(self.essence_op_input())
+        args = inp_values + resource_values + essence_values
 
         if self.belief_updater:
-            current_beliefs = self.message_output.values()
-            args = tuple(current_beliefs + inp_values)
+            args += tuple(self.message_output.values())
 
-        else:
-            args = tuple(inp_values)
+        if self.agent_id_to_engine:
+            args += (agent_id,)
 
         try:
             out_values = self.engine(*args, **self.kwargs)
@@ -346,33 +412,35 @@ class Interpreter(_Instructor):
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
 
-        if not self.scaffold_map is None:
+        if not self.scaffold_map_output is None:
             out_values_naturallaw = out_values[self.message_output.n_elements:]
-            self.scaffold_map.set_values(out_values_naturallaw) 
+            self.scaffold_map_output.set_values(out_values_naturallaw) 
 
         return True 
 
     def __init__(self, interpreter_name, interpreter_func, inputer, belief,
-                 resource_map=None, interpreter_func_kwargs={},
+                 resource_map_output=None, 
+                 resource_op_input=None, essence_op_input=None,
+                 agent_id_to_engine=False,
+                 interpreter_func_kwargs={},
                  belief_updater=False):
-
-        if isinstance(inputer, (Buzz, Belief, Resource)):
-            inputer_actual = MessageOperator(inputer)
-
-        elif isinstance(inputer, (Buzz, Direction, Feature)):
-            raise TypeError('Interpreter cannot handle Direction, Buzz or Feature as input')
-
-        else:
-            inputer_actual = inputer
 
         if not isinstance(belief, Belief):
             raise TypeError('Interpreter output should be of class Belief')
 
+        resource_op_actual = self._format_op(resource_op_input, Resource, (Essence,))
+        essence_op_actual = self._format_op(essence_op_input, Essence, (Resource,))
+        inputer_actual = self._format_op(inputer, (Buzz, Belief), (Direction, Feature))
+
         super().__init__(interpreter_name, interpreter_func, 
                          message_input=inputer_actual,
                          message_output=belief,
-                         scaffold_map=resource_map,
+                         scaffold_map_output=resource_map_output,
+                         resource_op_input=resource_op_actual,
+                         essence_op_input=essence_op_actual,
                          engine_kwargs=interpreter_func_kwargs)
+
+        self.agent_id_to_engine = agent_id_to_engine
         self.belief_updater = belief_updater
 
 class Moulder(_Instructor):
@@ -408,52 +476,65 @@ class Moulder(_Instructor):
         than Belief.
 
     '''
-    def __call__(self):
+    def __call__(self, agent_id):
         '''Execute the moulder to consume input and produce the output
+
+        Parameters
+        ----------
+        agent_id : str
+            The agent ID for the agent whose actuator is executed
 
         Returns
         -------
         success : bool
             If execution of engine successful, return value is True. If
-            execution created Exception, return value is False     
+            execution of engine created Exception, that Exception is returned     
 
         '''
-        belief_values = self.message_input()
+        belief_values = tuple(self.message_input())
+        resource_values = tuple(self.resource_op_input())
+        essence_values = tuple(self.essence_op_input())
+        args = belief_values + resource_values + essence_values
+
+        if self.agent_id_to_engine:
+            args += (agent_id,)
 
         try:
-            out_values = self.engine(*belief_values, **self.kwargs)
+            out_values = self.engine(*args, **self.kwargs)
         except Exception as err:
             return err
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
 
-        if not self.scaffold_map is None:
+        if not self.scaffold_map_output is None:
             out_values_naturallaw = out_values[self.message_output.n_elements:]
-            self.scaffold_map.set_values(out_values_naturallaw) 
+            self.scaffold_map_output.set_values(out_values_naturallaw) 
 
         return True
 
     def __init__(self, moulder_name, moulder_func, inputer, direction,
-                 resource_map=None, moulder_func_kwargs={}):
-
-        if isinstance(inputer, Belief):
-            inputer_actual = MessageOperator(inputer)
-
-        elif isinstance(inputer, (Buzz, Direction, Feature)):
-            raise TypeError('Moulder cannot handle Direction, Buzz or Feature as input')
-
-        else:
-            inputer_actual = inputer
+                 resource_map_output=None, 
+                 resource_op_input=None, essence_op_input=None,
+                 agent_id_to_engine=False,
+                 moulder_func_kwargs={}):
 
         if not isinstance(direction, Direction):
             raise TypeError('Moulder output should be of class Direction')
 
+        resource_op_actual = self._format_op(resource_op_input, Resource, (Essence,))
+        essence_op_actual = self._format_op(essence_op_input, Essence, (Resource,))
+        inputer_actual = self._format_op(inputer, Belief, (Buzz, Direction, Feature))
+
         super().__init__(moulder_name, moulder_func,
                          message_input=inputer_actual,
                          message_output=direction,
-                         scaffold_map=resource_map,
+                         scaffold_map_output=resource_map_output,
+                         resource_op_input=resource_op_actual,
+                         essence_op_input=essence_op_actual,
                          engine_kwargs=moulder_func_kwargs)
+
+        self.agent_id_to_engine = agent_id_to_engine
 
 class Cortex(_Instructor):
     '''Cortex class, which defines how the Agent responds to being tickled
@@ -485,20 +566,31 @@ class Cortex(_Instructor):
         message of type other than Feature.
 
     '''
-    def __call__(self):
+    def __call__(self, agent_id):
         '''Execute the cortex to consume input and produce the output
+
+        Parameters
+        ----------
+        agent_id : str
+            The agent ID for the agent whose actuator is executed
 
         Returns
         -------
         success : bool
             If execution of engine successful, return value is True. If
-            execution created Exception, return value is False     
+            execution of engine created Exception, that Exception is returned     
 
         '''
-        agent_state_values = self.message_input()
+        agent_state_values = tuple(self.message_input())
+        resource_values = tuple(self.resource_op_input())
+        essence_values = tuple(self.essence_op_input())
+        args = agent_state_values + resource_values + essence_values
+
+        if self.agent_id_to_engine:
+            args += (agent_id,)
 
         try:
-            out_values = self.engine(*agent_state_values, **self.kwargs)
+            out_values = self.engine(*args, **self.kwargs)
         except Exception as err:
             return err
 
@@ -507,24 +599,26 @@ class Cortex(_Instructor):
         return True 
 
     def __init__(self, cortex_name, cortex_func, inputer, feature,
+                 resource_op_input=None, essence_op_input=None,
+                 agent_id_to_engine=False,
                  cortex_func_kwargs={}):
-
-        if isinstance(inputer, (Essence, Resource, Belief)):
-            inputer_actual = MessageOperator(inputer)
-
-        elif isinstance(inputer, (Direction, Feature, Buzz)):
-            raise TypeError('Cortex cannot handle Direction, Buzz or Feature as input')
-
-        else:
-            inputer_actual = inputer
 
         if not isinstance(feature, Feature):
             raise TypeError('Cortex output should be of class Feature')
 
+        resource_op_actual = self._format_op(resource_op_input, Resource, (Essence,))
+        essence_op_actual = self._format_op(essence_op_input, Essence, (Resource,))
+        inputer_actual = self._format_op(inputer, (Essence, Resource, Belief), \
+                                                  (Buzz, Direction, Feature))
+
         super().__init__(cortex_name, cortex_func, 
                          message_input=inputer_actual,
                          message_output=feature,
+                         resource_op_input=resource_op_actual,
+                         essence_op_input=essence_op_actual,
                          engine_kwargs=cortex_func_kwargs)
+
+        self.agent_id_to_engine = agent_id_to_engine
 
 class Compulsion(_Instructor):
     '''Compulsion class, which defines how the Agent responds to being
@@ -551,48 +645,56 @@ class Compulsion(_Instructor):
         If the resource map is not an instance of ResourceMap or MapCollection
 
     '''
-    def __call__(self, agent_index):
+    def __call__(self, agent_id):
         '''Execute the compulsion and populate the output
 
         Parameters
         ----------
-        agent_index : str
-            The agent index for the agent that is compelled
+        agent_id : str
+            The agent ID for the agent whose actuator is executed
 
         Returns
         -------
         success : bool
             If execution of engine successful, return value is True. If
-            execution created Exception, return value is False     
+            execution of engine created Exception, that Exception is returned     
 
         '''
-        if self.func_get_agent_id:
-            kwargs = copy.copy(self.kwargs)
-            kwargs['agent_index'] = agent_index
+        resource_values = tuple(self.resource_op_input())
+        essence_values = tuple(self.essence_op_input())
+        args = resource_values + essence_values
 
-        else:
-            kwargs = self.kwargs
+        if self.agent_id_to_engine:
+            args += (agent_id,)
 
         try:
-            out_values = self.engine(**kwargs)
+            out_values = self.engine(*args, **self.kwargs)
         except Exception as err:
             return err
 
-        self.scaffold_map.set_values(out_values)
+        self.scaffold_map_output.set_values(out_values)
 
         return True 
 
     def __init__(self, compel_name, compel_func, resource_map,
-                 func_get_agent_id=True, compel_func_kwargs={}):
+                 resource_op_input=None, essence_op_input=None,
+                 agent_id_to_engine=False,
+                 compel_func_kwargs={}):
 
         if not isinstance(resource_map, (ResourceMap, MapCollection)):
             raise TypeError('Compulsion must have a resource map of type ' + \
                             'ResourceMap or MapCollection')
 
+        resource_op_actual = self._format_op(resource_op_input, Resource, (Essence,))
+        essence_op_actual = self._format_op(essence_op_input, Essence, (Resource,))
+
         super().__init__(compel_name, compel_func, 
-                         scaffold_map=resource_map, 
+                         scaffold_map_output=resource_map, 
+                         resource_op_input=resource_op_actual,
+                         essence_op_input=essence_op_actual,
                          engine_kwargs=compel_func_kwargs)
-        self.func_get_agent_id = func_get_agent_id
+
+        self.agent_id_to_engine = agent_id_to_engine
 
 class Mutation(_Instructor):
     '''Mutation class, which defines how the Agent responds to being
@@ -629,14 +731,14 @@ class Mutation(_Instructor):
 
         Parameters
         ----------
-        agent_index : str
-            The agent index for the agent that is mutated
+        agent_id : str
+            The agent ID for the agent whose actuator is executed
 
         Returns
         -------
         success : bool
-            If the attempted mutation was completed succesfully, return value
-            is True. If the execution created Exception, return value is False.
+            If execution of engine successful, return value is True. If
+            execution of engine created Exception, that Exception is returned.    
             Note that even if mutation attempt did not lead to a mutation, the
             return value is True
 
@@ -649,19 +751,20 @@ class Mutation(_Instructor):
 
         '''
         if np.random.ranf() < self.mutation_prob:
-            if self.func_get_agent_id:
-                kwargs = copy.copy(self.kwargs)
-                kwargs['agent_index'] = agent_index
 
-            else:
-                kwargs = self.kwargs
+            resource_values = tuple(self.resource_op_input())
+            essence_values = tuple(self.essence_op_input())
+            args = resource_values + essence_values
+
+            if self.agent_id_to_engine:
+                args += (agent_id,)
 
             try:
-                out_values = self.engine(**kwargs)
+                out_values = self.engine(*args, **self.kwargs)
             except Exception as err:
                 return err
 
-            self.scaffold_map.set_values(out_values)
+            self.scaffold_map_output.set_values(out_values)
 
         else:
             pass
@@ -669,17 +772,25 @@ class Mutation(_Instructor):
         return True
 
     def __init__(self, mutate_name, mutate_func, essence_map,
-                 mutation_prob=1.0, func_get_agent_id=True,
+                 resource_op_input=None, essence_op_input=None,
+                 agent_id_to_engine=False,
+                 mutation_prob=1.0,
                  mutate_func_kwargs={}):
 
         if not isinstance(essence_map, (EssenceMap, MapCollection)): 
             raise TypeError('Mutation must have an essence map of type ' + \
                             'EssenceMap or MapCollection')
 
+        resource_op_actual = self._format_op(resource_op_input, Resource, (Essence,))
+        essence_op_actual = self._format_op(essence_op_input, Essence, (Resource,))
+
         super().__init__(mutate_name, mutate_func, 
-                         scaffold_map=essence_map, 
+                         scaffold_map_output=essence_map, 
+                         resource_op_input=resource_op_actual,
+                         essence_op_input=essence_op_actual,
                          engine_kwargs=mutate_func_kwargs)
-        self.func_get_agent_id = func_get_agent_id
+
+        self.agent_id_to_engine = agent_id_to_engine 
 
         if mutation_prob > 1.0 or mutation_prob < 0.0:
             raise ValueError('Mutation probability must be in range 0.0 to 1.0')
@@ -725,14 +836,14 @@ class MultiMutation(Mutation):
 
         Parameters
         ----------
-        agent_index : str
-            The agent index for the agent that is mutated
+        agent_id : str
+            The agent ID for the agent whose actuator is executed
 
         Returns
         -------
         success : bool
-            If the attempted mutation was completed succesfully, return value
-            is True. If the execution created Exception, return value is False.
+            If execution of engine successful, return value is True. If
+            execution of engine created Exception, that Exception is returned.    
             Note that even if mutation attempt did not lead to a mutation, the
             return value is True
 
@@ -745,24 +856,24 @@ class MultiMutation(Mutation):
         all arguments use the Mutation class.
 
         '''
-        if self.func_get_agent_id:
-            kwargs = copy.copy(self.kwargs)
-            kwargs['agent_index'] = agent_index
+        resource_values = tuple(self.resource_op_input())
+        essence_values = tuple(self.essence_op_input())
+        args = resource_values + essence_values
 
-        else:
-            kwargs = self.kwargs
+        if self.agent_id_to_engine:
+            args += (agent_id,)
 
         out_values = []
-        for key in self.scaffold_map:
+        for key in self.scaffold_map_output:
             if np.random.ranf() < self.mutation_prob:
                 try:
-                    out_values.append(self.engine(**kwargs))
+                    out_values.append(self.engine(*args, **self.kwargs))
                 except Exception as err:
                     return err
 
             else:
                 out_values.append(None)
 
-        self.scaffold_map.set_values(out_values)
+        self.scaffold_map_output.set_values(out_values)
 
         return True

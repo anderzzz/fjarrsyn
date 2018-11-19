@@ -59,9 +59,9 @@ change_energy = ResourceMap('adjust_energy', 'delta', 'energy', ('how_much',))
 # Define Organs and their associated messages
 #
 interpreter_1 = Interpreter('will_it_rain', rain_predictor, buzz, belief_1,
-                            resource_map=change_energy)
+                            resource_map_output=change_energy)
 interpreter_2 = Interpreter('am_i_unlucky', mood_maker, belief_1, belief_2,
-                            resource_map=change_energy)
+                            resource_map_output=change_energy)
 total_belief = MessageOperator([belief_1, belief_2], extend=True)
 moulder = Moulder('fetch_umbrella_type', make_decision, total_belief, direction,
                    change_energy)
@@ -69,7 +69,7 @@ moulder = Moulder('fetch_umbrella_type', make_decision, total_belief, direction,
 #
 # Initialize Agent
 #
-agent = Agent('test_agent')
+agent = Agent('test_agent', True)
 agent._set('buzz', 'nerve_endings', buzz)
 agent.set_organ(moulder)
 agent.set_organ(interpreter_1)

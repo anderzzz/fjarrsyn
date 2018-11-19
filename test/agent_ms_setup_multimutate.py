@@ -23,7 +23,7 @@ REF = [[0.0, 0.0, 0.0, 0.0, 0.0],
 essence = Essence('inclinations', ['t_1', 't_2', 't_3', 't_4', 't_5']) 
 essence.set_values([0.0, 0.0, 0.0, 0.0, 0.0])
 
-agent = Agent('thin agent')
+agent = Agent('thin agent', True)
 agent.set_scaffold(essence)
 
 ams = AgentManagementSystem('exterior laws', [agent])
@@ -35,7 +35,7 @@ mapper_4 = EssenceMap('tweak', 'wiener', 't_4', ('range_step',))
 mapper_5 = EssenceMap('tweak', 'wiener', 't_5', ('range_step',))
 mapper = MapCollection([mapper_1, mapper_2, mapper_3, mapper_4, mapper_5])
 mutate = MultiMutation('jumps', lambda : 1.0, mapper, 
-                       mutation_prob=0.5, func_get_agent_id=False)
+                       mutation_prob=0.5)
 ams.set_law(mutate)
 
 vals = agent.essence.values()

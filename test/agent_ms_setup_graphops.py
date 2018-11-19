@@ -11,9 +11,9 @@ from core.graph import Node
 
 import networkx as nx
 
-agent_1 = Agent('A1')
-agent_2 = Agent('A2')
-agent_3 = Agent('A3')
+agent_1 = Agent('A1', True)
+agent_2 = Agent('A2', True)
+agent_3 = Agent('A3', True)
 agents = [agent_1, agent_2, agent_3]
 node = [Node('dummy', a) for a in agents]
 
