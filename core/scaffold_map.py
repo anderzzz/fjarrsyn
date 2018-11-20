@@ -40,7 +40,30 @@ class _Map(_Flash):
 
     Notes
     -----
-    TO BE WRITTEN
+    The map class encodes an operation onto a scaffold of an agent that in some
+    manner alters a specific element of a specific scaffold in some specified
+    manner. The content of the specification is done separatedly from the
+    semantics of the specification, where the latter is typically done during
+    initialization within the scope of the Agent class, and the former is done
+    by some internal or external instructor, such as a Moulder, Actuator, or
+    Compulsion. It is particularly for external causes of internal change to an
+    agent that the map class are intended for since it keep a clear separation
+    of concerns.
+
+    Available library map force functions and their string
+
+    * `reset` : Reset an old value to a new value
+    * `delta` : Add an increment to an old value to produce a new value
+    * `scale` : Multiply an old value with a factor to produce a new value
+    * `delta_scale` : Add an increment to an old value, multiply the sum by a
+                      factor to produce a new value
+    * `wiener` : Add random number from zero-centred normal distribution to old
+                 value to produce new value
+    * `wiener_bounded` : Like `wiener` only new value forced to be bounded
+    * `exponential_convergence` : Multiply the difference between an old value
+                                  and a target value, add to target value to
+                                  produce new value
+    * `flip_one_char` : Flip a random character in a string of characters
 
     '''
     def _apply_to(self, scaffold, empty_to_identity=True):
@@ -147,7 +170,15 @@ class ResourceMap(_Map):
 
     Notes
     -----
-    TO BE WRITTEN
+    The map class encodes an operation onto a resource of an agent that in some
+    manner alters a specific element of a specific scaffold in some specified
+    manner. The content of the specification is done separatedly from the
+    semantics of the specification, where the latter is typically done during
+    initialization within the scope of the Agent class, and the former is done
+    by some internal or external instructor, such as a Moulder, Actuator, or
+    Compulsion. It is particularly for external causes of internal change to an
+    agent that the map class are intended for since it keep a clear separation
+    of concerns.
 
     '''
     def apply_to(self, agent, empty_to_identity=True):
@@ -208,7 +239,12 @@ class EssenceMap(_Map):
 
     Notes
     -----
-    TO BE WRITTEN
+    The map class encodes an operation onto an essence of an agent that in some
+    manner alters a specific element of a specific essence in some specified
+    manner. The content of the specification is done separatedly from the
+    semantics of the specification, where the latter is typically done during
+    initialization within the scope of the Agent class, and the former is done
+    by an external instructor, in particular Mutation. 
 
     '''
     def apply_to(self, agent, empty_to_identity=True):
@@ -320,36 +356,102 @@ class MapCollection(_SupraArray):
         self.scaffold_keys = [s.scaffold_key for s in self]
 
 class _ForceFunctions(object):
-    '''Bunch of pre-defined object force functions that other classes can use
+    '''Bunch of pre-defined map force functions that other classes can use
     to associate a callable force function to a scaffold name
 
     '''
     def force_func_reset(self, old_value, new_value):
-        '''Bla bla
+        '''Straight-up reset of a value, regardless of the old value
+
+        Parameters
+        ----------
+        old_value 
+            The old value of the scaffold argument to be altered
+        new_value
+            The new value to overwrite the old value of the scaffold argument
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         return new_value
 
     def force_func_delta(self, old_value, increment):
-        '''Bla bla
+        '''Add an increment to the old value to create the new value
+
+        Parameters
+        ----------
+        old_value 
+            The old value of the scaffold argument to be altered
+        increment
+            The increment to add to the old value
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         return old_value + increment
 
     def force_func_scale(self, old_value, factor):
-        '''Bla bla
+        '''Multiply a factor and the old value to create the new value
+
+        Parameters
+        ----------
+        old_value 
+            The old value of the scaffold argument to be altered
+        factor
+            The factor to multiply with
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         return old_value * factor
 
     def force_func_delta_scale(self, old_value, increment, factor):
-        '''Bla bla
+        '''Increment and multiply the old value to create the new value. The
+        equation is new_value = factor * (old_value + increment)
+
+        Parameters
+        ----------
+        old_value 
+            The old value of the scaffold argument to be altered
+        increment
+            The increment to add to the old value
+        factor
+            The factor to multiply with
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         return self.force_func_scale(self.force_func_delta(old_value, increment), factor)
 
     def force_func_wiener(self, old_value, std):
-        '''Bla bla
+        '''Add a random number sampled from a zero-centred normal distribution
+        of specified standard-deviation to the old value to create the new
+        value. This generates a Wiener process
+
+        Parameters
+        ----------
+        old_value 
+            The old value of the scaffold argument to be altered
+        std
+            Standard-deviation of the normal distribution from which to sample
+            the increment
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         increment = np.random.normal(0.0, std)
@@ -357,21 +459,52 @@ class _ForceFunctions(object):
 
     def force_func_wiener_bounded(self, old_value, std, lower_bound=-1.0*np.Infinity, 
                              upper_bound=1.0*np.Infinity):
-        '''Bla bla
+        '''Add a random number sampled from a zero-centred normal distribution
+        of specified standard-deviation to the old value and ensure the sum is
+        bounded between at least one or two bounds
+
+        Parameters
+        ----------
+        old_value 
+            The old value of the scaffold argument to be altered
+        std
+            Standard-deviation of the normal distribution from which to sample
+            the increment
+        lower_bound : optional
+            The lower bound to force the new value to, minus infinity if not
+            specified
+        upper_bound : optional
+            The upper bound to force the new value to, infinity if not
+            specified
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         new_value = self.force_func_wiener(old_value, std)
         new_value = min(max(new_value, lower_bound), upper_bound)
         return new_value
 
-    def force_func_exponential_decay(self, old_value, loss):
-        '''Bla bla
-
-        '''
-        return self.force_func_exponential_convergence(old_value, loss, 0.0) 
-
     def force_func_exponential_convergence(self, old_value, loss, target):
-        '''Bla bla
+        '''Create a new value through an exponential decay converging towards a
+        target, or equilibrium, value. The equation is 
+        new_value = target + loss * (old_value - target)
+
+        Parameters
+        ----------
+        old_value 
+            The old value of the scaffold argument to be altered
+        loss
+            The exponential decay coefficient
+        target
+            The target value towards the force moves 
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         if loss > 1.0 or loss < 0.0:
@@ -381,7 +514,25 @@ class _ForceFunctions(object):
         return target + loss * (old_value - target) 
 
     def force_func_flip_one_char(self, old_value, alphabet, selector=None):
-        '''Bla bla
+        '''Flip one character in a string of old value to another value from an
+        alphabet, where the selection from the alphabet can be uniformly random
+        or not
+
+        Parameters
+        ----------
+        old_value 
+            The old string of characters
+        alphabet
+            Iterable of characters that defines the alphabet from which to
+            sample
+        selector : callable, optional
+            Function that takes a set of characters from the alphabet and
+            selects one. If not defined, the selection is done uniformly random
+
+        Returns
+        -------
+        new_value
+            The new value after transformation
 
         '''
         index_flip = np.random.randint(len(old_value))
