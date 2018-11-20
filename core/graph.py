@@ -24,7 +24,7 @@ class Node(object):
     '''
     def __str__(self):
         
-        return self.name
+        return 'Node(name:%s)' %(self.name)
 
     def __contains__(self, item):
 

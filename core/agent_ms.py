@@ -179,9 +179,8 @@ class AgentManagementSystem(object):
             
         return entry.agent_content, entry.aux_content
 
-    def shuffle_iter(self, max_iter, replace=False):
-        '''Iterator over node content in system as a random selection with
-        or without replacement. 
+    def _shuffle_items(self, items, max_iter, replace):
+        '''
 
         Notes
         -----
@@ -205,31 +204,129 @@ class AgentManagementSystem(object):
 
         Yields
         ------
-        agent_content : Agent
-            Agent of node. Is `None` in case no agent occupies the node
-        aux_content 
-            Any auxiliary content of the node
+        Bla bla
 
         '''
         def _terminator(counter):
-            if (counter < max_iter) or (max_iter < 0):
+            if max_iter is None:
+                return True
+            elif counter < max_iter:
                 return True
             else:
                 return False
-            
+
         shuffled = []
         counter = 0
         while _terminator(counter): 
             counter += 1
 
             if len(shuffled) == 0:
-                shuffled = list(np.random.choice(list(self.agents_graph.nodes), 
-                                                 size=len(self.agents_graph.nodes),
-                                                 replace=replace))
+                shuffled = list(np.array(items)[np.random.choice(len(items),
+                                                                 size=len(items), 
+                                                                 replace=replace)])
+            entry = shuffled.pop(0)
 
-            entry = shuffled.pop()
+            yield entry
 
-            yield entry.agent_content, entry.aux_content
+    def shuffle_nodes(self, max_iter, replace, agents_only, subset=None):
+        '''Bla bla
+
+        '''
+        if subset is None:
+            items = list(self.agents_graph.nodes)
+
+        else:
+            items = list(subset)
+
+        if agents_only:
+            items = list(map(lambda x: x.agent_content, items))
+
+        return self._shuffle_items(items, max_iter, replace)
+
+    def shuffle_edges(self, max_iter, replace, agents_only, subset=None):
+        '''Bla bla
+
+        '''
+        if subset is None:
+            items = list(self.agents_graph.edges)
+
+        else:
+            items = list(subset)
+
+        if agents_only:
+            items = list(map(lambda x: (x[0].agent_content, 
+                                        x[1].agent_content), items))
+
+        return self._shuffle_items(items, max_iter, replace)
+
+    def _cycle_items(self, items, max_iter, replace):
+        pass
+
+    def cycle_nodes(self, max_iter, replace, agents_only, subset=None):
+        pass
+
+    def cycle_edges(self, max_iter, replace, agents_only, subset=None):
+        pass
+
+    def _choice_items(self, items, max_iter, replace):
+        pass
+
+    def choice_nodes(self, max_iter, replace, agents_only, subset=None):
+        pass
+
+    def choice_edges(self, max_iter, replace, agents_only, subset=None):
+        pass
+
+    def iterator(self, items='nodes', order='non-random', max_iter='all',
+                 subset=None):
+        '''Bla bla
+
+        '''
+        if not items in ['nodes', 'edges']:
+            raise ValueError('Iteration is over nodes or edges')
+
+        if order == 'non-random':
+            func = self.cycle_iter
+
+        elif order == 'random-replace':
+            func = self.shuffle_iter
+            replace = True
+
+        elif order == 'random-no-replace':
+            func = self.shuffle_iter
+            replace = False
+
+        elif order == 'random-choice':
+            func = self.choice
+
+        else:
+            raise ValueError('Iterator order %s is unknown' %(order))
+
+        if subset is None:
+            container = self.agents_graph
+
+        else:
+            if not isinstance(subset, nx.Graph):
+                raise TypeError('Iterator subset should be either None ' + \
+                                'or a networkx Graph')
+
+        if max_iter == 'all':
+            n_iter = len(getattr(container, items))
+
+        elif max_iter is None:
+            n_iter = None
+
+        elif isinstance(max_iter, int):
+            n_iter = max_iter
+
+        else:
+            raise ValueError('max_iter is either `all`, None or an integer')
+
+        _method = getattr(self, func)
+        _kwargs = {'items' : getattr(container, items),
+                   'n_iter' : n_iter, 'replace' : replace}
+
+        return _method(**_kwargs)
 
     def __iter__(self):
         '''Iterator over all nodes and their content of the agent system.
