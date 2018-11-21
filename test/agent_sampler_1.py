@@ -26,7 +26,8 @@ class House(AgentManagementSystem):
 
         super().__init__(name, agents, full_agents_graph=graph)
 
-        for agent, aux in self:
+        for node in self:
+            agent = node.agent_content
             if agent is None:
                 continue
             if agent.name == 'Coordinator':
@@ -120,7 +121,8 @@ nodes.append(Node('dummy', None))
 star_graph = nx.generators.classic.star_graph(nodes)
 
 ams = House('A House', agents, star_graph)
-for agent, aux in ams:
+for node in ams:
+    agent = node.agent_content
     if not agent is None:
         if 'Is There Motion' in agent.belief:
             agent.sense('Feel microwaves')

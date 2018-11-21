@@ -93,7 +93,8 @@ class AgentSampler(object):
         # Loop pver agents in system
         #
         rows = []
-        for agent, aux in ams:
+        for node in ams:
+            agent = node.agent_content
 
             is_there_match = True
             if not self.matcher is None:
@@ -264,7 +265,9 @@ class EnvSampler(object):
         #
         else:
             rows = []
-            for agent, aux in ams:
+            for node in ams:
+                agent = node.agent_content
+                aux = node.aux_content
 
                 is_there_match = True
                 if not self.matcher is None:

@@ -164,7 +164,7 @@ agent_2.act('Suck up gene')
 agent_2.mould('Make cross-over baby')
 agent_2.act('Birth baby')
 
-for a, e in ams:
+for a in ams.cycle_nodes(True, 3):
     if a.name == 'A':
         assert (a.essence['rude'] == True)
         assert (a.essence['loud'] == True)

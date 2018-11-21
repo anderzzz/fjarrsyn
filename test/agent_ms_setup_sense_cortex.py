@@ -41,7 +41,8 @@ class TestAgentMS(AgentManagementSystem):
 
         super().__init__(name, agents_init)
 
-        for agent, aux_content in self:
+        for node in self:
+            agent = node.agent_content
             buzz = Buzz('type_discovery', ('type_sense', 'honesty_sense'))
             sensor = Sensor('discover_neighbour_type', self.type_query, buzz,
                             agent_id_to_engine=True)
@@ -63,7 +64,8 @@ agents_init = [TestAgent('LEFT', True), TestAgent('RIGHT', True)]
 agent_ms = TestAgentMS('pair_of_agents', agents_init)
 
 cnt = 0
-for agent, aux_content in agent_ms:
+for node in agent_ms:
+    agent = node.agent_content
     agent.sense('discover_neighbour_type')
     the_buzz = agent.buzz['type_discovery']
 

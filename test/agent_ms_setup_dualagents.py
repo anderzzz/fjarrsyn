@@ -46,7 +46,7 @@ ams.set_law(sloppy)
 ams.make_lawbook_entry(['sloppy'], agent_name_selector=farm_name_test)
 ams.make_lawbook_entry(['amortization'], agent_ids=[uuid_of_yummy])
 
-for agent, aux in ams:
+for agent in ams.cycle_nodes(True, 2):
     ams.engage_all_verbs(agent, validate_lawbook=True)
 
 vals1 = agent1.resource.values()

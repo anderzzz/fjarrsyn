@@ -44,21 +44,23 @@ assert (ams.edge_property(agent_1.agent_id_system, agent_3.agent_id_system)[0])
 assert (ams.edge_property(agent_2.agent_id_system, agent_3.agent_id_system)[0])
 
 graph.add_node(Node('dummy', None))
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
-assert (not ams.choice(True)[0] is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
+assert (not ams.choice_nodes(True) is None)
 
 n1 = 0
 n2 = 0
 n3 = 0
 n_none = 0
-for agent, aux_content in ams.shuffle_iter(16, replace=False):
+for node in ams.shuffle_nodes(False, 16, replace=False):
+    agent = node.agent_content
     if not agent is None:
         if agent.name == 'A1':
             n1 += 1

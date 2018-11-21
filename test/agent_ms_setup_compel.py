@@ -30,7 +30,7 @@ compulsion = Compulsion('natural decay', simple_decline, mapper,
 ams.set_law(compulsion)
 
 count = 0
-for agent, aux in ams.shuffle_iter(5):
+for agent in ams.shuffle_nodes(True, 5, False):
     before = agent.resource['amount']
     ams.compel(agent, 'natural decay')
     after = agent.resource['amount']

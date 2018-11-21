@@ -1,11 +1,13 @@
 '''Agent Management System
 
 '''
-from uuid import uuid4
-from collections import OrderedDict, Iterable
 import numpy as np
 import numpy.random
 import networkx as nx
+import itertools
+
+from collections import OrderedDict, Iterable
+from uuid import uuid4
 
 from core.agent import Agent
 from core.graph import Node
@@ -145,66 +147,33 @@ class AgentManagementSystem(object):
             raise NotImplementedError('Weighted graphs not fully implemented')
             self.agents_graph.edges[node_agent_1, node_agent_2]['weight'] = weight
 
-    def choice(self, require_agent=False):
-        '''Pick one node at random
-
-        Parameters
-        ----------
-        require_agent : bool, optional
-            If True, the random selection is made from the subset of nodes that
-            contain agents. If False, the random selection is made from the
-            full set of nodes.
-
-        Returns
-        -------
-        agent_content : Agent
-            Agent of node. Is `None` in case no agent occupies the node
-        aux_content 
-            Any auxiliary content of the node
-
-        '''
-        if not require_agent:
-            entry = np.random.choice(list(self.agents_graph.nodes))
-
-        else:
-            nodes_shuffle = np.random.choice(list(self.agents_graph.nodes),
-                                             size=len(self.agents_graph.nodes))
-            for node in nodes_shuffle:
-                if not node.agent_content is None:
-                    entry = node
-                    break
-
-            else:
-                raise RuntimeError('The graph contains no nodes with agents')
-            
-        return entry.agent_content, entry.aux_content
-
     def _shuffle_items(self, items, max_iter, replace):
-        '''
+        '''Shuffled iterator over agent graph items.
 
         Notes
         -----
-        Graphs can contain nodes that are not populated by an agent. This
-        manifest itself as `agent_content` being `None`. The loop using the
-        iterator should therefore handle these cases. Also note that if nodes
-        are added or deleted to the graph inside a loop using the iterator,
-        bad behaviour can be produced. If such graph operations are to be
-        performed, `choice` can be used to pick nodes one by one.
+        This method of iteration requires the graph to remain as within the
+        iteration. Nodes can therefore not be added or removed inside the loop,
+        nor can agents be added or removed from nodes. For cases like that use
+        an iteration over some variant of `_choice_items`.
 
         Parameters
         ----------
+        items : Iterable
+            The container of graph items, such as Nodes or Agents
         max_iter : int
-            The number of entries the iterator should yield. If set to negative
-            number the iteration is infinite.
+            The number of entries the iterator should yield before termination. 
+            If set to None, the iteration is infinite. 
         replace : bool, optional
-            If True, the iterator selects nodes randomly with replacement such
-            that an uneven sampling of the nodes can be generated. If False,
-            the iterator selects nodes in random order, but guaranteed to
-            generate an even sampling of the nodes.
+            If True, the iterator selects items randomly with replacement such
+            that an uneven sampling of the items can be generated. If False,
+            the iterator selects items in random order, but guaranteed to
+            generate an even sampling of the items.
 
         Yields
         ------
-        Bla bla
+        item
+            One item of the input items, that is a Node or Agent
 
         '''
         def _terminator(counter):
@@ -228,8 +197,71 @@ class AgentManagementSystem(object):
 
             yield entry
 
-    def shuffle_nodes(self, max_iter, replace, agents_only, subset=None):
-        '''Bla bla
+    def _cycle_items(self, items, max_iter):
+        '''Ordered iterator over agent graph items
+
+        Notes
+        -----
+        This method of iteration requires the graph to remain as within the
+        iteration. Nodes can therefore not be added or removed inside the loop,
+        nor can agents be added or removed from nodes. For cases like that use
+        an iteration over some variant of `_choice_items`.
+
+        Parameters
+        ----------
+        items : Iterable
+            The container of graph items, such as Nodes or Agents
+        max_iter : int
+            The number of entries the iterator should yield before termination. 
+            If set to None, the iteration is infinite. 
+
+        Yields
+        ------
+        item
+            One item of the input items, that is a Node or Agent
+
+        '''
+        if max_iter is None:
+            return itertools.cycle(items)
+        
+        else:
+            for n, element in enumerate(itertools.cycle(items)):
+                if n < max_iter:
+                    yield element
+
+                else:
+                    break
+
+    def _choice_items(self, items):
+        '''Select random item from the agent graph items
+
+        Parameters
+        ----------
+        items : Iterable
+            The container of graph items, such as Nodes or Agents
+
+        Returns
+        -------
+        items
+            One random item of the input items, that is a Node or Agent
+
+        '''
+        return items[np.random.randint(len(items))]
+
+    def _strip_node_agent(self, agents_only, subset):
+        '''Retrieve node graph items
+
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agents from graph. If False, extract Nodes
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
+
+        Returns
+        -------
+        items
+            Collection of agents or nodes from the graph
 
         '''
         if subset is None:
@@ -239,12 +271,28 @@ class AgentManagementSystem(object):
             items = list(subset)
 
         if agents_only:
-            items = list(map(lambda x: x.agent_content, items))
+            items = []
+            for x in map(lambda x: x.agent_content, self.agents_graph.nodes):
+                if not x is None:
+                    items.append(x)
 
-        return self._shuffle_items(items, max_iter, replace)
+        return items
 
-    def shuffle_edges(self, max_iter, replace, agents_only, subset=None):
-        '''Bla bla
+    def _strip_edge_agent(self, agents_only, subset):
+        '''Retrieve edge graph items
+
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agent-Agent edge pairs from graph. If False,
+            extract Node-Node edge pairs
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
+
+        Returns
+        -------
+        items
+            Collection of agent-agent or node-node edge pairs from the graph
 
         '''
         if subset is None:
@@ -254,79 +302,190 @@ class AgentManagementSystem(object):
             items = list(subset)
 
         if agents_only:
-            items = list(map(lambda x: (x[0].agent_content, 
-                                        x[1].agent_content), items))
+            items = []
+            for x in map(lambda x: (x[0].agent_content, x[1].agent_content),
+                         self.agents_graph.edges):
+                if not None in x:
+                    items.append(x)
 
-        return self._shuffle_items(items, max_iter, replace)
+        return items
 
-    def _cycle_items(self, items, max_iter, replace):
-        pass
+    def shuffle_nodes(self, agents_only, max_iter, replace, subset=None):
+        '''Shuffled iterator over agent graph nodes
 
-    def cycle_nodes(self, max_iter, replace, agents_only, subset=None):
-        pass
+        Notes
+        -----
+        This method of iteration requires the graph to remain as within the
+        iteration. Nodes can therefore not be added or removed inside the loop,
+        nor can agents be added or removed from nodes. For cases like that use
+        an iteration over `choice_nodes`.
 
-    def cycle_edges(self, max_iter, replace, agents_only, subset=None):
-        pass
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agents from graph. If False, extract Nodes from
+            graph
+        max_iter : int
+            The number of entries the iterator should yield before termination. 
+            If set to None, the iteration is infinite. 
+        replace : bool, optional
+            If True, the iterator selects nodes randomly with replacement such
+            that an uneven sampling of the nodes can be generated. If False,
+            the iterator selects nodes in random order, but guaranteed to
+            generate an even sampling of the nodes.
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
 
-    def _choice_items(self, items, max_iter, replace):
-        pass
-
-    def choice_nodes(self, max_iter, replace, agents_only, subset=None):
-        pass
-
-    def choice_edges(self, max_iter, replace, agents_only, subset=None):
-        pass
-
-    def iterator(self, items='nodes', order='non-random', max_iter='all',
-                 subset=None):
-        '''Bla bla
+        Yields
+        ------
+        item
+            Node or Agent of graph 
 
         '''
-        if not items in ['nodes', 'edges']:
-            raise ValueError('Iteration is over nodes or edges')
+        return self._shuffle_items(self._strip_node_agent(agents_only, subset), 
+                                   max_iter, replace)
 
-        if order == 'non-random':
-            func = self.cycle_iter
+    def shuffle_edges(self, agents_only, max_iter, replace, subset=None):
+        '''Shuffled iterator over agent graph edges 
 
-        elif order == 'random-replace':
-            func = self.shuffle_iter
-            replace = True
+        Notes
+        -----
+        This method of iteration requires the graph to remain as within the
+        iteration. Nodes can therefore not be added or removed inside the loop,
+        nor can agents be added or removed from nodes. For cases like that use
+        an iteration over `choice_edges`.
 
-        elif order == 'random-no-replace':
-            func = self.shuffle_iter
-            replace = False
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agent-Agent pairs connect by edge from graph. If 
+            False, extract Node-Node pairs connected by edge from graph
+        max_iter : int
+            The number of entries the iterator should yield before termination. 
+            If set to None, the iteration is infinite. 
+        replace : bool, optional
+            If True, the iterator selects edges randomly with replacement such
+            that an uneven sampling of the edges can be generated. If False,
+            the iterator selects edges in random order, but guaranteed to
+            generate an even sampling of the edges..
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
 
-        elif order == 'random-choice':
-            func = self.choice
+        Yields
+        ------
+        item1
+            A first Node or Agent
+        items2
+            A second Node or Agent connected via an edge to the first Node or
+            Agent
 
-        else:
-            raise ValueError('Iterator order %s is unknown' %(order))
+        '''
+        return self._shuffle_items(self._strip_edge_agent(agents_only, subset), 
+                                   max_iter, replace)
 
-        if subset is None:
-            container = self.agents_graph
+    def cycle_nodes(self, agents_only, max_iter, subset=None):
+        '''Ordered iterator over agent graph nodes
 
-        else:
-            if not isinstance(subset, nx.Graph):
-                raise TypeError('Iterator subset should be either None ' + \
-                                'or a networkx Graph')
+        Notes
+        -----
+        This method of iteration requires the graph to remain as within the
+        iteration. Nodes can therefore not be added or removed inside the loop,
+        nor can agents be added or removed from nodes. For cases like that use
+        an iteration over `choice_nodes`.
 
-        if max_iter == 'all':
-            n_iter = len(getattr(container, items))
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agents from graph. If False, extract Nodes from
+            graph
+        max_iter : int
+            The number of entries the iterator should yield before termination. 
+            If set to None, the iteration is infinite. 
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
 
-        elif max_iter is None:
-            n_iter = None
+        Yields
+        ------
+        item
+            Node or Agent of graph 
 
-        elif isinstance(max_iter, int):
-            n_iter = max_iter
+        '''
+        return self._cycle_items(self._strip_node_agent(agents_only, subset),
+                                 max_iter)
 
-        else:
-            raise ValueError('max_iter is either `all`, None or an integer')
+    def cycle_edges(self, agents_only, max_iter, subset=None):
+        '''Ordered iterator over agent graph edges
 
-        _method = getattr(self, func)
-        _kwargs = {'items' : getattr(container, items),
-                   'n_iter' : n_iter, 'replace' : replace}
+        Notes
+        -----
+        This method of iteration requires the graph to remain as within the
+        iteration. Nodes can therefore not be added or removed inside the loop,
+        nor can agents be added or removed from nodes. For cases like that use
+        an iteration over `choice_edges`.
 
-        return _method(**_kwargs)
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agent-Agent pairs connect by edge from graph. If 
+            False, extract Node-Node pairs connected by edge from graph
+        max_iter : int
+            The number of entries the iterator should yield before termination. 
+            If set to None, the iteration is infinite. 
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
+
+        Yields
+        ------
+        item1
+            A first Node or Agent
+        items2
+            A second Node or Agent connected via an edge to the first Node or
+            Agent
+
+        '''
+        return self._cycle_items(self._strip_edge_agent(agents_only, subset),
+                                 max_iter)
+
+    def choice_nodes(self, agents_only, subset=None):
+        '''Select one random item from graph nodes
+
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agents from graph. If False, extract Nodes from
+            graph
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
+
+        Yields
+        ------
+        item
+            Node or Agent of graph 
+
+        '''
+        return self._choice_items(self._strip_node_agent(agents_only, subset))
+
+    def choice_edges(self, agents_only, subset=None):
+        '''Select one random item from graph edges
+
+        Parameters
+        ----------
+        agents_only : bool
+            If True, extract Agent-Agent pairs connected by edge from graph. If 
+            False, extract Node-Node pairs connected by edge from graph
+        subset : Iterable
+            A subset of the graph to extract items from. If None, entire graph
+
+        Yields
+        ------
+        item1
+            A first Node or Agent
+        items2
+            A second Node or Agent connected via an edge to the first Node or
+            Agent
+
+        '''
+        return self._choice_items(self._strip_edge_agent(agents_only, subset))
 
     def __iter__(self):
         '''Iterator over all nodes and their content of the agent system.
@@ -338,18 +497,16 @@ class AgentManagementSystem(object):
         iterator should therefore handle these cases. Also note that if nodes
         are added or deleted to the graph inside a loop using the iterator,
         bad behaviour can be produced. If such graph operations are to be
-        performed, `choice` can be used to pick nodes one by one.
+        performed, `choice_nodes` can be used to pick nodes one by one keeping
+        the container up-to-date.
 
         Yields
         ------
-        agent_content : Agent
-            Agent of node. Is `None` in case no agent occupies the node
-        aux_content 
-            Any auxiliary content of the node
+        nodes : Node
+            Nodes of the agent graph in deterministic order
 
         '''
-        for node in self.agents_graph:
-            yield node.agent_content, node.aux_content
+        return self.cycle_nodes(False, len(self.agents_graph))
 
     def get(self, key, get_node=False, get_agent=False, get_aux=False):
         '''Get a selection of objects associated with a given key
@@ -672,7 +829,7 @@ class AgentManagementSystem(object):
         so.
 
         '''
-        for agent, aux in self:
+        for agent in self.cycle_nodes(True, len(self)):
             word = self.lawbook.setdefault(agent.agent_id_system, None)
 
             if not agent_name_selector is None:

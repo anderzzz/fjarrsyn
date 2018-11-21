@@ -78,7 +78,7 @@ class AntColony(AgentManagementSystem):
         agent_calling = self[agent_index]
 
         while True:
-            a_trial, aux = self.choice(True)
+            a_trial = self.choice_nodes(True)
             if a_trial.name in agent_calling.belief['Who to connect with'].values():
                 break
 
@@ -94,7 +94,7 @@ class AntColony(AgentManagementSystem):
         # This part is not kosher way of doing it, belief should not be
         # accessed in sensor. Not a key aspect of test 
         while True:
-            a_trial, aux = self.choice(True)
+            a_trial = self.choice_nodes(True)
             if a_trial.name in agent_calling.belief['Who to connect with'].values():
                 break
 
@@ -117,7 +117,8 @@ class AntColony(AgentManagementSystem):
 
         super().__init__(name, agents)
 
-        for agent, aux in sorted(self, key=lambda x: x[0].name):
+        for agent in sorted(self.cycle_nodes(True, 4), key=lambda x: x.name):
+#        for agent, aux in sorted(self, key=lambda x: x[0].name):
 
             sensor = Sensor('Sense odour', self._nose, agent.buzz['Smell perception'], 
                             agent_id_to_engine=True) 
@@ -136,7 +137,8 @@ ant4 = Ant('Ant 4', 0.0, 0.8, 'Ant 1')
 colony = AntColony('The Pile', [ant1, ant2, ant3, ant4])
 assert (nx.number_of_edges(colony.agents_graph) == 6)
 
-for agent, aux in colony:
+for node in colony:
+    agent = node.agent_content
     agent.sense('Sense odour')
     agent.interpret('Is this a good one?')
     agent.mould('Should contact be altered?')
@@ -152,7 +154,8 @@ for edge in nx.edges(colony.agents_graph):
     else:
         raise AssertionError('Misses (%s, %s)' %(n1, n2))
 
-for agent, aux in colony:
+for node in colony:
+    agent = node.agent_content
     if agent.name == 'Ant 3':
         agent.belief['Who to connect with'].set_values(['Ant 1'])
     elif agent.name == 'Ant 4':

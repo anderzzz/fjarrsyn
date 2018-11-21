@@ -19,8 +19,8 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 def propagator(system):
-    for agent, aux_content in system:
-        agent()
+    for node in system:
+        node.agent_content()
 
 class Thinker(Agent):
 
