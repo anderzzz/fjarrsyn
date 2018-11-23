@@ -9,6 +9,9 @@ from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
 from core.policy import Clause, Heartbeat
 from core.message import Resource, Essence, Feature, Buzz, Belief, Direction
 
+class SocketConnectionError(Exception):
+    pass
+
 class Agent(object):
     '''The parent Agent class. In applications a custom agent class is created,
     which inherits the current class.
@@ -479,10 +482,12 @@ class Agent(object):
             else:
                 KeyError('Unknown organ type %s' %(self._inverse_map[organ_name]))
 
-    def evaluate(self, code_name, permission=None):
+    def evaluate(self, code_name):
         '''Bla bla
 
         '''
+        raise NotImplementedError('TBD')
+
         if not code_name in self.plan:
             raise KeyError('Agent lacks plan with code name %s' %(code_name))
 
@@ -491,15 +496,59 @@ class Agent(object):
 
         the_plan.apply_to(self)
 
-    def connect_to(self, other_agent, socket_id, token):
-        '''Bla bla
+    def connect_to(self, other_agent, socket_id, token=None):
+        '''Method to use for given agent in order to connect to a socket
+        of the other agent
+
+        Parameters
+        ----------
+        other_agent : Agent
+            The Agent object of the external agent to which a socket connection
+            is attempted
+        socket_id : str
+            The socket id or short-hand to which connection is made
+        token : int, optional
+            The token required to be granted connection to the socket.
+
+        Returns
+        -------
+        conn
+            The socket connection object. Two methods are available as
+            attributes, `execute` and `close`, which executes the associated
+            functionality to the connected socket, and closes the connection
 
         '''
-        socket_other = other_agent.socket_offered[socket_id]
+        try:
+            socket_other = other_agent.socket_offered[socket_id]
+        except KeyError:
+            raise KeyError('Unknown socket %s for agent %s' \
+                           %(socket_id, other_agent.__repr__()))
+
         return socket_other.connect(self.agent_id_system, token)
 
-    def make_socket(self, name, verb, phrase, create_token=True):
-        '''Bla bla
+    def create_socket(self, name, verb, phrase, create_token=True):
+        '''Agent creates intentionally a socket to a particular verb and phrase
+        that enables delegation of execution to an external agent
+
+        Parameters
+        ----------
+        name : str
+            Name of socket, the short-hand the external agent will use
+        verb : str
+            The verb method to expose.
+        phrase : str
+            The phrase associated with the given verb to expose.
+        create_token : bool, optional
+            If True, a random token is created that is associated with the
+            socket, such that only if the right token is provided during
+            connection will it enable execution
+
+        Notes
+        -----
+        The method adds the created socket to the agent dictionary of
+        `socket_offered`.
+
+        Currently the token is not securely created.
 
         '''
         func = getattr(self, verb)
@@ -548,9 +597,9 @@ class Agent(object):
         else:
             return self.heartbeat(self) 
 
-    def __str__(self):
+    def __repr__(self):
 
-        return self.name + '(ID:%s)'%(str(self.agent_id_system))
+        return 'Agent ' + self.name + '(ID:%s)'%(str(self.agent_id_system))
 
     def __call__(self):
         '''Method to call agent invokes the executive function. This should be
@@ -634,24 +683,34 @@ class Agent(object):
                          'heartbeat' : self.heartbeat}
 
 class Socket(object):
-    '''Bla bla
+    '''Socket object exposes part of an Agent verb-phrase functionality to an
+    external interface to which another Agent can connect
+
+    Parameters
+    ----------
 
     '''
-    def _close(self):
-        '''Bla bla
+    def connect(self, agent_id_calling, token_input=None):
+        '''Method to connect to a socket from an external agent
+
+        Parameters
+        ----------
+        agent_id_calling : str
+            The agent system ID of the agent utilizing the socket
+        token_input : int, optional
+            If socket requires a token to use, the token must be provided
+            otherwise a connection is not formed.
+
+        Returns
+        -------
+        connection 
+            The connection object that grants a defined control over the agent
+            functionality attached to the socket. There are two attributes of
+            the connection, `execute` and `close`, which are methods that
+            when called execute the functionality associated with the socket
+            and closes the connection with the socket, respectively.
 
         '''
-        self._open_socket = False
-
-    def connect(self, agent_id_calling, token_input):
-        '''Bla bla
-
-        '''
-        print (agent_id_calling)
-        print (self.whitelist)
-
-        print (token_input)
-        print (self.token)
         if (agent_id_calling in self.whitelist) and \
            (token_input == self.token):
             self._open_socket = True
@@ -659,16 +718,46 @@ class Socket(object):
 
         else:
             self._open_socket = False
-            return None
+            raise SocketConnectionError('Agent (ID:%s) failed to connect ' %(agent_id_calling) + \
+                                        'to socket <%s>' %(self.__repr__()))
 
     def _execute(self, args=()):
-        '''Bla bla
+        '''The method that executes the verb and phrase
+
+        Parameters
+        ----------
+        args : tuple, optional
+            Any arguments to the verb method.
+
+        Returns
+        -------
+        ret
+            The return value of the verb phrase execution, typically a Boolean
+
+        Raises
+        ------
+        RuntimeError
+            If a connection that is not open is attemtpted to be executed
 
         '''
         if not self._open_socket:
             raise RuntimeError('Cannot execute an unopened connection')
 
         return self.func(self.phrase, *args)
+
+    def _close(self):
+        '''Close the connection to the socket
+
+        '''
+        self._open_socket = False
+
+    def __repr__(self):
+        if self.token is None:
+            s_end = ' without token'
+        else:
+            s_end = ' with token'
+
+        return 'Socket (name: %s) for verb "%s" and phrase "%s"' %(self.name, self.verb, self.phrase) + s_end 
 
     def __init__(self, name, func, verb, phrase, token):
 
