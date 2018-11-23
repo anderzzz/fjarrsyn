@@ -3,6 +3,22 @@
 '''
 from collections import Iterable
 
+#class Plan(object):
+#    '''Bla bla
+#
+#    '''
+#    @permissions_check
+#    def apply_to(self, agent):
+#        '''Bla bla
+#
+#        '''
+#        return self.func(agent)
+#
+#    def __init__(self, name, func):
+#
+#        self.name = name
+#        self.func = func
+
 class Clause(object):
     '''Bla bla
 
@@ -40,16 +56,18 @@ class Clause(object):
         '''
         self.engager_func = engager_func
 
-    def __init__(self, name, verbs=None, condition=None, engager_func=None):
+    def __call__(self):
+        '''Bla bla
+
+        '''
+        pass 
+
+    def __init__(self, name, verb_phrase, condition=None):
 
         self.name = name
         self.condition = condition
-        self.verb_sequence = verbs
-        self.engager_func = engager_func
-        if not self.verb_sequence is None:
-            self.apply_to = self.autocondition(self._apply_verb_sequence_to)
-        else:
-            self.apply_to = self.autocondition(self._apply_engager_to)
+
+        self.verb_phrase = verb_phrase 
 
 class Heartbeat(object):
     '''Bla bla

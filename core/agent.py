@@ -1,6 +1,10 @@
 '''The Agent parent class.
 
 '''
+import numpy
+import numpy.random
+from collections import namedtuple
+
 from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
 from core.policy import Clause, Heartbeat
 from core.message import Resource, Essence, Feature, Buzz, Belief, Direction
@@ -475,6 +479,40 @@ class Agent(object):
             else:
                 KeyError('Unknown organ type %s' %(self._inverse_map[organ_name]))
 
+    def evaluate(self, code_name, permission=None):
+        '''Bla bla
+
+        '''
+        if not code_name in self.plan:
+            raise KeyError('Agent lacks plan with code name %s' %(code_name))
+
+        else:
+            the_plan = self.plan[code_name]
+
+        the_plan.apply_to(self)
+
+    def connect_to(self, other_agent, socket_id, token):
+        '''Bla bla
+
+        '''
+        socket_other = other_agent.socket_offered[socket_id]
+        return socket_other.connect(self.agent_id_system, token)
+
+    def make_socket(self, name, verb, phrase, create_token=True):
+        '''Bla bla
+
+        '''
+        func = getattr(self, verb)
+
+        if not create_token:
+            token = None
+
+        else:
+            token = numpy.random.randint(10**12) 
+
+        socket = Socket(name, func, verb, phrase, token)
+        self.socket_offered[name] = socket
+
     def hooked_up(self):
         '''Determines if agent is part of an agent management system
 
@@ -581,6 +619,11 @@ class Agent(object):
         self.set_organ(cortex_reveal_cortex_labels)
 
         #
+        # External
+        #
+        self.socket_offered = {}
+
+        #
         # Variables for the dynamics of the agent
         #
         self.n_heart_beats = 0
@@ -589,3 +632,53 @@ class Agent(object):
         self.heartbeat = None
         self.policies = {'clause' : self.clause,
                          'heartbeat' : self.heartbeat}
+
+class Socket(object):
+    '''Bla bla
+
+    '''
+    def _close(self):
+        '''Bla bla
+
+        '''
+        self._open_socket = False
+
+    def connect(self, agent_id_calling, token_input):
+        '''Bla bla
+
+        '''
+        print (agent_id_calling)
+        print (self.whitelist)
+
+        print (token_input)
+        print (self.token)
+        if (agent_id_calling in self.whitelist) and \
+           (token_input == self.token):
+            self._open_socket = True
+            return self.Connection(self._execute, self._close) 
+
+        else:
+            self._open_socket = False
+            return None
+
+    def _execute(self, args=()):
+        '''Bla bla
+
+        '''
+        if not self._open_socket:
+            raise RuntimeError('Cannot execute an unopened connection')
+
+        return self.func(self.phrase, *args)
+
+    def __init__(self, name, func, verb, phrase, token):
+
+        self.name = name
+        self.func = func
+        self.verb = verb
+        self.phrase = phrase
+        self.token = token
+
+        self.whitelist = set([])
+        self._open_socket = False
+
+        self.Connection = namedtuple('Connection', ['execute', 'close'])
