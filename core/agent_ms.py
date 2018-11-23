@@ -723,6 +723,8 @@ class AgentManagementSystem(object):
 
         agent.apply_map(the_compulsion.scaffold_map_output)
 
+        return did_it_compel
+
     def mutate(self, agent, phrase, validate_lawbook=False):
         '''Verb for the agent management system to execute a Mutation or
         MultiMutation 
@@ -773,6 +775,8 @@ class AgentManagementSystem(object):
 
         agent.apply_map(the_mutation.scaffold_map_output)
 
+        return did_it_mutate
+
     def engage_all_verbs(self, agent, validate_lawbook=False):
         '''Convenience function to apply all verbs to the given agent
 
@@ -785,6 +789,7 @@ class AgentManagementSystem(object):
             that have jurisdiction over the given agent
 
         '''
+        ret = True
         for law_type in self.law:
             for phrase, law in self.law[law_type].items():
                 
@@ -793,9 +798,11 @@ class AgentManagementSystem(object):
                         continue
 
                 if law_type == 'compulsion':
-                    self.compel(agent, phrase, validate_lawbook)
+                    ret_tmp = self.compel(agent, phrase, validate_lawbook)
+                    ret = ret and ret_tmp
                 elif law_type == 'mutation':
-                    self.mutate(agent, phrase, validate_lawbook)
+                    ret_tmp = self.mutate(agent, phrase, validate_lawbook)
+                    ret = ret and ret_tmp
 
     def make_lawbook_entry(self, law_phrases, agent_name_selector=None, agent_ids=None):
         '''Enter a connection between agents as certain law phrases, such that

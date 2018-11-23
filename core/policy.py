@@ -3,22 +3,6 @@
 '''
 from collections import Iterable
 
-#class Plan(object):
-#    '''Bla bla
-#
-#    '''
-#    @permissions_check
-#    def apply_to(self, agent):
-#        '''Bla bla
-#
-#        '''
-#        return self.func(agent)
-#
-#    def __init__(self, name, func):
-#
-#        self.name = name
-#        self.func = func
-
 class Clause(object):
     '''Bla bla
 

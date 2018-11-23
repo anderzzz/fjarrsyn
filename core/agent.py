@@ -353,6 +353,8 @@ class Agent(object):
             raise did_it_sense
 
         self.apply_map(the_sensor.scaffold_map_output)
+        
+        return did_it_sense
 
     def interpret(self, phrase):
         '''Verb for the agent to execute an Interpreter organ
@@ -385,6 +387,8 @@ class Agent(object):
 
         self.apply_map(the_interpreter.scaffold_map_output)
 
+        return did_it_interpret
+
     def mould(self, phrase):
         '''Verb for the agent to execute a Moulder organ
 
@@ -415,6 +419,8 @@ class Agent(object):
             raise did_it_mould
 
         self.apply_map(the_moulder.scaffold_map_output)
+
+        return did_it_mould
 
     def act(self, phrase):
         '''Verb for the agent to execute an Actuator organ
@@ -447,6 +453,8 @@ class Agent(object):
 
         self.apply_map(the_actuator.scaffold_map_output)
 
+        return did_it_act
+
     def engage(self, organ_sequence):
         '''Compound verb for agent to execute a sequence of multiple organs
 
@@ -464,23 +472,30 @@ class Agent(object):
         However, no check is explicitly made to ensure unique names are used.
 
         '''
+        ret = True
         for organ_name in organ_sequence:
             if not organ_name in self._inverse_map:
                 raise KeyError('The organ name %s not among agent organs' %(organ_name))
 
             if self._inverse_map[organ_name] == 'sensor':
-                self.sense(organ_name)
+                ret_tmp = self.sense(organ_name)
+                ret = ret and ret_tmp
             elif self._inverse_map[organ_name] == 'interpreter':
-                self.interpret(organ_name)
+                ret_tmp = self.interpret(organ_name)
+                ret = ret and ret_tmp
             elif self._inverse_map[organ_name] == 'moulder':
-                self.mould(organ_name)
+                ret_tmp = self.mould(organ_name)
+                ret = ret and ret_tmp
             elif self._inverse_map[organ_name] == 'actuator':
-                self.act(organ_name)
+                ret_tmp = self.act(organ_name)
+                ret = ret and ret_tmp
             elif self._inverse_map[organ_name] == 'cortex':
                 raise ValueError('The agent can only engage in intentional ' + \
                                  'actions, not cortical ones')
             else:
                 KeyError('Unknown organ type %s' %(self._inverse_map[organ_name]))
+
+        return ret
 
     def evaluate(self, code_name):
         '''Bla bla
