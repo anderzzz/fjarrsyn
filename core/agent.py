@@ -6,7 +6,7 @@ import numpy.random
 from collections import namedtuple
 
 from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.policy import Clause, Heartbeat
+from core.policy import Plan, Clause, Heartbeat
 from core.message import Resource, Essence, Feature, Buzz, Belief, Direction
 
 class SocketConnectionError(Exception):
@@ -269,6 +269,9 @@ class Agent(object):
         '''
         if isinstance(policy, Clause):
             self._set('clause', policy.name, policy)
+
+        elif isinstance(policy, Plan):
+            self._set('plan', policy.name, policy)
 
         elif isinstance(policy, Heartbeat):
             self.heartbeat = policy

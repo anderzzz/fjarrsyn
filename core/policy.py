@@ -1,6 +1,9 @@
-'''Plan related classes
+'''Policy classes that are used to define the dynamic aspects of an agent, such
+that its potential intentions can be turned into a specific sequence of
+intentional actions
 
 '''
+import networkx as nx
 from collections import Iterable
 
 class Clause(object):
@@ -196,3 +199,168 @@ class AutoResourceCondition(_AutoCondition):
 
         super().__init__(resource_cond_name, cond_func, resource_keys, 
                          cond_func_kwargs)
+
+class Plan(object):
+    '''Plan that agents can enact as part of their intentional execution
+
+    '''
+    def from_json(self, filepath):
+        '''Bla bla
+
+        '''
+        pass
+
+    def to_json(self, filepath):
+        '''Bla bla
+
+        '''
+        pass
+
+    def _get_root_index(self, t):
+        '''Bla bla
+
+        '''
+        return [n for n, d in t.in_degree() if d == 0].pop(0)
+
+    def enacted_by(self, agent, current_root_id=None):
+        '''The recursive enaction function of the plan by the given agent
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent that is enacting the plan
+        current_root_id : int, optional
+            The id of the current node in the binary execution tree. Should be
+            None for the caller, and only within the recursion is this
+            parameter adjusted to trace where in the tree the execution is
+
+        Returns
+        -------
+        drill_down : bool
+            If further drilling down the execution tree is to be done. Set to
+            False when leaf reached
+
+        Notes
+        -----
+        This method is only to be called after the method `stamp_and_approve`
+        is called wherein the execution tree is subjected to basic validation
+        and the parent identified.
+
+        '''
+        #
+        # Check that plan is stamped and approved
+        #
+        if current_root_id is None:
+            try:
+                current_root_id = self.tree_root_id
+            except AttributeError:
+                raise AttributeError('Likely error: plan was not stamped and approved')
+
+        #
+        # Extract the verb and phrase and execute it for the agent
+        #
+        current_node = self.tree.nodes[current_root_id]
+        verb = current_node['verb']
+        phrase = current_node['phrase']
+        ret_val = getattr(agent, verb)(phrase)
+
+        #
+        # Determine if there are successors in the execution tree
+        #
+        successors = list(self.tree.successors(current_root_id))
+        
+        #
+        # If there are successors select which path to go
+        #
+        drill_down = True
+        for n in successors:
+            if self.tree.edges[current_root_id, n]['polarity'] is True and \
+                   ret_val is True:
+
+                drill_down = self.enacted_by(agent, n)
+
+            elif self.tree.edges[current_root_id, n]['polarity'] is False and \
+                    ret_val is False:
+
+                drill_down = self.enacted_by(agent, n)
+
+            else:
+                continue
+
+            #
+            # In correct executions this conditional breaks out of the
+            # recursion once a leaf has been encountered
+            #
+            if drill_down is False:
+                break
+
+            else:
+                raise RuntimeError('Unmatched verb return and plan edge ' + \
+                                   'attribute. Could be caused by missing ' + \
+                                   'cargo')
+
+        return False 
+
+    def add_cargo(self, verb_inp, phrase_inp):
+        '''Adds a step in the execution tree, comprised on verb and phrase
+
+        Parameters
+        ----------
+        verb : str
+            The name of the verb of an agent to include in the execution
+        phrase_inp : str
+            The phrase to couple with the verb
+
+        Returns
+        -------
+        cargo_id : int
+            The integer ID this particular execution unit is assigned. This is
+            the ID that is referenced as dependencies between units are set
+            with `add_dependency`
+
+        '''
+        self.tree.add_node(self.cargo_counter, verb=verb_inp, phrase=phrase_inp)
+        self.cargo_counter += 1
+
+        return self.cargo_counter
+
+    def add_dependency(self, cc_parent, cc_child_true, cc_child_false=None):
+        '''Adds a dependency or parent-child relation between two execution
+        units
+
+        Parameters
+        ----------
+        cc_parent : int
+            The integer ID of the parent execution unit in the dependency
+        cc_child_true : int
+            The integer ID of the child execution unit in the dependency, given
+            that the parent evaluates to True upon its execution
+        cc_child_false : int, optional
+            The integer ID of the child execution unit in the dependency, given
+            that the parent evaluates to False upon its execution. Optional
+            since by default agent verbs returns True
+
+        '''
+        self.tree.add_edge(cc_parent, cc_child_true, polarity=True)
+        if not cc_child_false is None:
+            self.tree.add_edge(cc_parent, cc_child_false, polarity=False)
+
+    def stamp_and_approve(self):
+        '''Mandatory method to validate and seal the execution tree such that
+        it can be enacted by an agent
+
+        Raises
+        ------
+        ValueError
+            If the execution units do not form a tree
+
+        '''
+        if not nx.is_tree(self.tree):
+            raise ValueError('The plan graph is not structured like a tree')
+        self.tree_root_id = self._get_root_index(self.tree)
+
+    def __init__(self, name, tree=None):
+
+        self.name = name
+        self.tree = nx.DiGraph() 
+        self.cargo_counter = 0
