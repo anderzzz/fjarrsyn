@@ -221,26 +221,21 @@ class Agent(object):
         if isinstance(organ, Sensor):
             self._set('sensor', organ.name, organ)
             self.set_message(organ.message_output)
-            self._inverse_map[organ.name] = 'sensor'
 
         elif isinstance(organ, Actuator):
             self._set('actuator', organ.name, organ)
-            self._inverse_map[organ.name] = 'actuator'
 
         elif isinstance(organ, Interpreter):
             self._set('interpreter', organ.name, organ)
             self.set_message(organ.message_output)
-            self._inverse_map[organ.name] = 'interpreter'
 
         elif isinstance(organ, Moulder):
             self._set('moulder', organ.name, organ) 
             self.set_message(organ.message_output)
-            self._inverse_map[organ.name] = 'moulder'
 
         elif isinstance(organ, Cortex):
             self._set('cortex', organ.name, organ)
             self.set_message(organ.message_output)
-            self._inverse_map[organ.name] = 'cortex'
 
         else:
             raise TypeError('Unknown organ type: %s' %(str(type(organ))))
@@ -455,61 +450,50 @@ class Agent(object):
 
         return did_it_act
 
-    def engage(self, organ_sequence):
+    def pronounce(self, phrase):
         '''Compound verb for agent to execute a sequence of multiple organs
+        with optionally added condition check at the end
 
         Parameters
         ----------
-        organ_sequence : Iterable
-            An iterable of strings, each string pointing to a unique organ of
-            any type, other than cortex. The appropriate verb for agent are
-            executed in the same order as in the sequence
+        phrase : str
+            Name of the clause to execute
 
-        Notes
-        -----
-        The method assumes that all organs, all types considered, have unique
-        names. If that is not true this compound verb is not well-defined.
-        However, no check is explicitly made to ensure unique names are used.
+        Raises
+        ------
+        KeyError
+            If agent has no Clause associated with the phrase
 
         '''
-        ret = True
-        for organ_name in organ_sequence:
-            if not organ_name in self._inverse_map:
-                raise KeyError('The organ name %s not among agent organs' %(organ_name))
+        if not phrase in self.clause:
+            raise KeyError('Agent lacks Clause for %s' %(phrase))
 
-            if self._inverse_map[organ_name] == 'sensor':
-                ret_tmp = self.sense(organ_name)
-                ret = ret and ret_tmp
-            elif self._inverse_map[organ_name] == 'interpreter':
-                ret_tmp = self.interpret(organ_name)
-                ret = ret and ret_tmp
-            elif self._inverse_map[organ_name] == 'moulder':
-                ret_tmp = self.mould(organ_name)
-                ret = ret and ret_tmp
-            elif self._inverse_map[organ_name] == 'actuator':
-                ret_tmp = self.act(organ_name)
-                ret = ret and ret_tmp
-            elif self._inverse_map[organ_name] == 'cortex':
-                raise ValueError('The agent can only engage in intentional ' + \
-                                 'actions, not cortical ones')
-            else:
-                KeyError('Unknown organ type %s' %(self._inverse_map[organ_name]))
+        else:
+            the_clause = self.clause[phrase]
 
-        return ret
+        return the_clause(self) 
 
-    def evaluate(self, code_name):
-        '''Bla bla
+    def enact(self, code_name):
+        '''Execute a plan of certain code name
+
+        Parameters
+        ----------
+        code_name : str
+            Code name of the plan available to the agent
+
+        Raises
+        ------
+        KeyError
+            If the agent has no plan of given code name
 
         '''
-        raise NotImplementedError('TBD')
-
         if not code_name in self.plan:
             raise KeyError('Agent lacks plan with code name %s' %(code_name))
 
         else:
             the_plan = self.plan[code_name]
 
-        the_plan.apply_to(self)
+        the_plan.enacted_by(self)
 
     def connect_to(self, other_agent, socket_id, token=None):
         '''Method to use for given agent in order to connect to a socket
@@ -670,7 +654,6 @@ class Agent(object):
                        'actuator' : self.actuator, 
                        'interpreter' : self.interpreter,
                        'moulder' : self.moulder}
-        self._inverse_map = {}
 
         # 
         # Mandatory cortex organ to reveal what cortices are available
@@ -693,8 +676,10 @@ class Agent(object):
         self.n_heart_beats = 0
         self.inert = False
         self.clause = {}
+        self.plan = {}
         self.heartbeat = None
         self.policies = {'clause' : self.clause,
+                         'plan' : self.plan,
                          'heartbeat' : self.heartbeat}
 
 class Socket(object):

@@ -26,7 +26,7 @@ class Plan(object):
         '''
         return [n for n, d in t.in_degree() if d == 0].pop(0)
 
-    def enact_upon(self, agent, current_root_id=None):
+    def enacted_by(self, agent, current_root_id=None):
         '''Bla bla
 
         '''
@@ -45,12 +45,12 @@ class Plan(object):
             if self.tree.edges[current_root_id, n]['polarity'] is True and \
                    ret_val is True:
 
-                self.enact_upon(agent, n)
+                self.enacted_by(agent, n)
 
             elif self.tree.edges[current_root_id, n]['polarity'] is False and \
                     ret_val is False:
 
-                self.enact_upon(agent, n)
+                self.enacted_by(agent, n)
 
             else:
                 raise RuntimeError('Unmatched verb return and plan edge ' + \
