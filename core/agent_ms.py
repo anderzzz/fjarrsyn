@@ -63,8 +63,8 @@ class AgentManagementSystem(object):
 
         Returns
         -------
-        agents_hood : set
-            Set of agents (or Nodes) directly adjacent to the given agent
+        agents_hood : list 
+            Agents (or Nodes) directly adjacent to the given agent
 
         '''
         node_with_agent = self.node_from_agent_id_[agent_index]
@@ -76,7 +76,7 @@ class AgentManagementSystem(object):
         else:
             ret_neighbours = node_neighbours
 
-        return set(ret_neighbours)
+        return ret_neighbours
 
     def edge_property(self, agent_index_1, agent_index_2):
         '''Determine property of edge, including if there is an edge at all
@@ -574,7 +574,7 @@ class AgentManagementSystem(object):
 
         return self.agents_in_scope[key] 
 
-    def __delitem__(self, key):
+    def terminate_agent(self, key):
         '''Delete agent from system based on its key
 
         Notes
@@ -604,6 +604,21 @@ class AgentManagementSystem(object):
         agent = self.agents_in_scope[key]
         agent.agent_id_system = None
         del self.agents_in_scope[key]
+
+    def cleanse_inert(self):
+        '''Cleanse inert agents from the system, where inertness is defined as
+        an agent attribute that typically is set by some automatic terminal
+        condition
+
+        '''
+        clear_list = []
+        for node in self:
+            if isinstance(node.agent_content, Agent):
+                if node.agent_content.inert is True:
+                    clear_list.append(node.agent_content.agent_id_system)
+
+        for key in clear_list:
+            self.terminate_agent(key)
 
     def set_law(self, law):
         '''Add a law for agents in the system
