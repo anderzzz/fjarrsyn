@@ -42,8 +42,8 @@ class SlimAgent(Agent):
 
     def __call__(self):
         while self.heartbeat(self):
-            if self.clause['sound_trigger'].apply_to(self):
-                self.clause['response_formation'].apply_to(self)
+            if self.clause['sound_trigger'](self):
+                self.clause['response_formation'](self)
 
     def __init__(self, name):
         super().__init__(name, strict_engine=True)
@@ -71,9 +71,10 @@ belief_condition = AutoBeliefCondition('heard_it', lambda x: x > 0.9, 'trigger_s
 #
 # Plan
 #
-clause_1 = Clause('sound_trigger', verbs=('listen', 'was_trigger_word_spoken'),
+clause_1 = Clause('sound_trigger', [('sense', 'listen'), 
+                                    ('interpret', 'was_trigger_word_spoken')],
                 condition=belief_condition) 
-clause_2 = Clause('response_formation', verbs=('follow_up_question', 'speak'))
+clause_2 = Clause('response_formation', [('mould', 'follow_up_question'), ('act', 'speak')])
 heart = Heartbeat('beater', max_ticker=N_HEARTS)
 #
 # Initialize Agent

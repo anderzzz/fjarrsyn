@@ -92,53 +92,44 @@ class Clause(object):
                                      'of strings, the verb, then the phrase')
         self.verb_phrase = verb_phrase 
 
-class Heartbeat(object):
-    '''Bla bla
-
-    '''
-    def __call__(self, agent):
-        '''Bla bla
-
-        '''
-        ret = True
-
-        if self.inert:
-            ret = False
-
-        if not self.conditions is None:
-            for condition in self.conditions:
-                if not condition(agent):
-                    ret = False
-
-        self.ticks += self.ticker_arithmetic()
-        if not self.max_ticker is None:
-            if self.ticks > self.max_ticker:
-                ret = False
-
-        return ret
-
-    def __init__(self, name, imprint_conditions=None, 
-                 ticker_arithmetic=None, max_ticker=None):
-
-        self.name = name
-
-        self.conditions = imprint_conditions
-
-        if ticker_arithmetic is None:
-            self.ticker_arithmetic = lambda: 1
-        else:
-            self.ticker_arithmetic = ticker_arithmetic
-
-        self.max_ticker = max_ticker
-        self.ticks = 0
-        self.inert = False
-
 class _AutoCondition(object):
-    '''Bla bla
+    '''Parent class for automatic condition evaluation of a persistent state of
+    an Agent
+
+    Parameters
+    ----------
+    name : str
+        Name of the automatic condition
+    func : callable
+        Function that given some defined subset of the agent state evaluates a
+        condition on that subset and returns a boolean
+    keys : str, Iterable or None
+        The semantic keys to the subset of the agent state to provide as input
+        to the function. If None, all values are provided.
+    kwargs : dict, optional
+        Any additional input to the function other than the state values
+
+    Raises
+    ------
+    TypeError
+        If either `func` not callable or the keys of wrong type
 
     '''
     def _apply_cond_func(self, message):
-        '''Bla bla
+        '''Evaluate the state condition for a given state vector
+
+        Parameters
+        ----------
+        message : Message
+            A message vector of the agent, typically a belief or a resource,
+            from which all or a subset of values should be extracted and a
+            condition be evaluated for
+
+        Returns
+        -------
+        truth_value : bool
+            The truth value of the condition evaluated on the subset of agent
+            state values
 
         '''
         if self.keys is None:
@@ -152,8 +143,10 @@ class _AutoCondition(object):
     def __init__(self, name, func, keys, kwargs={}):
         
         self.name = name
+
+        if not callable(func):
+            raise TypeError('The function to evaluate the condition is not callable')
         self.func = func
-        self.kwargs = kwargs
 
         if isinstance(keys, str):
             self.keys = (keys,)
@@ -162,18 +155,47 @@ class _AutoCondition(object):
         elif keys is None:
             self.keys = keys
         else:
-            raise TypeError('Element labels to AutoCondition should be ' + \
+            raise TypeError('Element labels to _AutoCondition should be ' + \
                             'a string or an iterable')
 
+        self.kwargs = kwargs
+
 class AutoBeliefCondition(_AutoCondition):
-    '''Bla bla
+    '''Construct evaluation of condition with respect to agent belief
+
+    Parameters
+    ----------
+    belief_cond_name : str
+        Name of the belief condition
+    cond_func : callable
+        The function that evaluates the truth value of the condition. The
+        function should return a boolean and as input take the given beliefs
+    message_input_name 
+        The name of the belief to test the condition on
+    belief_keys : optional
+        If only a subset of the arguments of the particular belief are provided
+        as input to the `cond_func`, then define these keys as an Iterable here
+    cond_func_kwargs : dict, optional
+        Any non-belief related input to provide the condition function
 
     '''
     def __call__(self, agent):
-        '''Bla bla
+        '''Evaluate the belief condition for a given agent
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent instance to test the belief condition for
+
+        Returns
+        -------
+        truth_value : bool
+            If True, the condition on the belief of the agent is true, if
+            False, the condition on the belief of the agent is false.
 
         '''
         message = agent.belief[self.message_input]
+
         return self._apply_cond_func(message)
 
     def __init__(self, belief_cond_name, cond_func, message_input_name, 
@@ -184,14 +206,39 @@ class AutoBeliefCondition(_AutoCondition):
         self.message_input = message_input_name
 
 class AutoResourceCondition(_AutoCondition):
-    '''Bla bla
+    '''Construct evaluation of condition with respect to agent resource 
+
+    Parameters
+    ----------
+    resource_cond_name : str
+        Name of the resource condition
+    cond_func : callable
+        The function that evaluates the truth value of the condition. The
+        function should return a boolean and as input take the given resources
+    resource_keys : optional
+        If only a subset of the arguments of the resource are provided
+        as input to the `cond_func`, then define these keys as an Iterable here
+    cond_func_kwargs : dict, optional
+        Any non-resource related input to provide the condition function
 
     '''
     def __call__(self, agent):
-        '''Bla bla
+        '''Evaluate the resource condition for a given agent
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent instance to test the resource condition for
+
+        Returns
+        -------
+        truth_value : bool
+            If True, the condition on the resource of the agent is true, if
+            False, the condition on the resource of the agent is false.
 
         '''
         resource = agent.resource
+
         return self._apply_cond_func(resource)
 
     def __init__(self, resource_cond_name, cond_func, resource_keys=None, 
@@ -201,23 +248,57 @@ class AutoResourceCondition(_AutoCondition):
                          cond_func_kwargs)
 
 class Plan(object):
-    '''Plan that agents can enact as part of their intentional execution
+    '''Plan that agents can enact as part of their intentional execution. This
+    is not the required way for agent execution, but it is a compact and
+    entirely semantic way to encode intentional behaviour of an Agent
+
+    Parameters
+    ----------
+    name : str
+        The name of the plan
+    tree : DiGraph, optional
+        An input directed binary execution tree that defined a sequence of
+        verbs and phrases the agent takes as it enacts the plan. The directed
+        graph is encoded as a DiGraph object from the networkx library. If not
+        provided, public methods of the current class are expected to be used
+        to build the execution tree
 
     '''
-    def from_json(self, filepath):
-        '''Bla bla
+    def from_gexf(self, filepath):
+        '''Read an external GEXF file and populate an execution tree for the
+        plan.
+
+        Parameters
+        ----------
+        filepath : str
+            The path to the file to read from
 
         '''
-        pass
+        self.tree = nx.readwrite.gexf.read_gexf(filepath)
 
-    def to_json(self, filepath):
-        '''Bla bla
+    def to_gexf(self, filepath):
+        '''Write current execution tree to a GEXF file
+
+        Parameters
+        ----------
+        filepath : str
+            The path to the file to write the execution tree of the plan to
 
         '''
-        pass
+        nx.readwrite.gexf.write_gexf(self.tree, filepath)
 
     def _get_root_index(self, t):
-        '''Bla bla
+        '''Determine the root node of the tree
+
+        Parameters
+        -----------
+        t : DiGraph
+            The tree graph
+
+        Returns
+        -------
+        id : str
+            The identifier of the node at the root of the tree
 
         '''
         return [n for n, d in t.in_degree() if d == 0].pop(0)
@@ -313,16 +394,16 @@ class Plan(object):
 
         Returns
         -------
-        cargo_id : int
+        cargo_id : int 
             The integer ID this particular execution unit is assigned. This is
             the ID that is referenced as dependencies between units are set
             with `add_dependency`
 
         '''
-        self.tree.add_node(self.cargo_counter, verb=verb_inp, phrase=phrase_inp)
-        self.cargo_counter += 1
+        self.tree.add_node(self._cargo_counter, verb=verb_inp, phrase=phrase_inp)
+        self._cargo_counter += 1
 
-        return self.cargo_counter
+        return self._cargo_counter
 
     def add_dependency(self, cc_parent, cc_child_true, cc_child_false=None):
         '''Adds a dependency or parent-child relation between two execution
@@ -362,5 +443,56 @@ class Plan(object):
     def __init__(self, name, tree=None):
 
         self.name = name
-        self.tree = nx.DiGraph() 
-        self.cargo_counter = 0
+
+        if tree is None:
+            self.tree = nx.DiGraph() 
+
+        else:
+            if not isinstance(tree, nx.DiGraph):
+                raise TypeError('The tree input should be of type %s' %(str(type(nx.Digraph))))
+
+            self.tree = tree
+
+        self._cargo_counter = 0
+
+class Heartbeat(object):
+    '''Bla bla
+
+    '''
+    def __call__(self, agent):
+        '''Bla bla
+
+        '''
+        ret = True
+
+        if self.inert:
+            ret = False
+
+        if not self.conditions is None:
+            for condition in self.conditions:
+                if not condition(agent):
+                    ret = False
+
+        self.ticks += self.ticker_arithmetic()
+        if not self.max_ticker is None:
+            if self.ticks > self.max_ticker:
+                ret = False
+
+        return ret
+
+    def __init__(self, name, imprint_conditions=None, 
+                 ticker_arithmetic=None, max_ticker=None):
+
+        self.name = name
+
+        self.conditions = imprint_conditions
+
+        if ticker_arithmetic is None:
+            self.ticker_arithmetic = lambda: 1
+        else:
+            self.ticker_arithmetic = ticker_arithmetic
+
+        self.max_ticker = max_ticker
+        self.ticks = 0
+        self.inert = False
+

@@ -3,6 +3,7 @@ from core.message import Buzz, Belief, Direction, Resource, MessageOperator
 from core.instructor import Sensor, Interpreter, Moulder, Actuator, Compulsion
 from core.policy import Plan, Clause, AutoBeliefCondition, AutoResourceCondition
 from core.scaffold_map import ResourceMap
+import networkx as nx
 
 def listen():
     return 1.0, 2.0, 3.0, -0.1
