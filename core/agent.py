@@ -32,6 +32,23 @@ class Agent(object):
         execution
 
     '''
+    class _IsInert(object):
+        '''Decorator method for the verbs of the current Agent. If the agent
+        has been declared inert, all verbs are rendered inactive.
+
+        '''
+        @classmethod
+        def check(self, verb):
+
+            def verb_decorated(*args, **kwargs):
+                inert_agent = args[0].inert
+                if inert_agent is True:
+                    return False
+                else:
+                    return verb(*args, **kwargs)
+
+            return verb_decorated
+
     def _tickle_cortex_labels(self):
         '''Mandatory cortex function of agent to reveal all cortex labels.
 
@@ -292,6 +309,7 @@ class Agent(object):
         for policy in policies:
             self.set_policy(policy)
 
+    @_IsInert.check
     def tickle(self, phrase):
         '''Verb for the agent to execute a Cortex organ
 
@@ -321,6 +339,7 @@ class Agent(object):
 
         return the_cortex.message_output
 
+    @_IsInert.check
     def sense(self, phrase):
         '''Verb for the agent to execute a Sensor organ
 
@@ -354,6 +373,7 @@ class Agent(object):
         
         return did_it_sense
 
+    @_IsInert.check
     def interpret(self, phrase):
         '''Verb for the agent to execute an Interpreter organ
 
@@ -387,6 +407,7 @@ class Agent(object):
 
         return did_it_interpret
 
+    @_IsInert.check
     def mould(self, phrase):
         '''Verb for the agent to execute a Moulder organ
 
@@ -420,6 +441,7 @@ class Agent(object):
 
         return did_it_mould
 
+    @_IsInert.check
     def act(self, phrase):
         '''Verb for the agent to execute an Actuator organ
 
@@ -453,6 +475,7 @@ class Agent(object):
 
         return did_it_act
 
+    @_IsInert.check
     def pronounce(self, phrase):
         '''Compound verb for agent to execute a sequence of multiple organs
         with optionally added condition check at the end
@@ -476,6 +499,7 @@ class Agent(object):
 
         return the_clause(self) 
 
+    @_IsInert.check
     def enact(self, code_name):
         '''Execute a plan of certain code name
 
@@ -497,6 +521,37 @@ class Agent(object):
             the_plan = self.plan[code_name]
 
         the_plan.enacted_by(self)
+
+    @_IsInert.check
+    def pump(self, phrase):
+        '''Agent heart beat counter, which can be used in execution of policies
+        of the agent keeping track of how many iterations have been performed
+        and if a terminal exit condition is met
+
+        Parameters
+        ----------
+        n_max : int, optional
+            Maximum number of heart beats before end of execution. If None, the
+            execution goes on forever or until other terminal condition is met
+
+        Returns
+        -------
+        continue_life : bool
+            True if agent can iterate further in the execution, False if not
+
+        '''
+        if not phrase in self.heartbeat:
+            raise KeyError('Agent lacks Heartbeat for %s' %(phrase))
+
+        else:
+            the_heartbeat = self.heartbeat[phrase]
+
+        still_alive = the_heartbeat(self)
+
+        if still_alive is False:
+            self.inert = True
+
+        return still_alive
 
     def connect_to(self, other_agent, socket_id, token=None):
         '''Method to use for given agent in order to connect to a socket
@@ -576,29 +631,6 @@ class Agent(object):
         '''
         return (not self.agent_id_system is None)
 
-    def pump(self):
-        '''Agent heart beat counter, which can be used in execution of policies
-        of the agent keeping track of how many iterations have been performed
-        and if a terminal exit condition is met
-
-        Parameters
-        ----------
-        n_max : int, optional
-            Maximum number of heart beats before end of execution. If None, the
-            execution goes on forever or until other terminal condition is met
-
-        Returns
-        -------
-        continue_life : bool
-            True if agent can iterate further in the execution, False if not
-
-        '''
-        if self.heartbeat is None:
-            return True
-
-        else:
-            return self.heartbeat(self) 
-
     def __repr__(self):
 
         return 'Agent ' + self.name + '(ID:%s)'%(str(self.agent_id_system))
@@ -676,11 +708,10 @@ class Agent(object):
         #
         # Variables for the dynamics of the agent
         #
-        self.n_heart_beats = 0
         self.inert = False
         self.clause = {}
         self.plan = {}
-        self.heartbeat = None
+        self.heartbeat = {} 
         self.policies = {'clause' : self.clause,
                          'plan' : self.plan,
                          'heartbeat' : self.heartbeat}

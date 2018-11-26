@@ -456,7 +456,7 @@ class Plan(object):
         self._cargo_counter = 0
 
 class Heartbeat(object):
-    '''Bla bla
+    '''Basic class the tracks the internal sanity 
 
     '''
     def __call__(self, agent):
@@ -465,17 +465,19 @@ class Heartbeat(object):
         '''
         ret = True
 
-        if self.inert:
+        if agent.inert:
             ret = False
 
         if not self.conditions is None:
             for condition in self.conditions:
                 if not condition(agent):
+                    agent.inert = True
                     ret = False
 
         self.ticks += self.ticker_arithmetic()
         if not self.max_ticker is None:
             if self.ticks > self.max_ticker:
+                agent.inert = True
                 ret = False
 
         return ret
@@ -494,5 +496,4 @@ class Heartbeat(object):
 
         self.max_ticker = max_ticker
         self.ticks = 0
-        self.inert = False
 
