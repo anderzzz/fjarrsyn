@@ -689,6 +689,45 @@ class AgentManagementSystem(object):
         node.agent_content = agent
         self.node_from_agent_id_[agent.agent_id_system] = node
 
+    def switch_node_content(self, node_1, node_2, 
+                            switch_agent=True, switch_aux=True):
+        '''Switch content of a pair of nodes
+
+        Parameters
+        ----------
+        node_1 : Node
+            The first node to operate on in the switch
+        node_2 : Node
+            The second node to operate on in the switch
+        switch_agent : bool, optional
+            If True, the agents of the pair of nodes should be interchanged. If
+            a node does not contain an agent, instead the empty None, that
+            empty space is interchanged. If False, the agents of the nodes are
+            not interchanged.
+        switch_aux : bool, optional
+            If True, the local environments of the pair of nodes should be
+            interchanged. If a node does not contain a local environment,
+            instead the empty None, the empty spots are interchanged. If False,
+            the local environments are left as is.
+
+        '''
+        if switch_agent:
+            agent_1 = node_1.agent_content
+            agent_2 = node_2.agent_content
+            node_1.agent_content = agent_2
+            node_2.agent_content = agent_1
+            
+            if not agent_1 is None:
+                self.node_from_agent_id_[agent_1.agent_id_system] = node_2
+            if not agent_2 is None:
+                self.node_from_agent_id_[agent_2.agent_id_system] = node_1
+
+        if switch_aux:
+            aux_1 = node_1.aux_content
+            aux_2 = node_2.aux_content
+            node_1.aux_content = aux_2
+            node_2.aux_content = aux_1
+
     def compel(self, agent, phrase, validate_lawbook=False):
         '''Verb for the agent management system to execute a Compulsion
 
