@@ -529,10 +529,17 @@ class Heartbeat(object):
         self.name = name
 
         if not imprint_conditions is None:
-            for condo in imprint_conditions:
-                if not isinstance(condo, _AutoCondition):
-                    raise TypeError('Imprint conditions must be an auto condition')
-        self.conditions = imprint_conditions
+            if isinstance(imprint_conditions, (AutoResourceCondition,
+                                               AutoBeliefCondition)):
+                self.conditions = [imprint_conditions]
+            else:
+                for condo in imprint_conditions:
+                    if not isinstance(condo, (AutoResourceCondition,
+                                              AutoBeliefCondition)):
+                        raise TypeError('Imprint conditions must be an auto condition')
+                self.conditions = imprint_conditions
+        else:
+            self.conditions = imprint_conditions
 
         if ticker_arithmetic is None:
             self.ticker_arithmetic = lambda: 1
