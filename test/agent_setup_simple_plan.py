@@ -41,9 +41,12 @@ N_HEARTS = 10
 class SlimAgent(Agent):
 
     def __call__(self):
-        while self.heartbeat(self):
-            if self.clause['sound_trigger'](self):
-                self.clause['response_formation'](self)
+        while self.pump('beater'):
+            if self.pronounce('sound_trigger'):
+                self.pronounce('response_formation')
+#        while self.heartbeat(self):
+#            if self.clause['sound_trigger'](self):
+#                self.clause['response_formation'](self)
 
     def __init__(self, name):
         super().__init__(name, strict_engine=True)

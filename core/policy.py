@@ -456,17 +456,58 @@ class Plan(object):
         self._cargo_counter = 0
 
 class Heartbeat(object):
-    '''Basic class the tracks the internal sanity 
+    '''Basic class the tracks the internal sanity of Agent. 
+
+    Notes
+    -----
+    Non-intentional, yet internal, reasons for loss of function by an agent
+    are tracked by the heart beat class. These are events that make the agent
+    "dead" but not by being killed by an external agent or by intentional
+    decision to kill itself. For example, insufficient internal energy or a
+    terminal age-limit are modelled by heart beat. 
+
+    The heart beat is preferably accessed in an agent via the `pump` verb.
+
+    Parameters
+    ----------
+    name : str
+        Name of particular heart beat 
+    imprint_conditions : Iterable of child class of _AutoCondition, optional
+        A condition on an agent resource or belief that if not satisfied
+        implies loss of function. If none provided, no such conditions exists
+    ticker_arithmetic : callable, optional
+        Function that without any argument returns an integer increment to add
+        to the total number of heart ticks. If none provided, the increment is
+        always one.
+    max_ticker : int, optional
+        An upper limit for the total number of heart ticks of the agent, above
+        which function is lost. If none provided, no such upper limit exists
+
+    Raises
+    ------
+    TypeError
+        If ticker arithmetic or imprint conditions are of wrong type
 
     '''
     def __call__(self, agent):
-        '''Bla bla
+        '''Perform a heart beat and check any internal conditions for continued
+        survival
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent to check for internal fault conditions and to increase total
+            heart ticker
+
+        Returns
+        -------
+        alive : bool
+            If True, no fault condition is met and the agent remains
+            functional. If False, at least one fault condition has been
+            satisfied and the agent has been made inert
 
         '''
         ret = True
-
-        if agent.inert:
-            ret = False
 
         if not self.conditions is None:
             for condition in self.conditions:
@@ -474,9 +515,9 @@ class Heartbeat(object):
                     agent.inert = True
                     ret = False
 
-        self.ticks += self.ticker_arithmetic()
+        agent.ticks += self.ticker_arithmetic()
         if not self.max_ticker is None:
-            if self.ticks > self.max_ticker:
+            if agent.ticks > self.max_ticker:
                 agent.inert = True
                 ret = False
 
@@ -487,13 +528,18 @@ class Heartbeat(object):
 
         self.name = name
 
+        if not imprint_conditions is None:
+            for condo in imprint_conditions:
+                if not isinstance(condo, _AutoCondition):
+                    raise TypeError('Imprint conditions must be an auto condition')
         self.conditions = imprint_conditions
 
         if ticker_arithmetic is None:
             self.ticker_arithmetic = lambda: 1
         else:
+            if not callable(ticker_arithmetic):
+                raise TypeError('A non-callable `ticker_arithmetic` encountered')
             self.ticker_arithmetic = ticker_arithmetic
 
         self.max_ticker = max_ticker
-        self.ticks = 0
 

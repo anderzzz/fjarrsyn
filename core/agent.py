@@ -291,7 +291,7 @@ class Agent(object):
             self._set('plan', policy.name, policy)
 
         elif isinstance(policy, Heartbeat):
-            self.heartbeat = policy
+            self._set('heartbeat', policy.name, policy)
 
         else:
             raise TypeError('Unknown policy type: %s' %(str(type(policy))))
@@ -631,6 +631,13 @@ class Agent(object):
         '''
         return (not self.agent_id_system is None)
 
+    def revive(self):
+        '''Revive an agent that has been inert for some reason
+
+        '''
+        self.ticks = 0
+        self.inert = False
+
     def __repr__(self):
 
         return 'Agent ' + self.name + '(ID:%s)'%(str(self.agent_id_system))
@@ -709,6 +716,7 @@ class Agent(object):
         # Variables for the dynamics of the agent
         #
         self.inert = False
+        self.ticks = 0
         self.clause = {}
         self.plan = {}
         self.heartbeat = {} 
