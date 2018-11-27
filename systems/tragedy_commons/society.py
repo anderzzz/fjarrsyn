@@ -1,4 +1,4 @@
-'''Basic Curse of the Commons
+'''Agents of the Tragedy of Commons
 
 '''
 from core.agent import Agent
@@ -8,7 +8,9 @@ from core.policy import Clause, Heartbeat, AutoBeliefCondition, \
                         AutoResourceCondition
 
 class Village(Agent):
+    '''The Village agent
 
+    '''
     def inspect_storage(self, n_fishes, n_people):
 
         storage_ratio = float(n_fishes) / float(n_people)
@@ -53,35 +55,65 @@ class Village(Agent):
         else:
             self.heartbeat.inert = True
 
-    def __init__(self, name, n_people, n_fishes, how_low, max_fish):
+    def __init__(self, name, n_people, n_fishes, n_potato, how_low, max_fish):
 
         super().__init__(name)
 
+        #
+        # Resources
+        #
+        village_resource = Resource('village items', 
+                                    ['n_fishes', 'n_potato', 'n_people'])
+        village_resource.set_values([n_fishes, n_potato, n_people])
+        self.set_scaffold(village_resource)
+
+        village_food = MessageOperator(village_resource, 
+                           slice_labels=['n_fishes', 'n_potato'])
+
+        #
+        # Essence
+        #
         disposition = Essence('disposition', ['how_low', 'max_extraction'])
         disposition.set_values([how_low, max_fish])
         self.set_scaffold(disposition)
 
-        village_resource = Resource('village items', 
-                                    ['n_fishes', 'n_people'])
-        village_resource.set_values([n_fishes, n_people])
-        self.set_scaffold(village_resource)
+        #
+        # Belief
+        #
+        fish_status = Belief('must fish', ['assessment'])
+        potato_status = Belief('must grow', ['assessment'])
+        trust_in_neigh = Belief('trust of neighbours', ['degree'])
+        self.set_messages(fish_status, potato_status, trust_in_neigh)
 
-        storage_status = Belief('must add to stock', ['assessment'])
-        stock_ok = Interpreter('should we go fish', self.inspect_storage, 
-                                village_resource, storage_status)
+        food_belief = MessageOperator([fish_status, potato_status], extend=True)
+
+        #
+        # Flash messages
+        #
         direct_fishing_act = Direction('go fish like this', 
                                        ['number_boats', 'upper_limit'])
-        go_fishing = Moulder('go fish', self.fish_instr, storage_status,
-                             direct_fishing_act)
-        self.set_organs(stock_ok, go_fishing)
+        direct_grow_act = Direction('go grow field like this',
+                                    ['number_farmers'])
+        self.set_messages(direct_fishing_act, direct_grow_act)
 
-        belief_cond = AutoBeliefCondition('warehouse status', 
-                                          lambda x: x != 'OK',
-                                          'must add to stock')
-        clause_1 = Clause('fish now?', ('should we go fish',), belief_cond)
-        clause_2 = Clause('go', ('go fish', 'fish from lake'))
-        self.set_policies(clause_1, clause_2)
+        direct_food_acquisition = MessageOperator([direct_fishing_act,
+                                                   direct_grow_act],
+                                                  extend=True)
 
+        #
+        # Organs
+        #
+        stock_ok = Interpreter('storage conditions', self.check_storage, 
+                               None, food_belief,
+                               resource_op_input=village_food,
+                               essence_op_input=XXX)
+        get_food = Moulder('how to acquire food', self.food_instructions, 
+                           food_belief, direct_food_acquisition)
+        self.set_organs(stock_ok, get_food)
+
+        #
+        # Survival condition
+        #
         heart_cond = AutoResourceCondition('still alive', 
                                            lambda x: x > 0,
                                            ('n_people',))
