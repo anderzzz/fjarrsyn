@@ -2,7 +2,15 @@
 
 '''
 class Lake(object):
+    '''The lake and the fish in it
 
+    The fish is uniformly randomly distributed over the lake grid. Extraction
+    is done on a single lake grid where at most some fraction of the fish is
+    extracted.
+
+    Growth is stochastic logistic where crowding reduces the maximum growth
+
+    '''
     def regrowth(self):
 
         n_spawn = 0

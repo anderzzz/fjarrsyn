@@ -1,4 +1,4 @@
-'''Basic Curse of the Commons
+'''Basic Tragedy of Commons 
 
 '''
 import numpy as np
@@ -8,45 +8,13 @@ from core.agent_ms import AgentManagementSystem
 from core.instructor import Actuator, Compulsion
 from core.scaffold_map import ResourceMap, MapCollection
 
-class Lake(object):
-
-    def regrowth(self):
-
-        n_spawn = 0
-        for fish in range(0, self.n_fish):
-            n_attempt = int(np.random.ranf() + self.spawn_prob)
-            n_crowding = int(np.random.ranf() + self.n_fish / self.capacity)
-            if n_attempt == 1 and n_crowding == 0:
-                n_spawn += 1
-
-        self.n_fish = min(self.capacity, self.n_fish + n_spawn)
-
-    def extract(self, maximum, extract_prob):
-
-        which_unit_is_fish = np.random.randint(0, self.size_units, self.n_fish)
-        select_unit = np.random.randint(0, self.size_units)
-        max_available = sum([1 for x in which_unit_is_fish if x == select_unit])
-        extract_attempt = [np.random.ranf() < extract_prob for k in range(max_available)]
-        n_extracted = min(maximum, sum(extract_attempt))
-
-        self.n_fish -= n_extracted
-        
-        return n_extracted
-
-    def __init__(self, n_fish, size, spawn_prob, max_capacity):
-
-        self.n_fish = n_fish
-        self.spawn_prob = spawn_prob
-        self.size_units = size
-        self.capacity = max_capacity
-
 BIRTH_PROB = 0.10
 BIRTH_PROB_CAUTION = BIRTH_PROB * 0.5
 STARVE_PROB = 0.25
 
 class World(AgentManagementSystem):
 
-    def eat_life_die(self, people_current, fish_current):
+    def eat_life_die(self):
 
         if fish_current <= people_current:
             n_starving = people_current - fish_current
@@ -97,11 +65,11 @@ class World(AgentManagementSystem):
         super().__init__(name, agents, common_env=lake)
 
         map_fish = ResourceMap('fish stock change', 'delta', 'n_fishes', ('adjust_fish',))
+        map_potato = ResourceMap('potato stock change', 'delta', 'n_potatoes', ('adjust_potato',))
         map_people = ResourceMap('birth death', 'delta', 'n_people', ('adjust_people',))
-        eat_love_death = MapCollection([map_fish, map_people])
+        eat_love_death = MapCollection([map_fish, map_potato, map_people])
 
-        natural_reqs = Compulsion('survival demands', self.eat_life_die,
-                                  eat_love_death)
+        natural_reqs = Compulsion('survival demands', self.eat_life_die, eat_love_death)
         self.set_law(natural_reqs)
 
         for agent in agents:
