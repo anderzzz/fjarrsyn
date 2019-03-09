@@ -34,6 +34,17 @@ class Unit(Agent):
 
         return ff
 
+    def _cmp_friendly_env(self, revealed_coop, current_belief):
+        '''Update belief about environment friendliness
+
+        '''
+        if revealed_coop is None:
+            return current_belief
+
+        new_belief = 0.5 * current_belief + 0.5 * revealed_coop
+
+        return new_belief
+
     def __init__(self, name, 
                  midpoint_share, max_share,
                  midpoint_gulp, max_gulp,
@@ -70,6 +81,13 @@ class Unit(Agent):
 
         #
         # Interpreters
+        buzz = Buzz('Neighbour Cooperator', ('revealed_coop',))
+        interpreter = Interpreter('Friendly Environment', 
+                                  self._cmp_friendly_env,
+                                  buzz,
+                                  unit_belief,
+                                  belief_updater=True)
+        self.set_organ(interpreter)
 
         #
         # Moulders
