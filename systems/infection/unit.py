@@ -104,14 +104,6 @@ class Unit(Agent):
         unit_resource.set_values([0.0, 0.0, 0.0, 0.0])
         self.set_scaffold(unit_resource)
 
-        unit_resource_info = MessageOperator(unit_resource,
-                                 slice_labels=['info_a', 'info_b', 'info_c'])
-
-        a_subtract = ResourceMap('Consume A', 'delta', 'info_a', ('removal',))
-        b_subtract = ResourceMap('Consume B', 'delta', 'info_b', ('removal',))
-        c_subtract = ResourceMap('Consume C', 'delta', 'info_c', ('removal',))
-        consume_resources = MapCollection([a_subtract, b_subtract, c_subtract])
-
         #
         # Belief
         unit_belief = Belief('Surrounding', ('cooperative_env',))
@@ -135,7 +127,6 @@ class Unit(Agent):
         moulder = Moulder('Share Resources', self._cmp_share_resources,
                           unit_belief, 
                           direction,
-                          resource_map_output=consume_resources,
                           resource_op_input=unit_resource_info)
         self.set_organ(moulder)
 
