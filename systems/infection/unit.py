@@ -3,8 +3,10 @@
 '''
 from core.agent import Agent
 
-from core.instructor import Cortex
-from core.message import Essence, Resource, Belief, Feature, MessageOperator
+from core.instructor import Cortex, Interpreter, Moulder
+from core.message import Essence, Resource, Belief, Feature, \
+                         Buzz, Direction, MessageOperator
+from core.scaffold_map import ResourceMap, MapCollection
 
 from core.helper_funcs import sigmoid_10
 
@@ -24,7 +26,7 @@ class Unit(Agent):
                           self.essence['midpoint_share'],
                           False, x_val)
 
-    def _cmp_cooperative_feature(self, midpoint_share, max_share, truthfulness):
+    def _cmp_cooperative_feature(self, truthfulness):
         '''Compute a surface feature based on cooperative nature of agent
 
         '''
@@ -45,6 +47,19 @@ class Unit(Agent):
 
         return new_belief
 
+    def _cmp_share_resources(self, belief_coop, 
+                             info_a, info_b, info_c):
+        '''Compute amount of resources to share with neighbouring environment
+
+        '''
+        ff = self._cmp_frac_share(belief_coop)
+
+        d_a = ff * info_a
+        d_b = ff * info_b
+        d_c = ff * info_c
+
+        return d_a, d_b, d_c, -d_a, -d_b, -d_c
+
     def __init__(self, name, 
                  midpoint_share, max_share,
                  midpoint_gulp, max_gulp,
@@ -62,7 +77,7 @@ class Unit(Agent):
                                  midpoint_gulp, max_gulp,
                                  midpoint_tox, max_tox])
         self.set_scaffold(unit_essence)
-        slicer_of_essence = MessageOperator(unit_essence, 
+        slicer1_of_essence = MessageOperator(unit_essence, 
                                slice_labels=['midpoint_share', 'max_share'])
 
         #
@@ -72,6 +87,14 @@ class Unit(Agent):
                                   'toxic'))
         unit_resource.set_values([0.0, 0.0, 0.0, 0.0])
         self.set_scaffold(unit_resource)
+
+        unit_resource_info = MessageOperator(unit_resource,
+                                 slice_labels=['info_a', 'info_b', 'info_c'])
+
+        a_subtract = ResourceMap('Consume A', 'delta', 'info_a', ('removal',))
+        b_subtract = ResourceMap('Consume B', 'delta', 'info_b', ('removal',))
+        c_subtract = ResourceMap('Consume C', 'delta', 'info_c', ('removal',))
+        consume_resources = MapCollection([a_subtract, b_subtract, c_subtract])
 
         #
         # Belief
@@ -91,12 +114,20 @@ class Unit(Agent):
 
         #
         # Moulders
+        direction = Direction('Resources to Share', 
+                              ('d_info_a', 'd_info_b', 'd_info_c'))
+        moulder = Moulder('Share Resources', self._cmp_share_resources,
+                          unit_belief, 
+                          direction,
+                          resource_map_output=consume_resources,
+                          resource_op_input=unit_resource_info)
+        self.set_organ(moulder)
 
         #
         # Cortex
         coop_expose = Feature('Cooperative Reveal',
                               ('coop_with_coop',))
         cortex = Cortex('Reveal Cooperation', self._cmp_cooperative_feature,
-                        slicer_of_essence, coop_expose,
+                        None, coop_expose,
                         cortex_func_kwargs={'truthfulness' : 1.0})
         self.set_organ(cortex)
