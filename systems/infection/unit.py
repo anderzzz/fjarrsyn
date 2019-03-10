@@ -66,7 +66,7 @@ class Unit(Agent):
         d_b = ff * info_b
         d_c = ff * info_c
 
-        return d_a, d_b, d_c, -d_a, -d_b, -d_c
+        return d_a, d_b, d_c
 
     def _cmp_gulp_fraction(self, belief_coop):
         '''Compute fraction of environment to gulp up

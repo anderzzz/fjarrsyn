@@ -8,9 +8,6 @@ from unit import Unit, AgentAuxEnv
 from world import World
 
 u1 = Unit('test0', 0.5, 0.8, 0.0, 1.0, 0.0, 0.0)
-xx = u1.tickle('Reveal Cooperation')
-print (xx)
-
 u2 = Unit('test1', 0.5, 0.8, 0.0, 0.0, 0.0, 0.0)
 
 env_agent = [AgentAuxEnv(0.0, 0.0, 0.0, 0.0), AgentAuxEnv(0.5, 0.5, 0.5, 0.0)]
