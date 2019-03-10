@@ -93,6 +93,29 @@ class _Instructor(object):
 
         return ret
 
+    def _scaffold_mapper(self, engine_output):
+        '''Perform the scaffold mapping of the engine output, if any such
+        should be performed
+
+        Parameters
+        ----------
+        engine_output : container
+            The entire output from the instructor engine to be divided into
+            the various output messages
+
+        '''
+        if self.scaffold_map_output is None:
+            pass
+
+        else:
+            if self.message_output is None:
+                out_values_naturallaw = engine_output
+
+            else:
+                out_values_naturallaw = engine_output[self.message_output.n_elements:]
+
+            self.scaffold_map_output.set_values(out_values_naturallaw)
+
     def __init__(self, name, engine, 
                  message_input=None, message_output=None,
                  scaffold_map_output=None, 
@@ -248,10 +271,7 @@ class Sensor(_Instructor):
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
-
-        if not self.scaffold_map_output is None:
-            out_values_naturallaw = out_values[self.message_output.n_elements:]
-            self.scaffold_map_output.set_values(out_values_naturallaw)
+        self._scaffold_mapper(out_values)
 
         return True
 
@@ -354,9 +374,7 @@ class Actuator(_Instructor):
         except Exception as err:
             return err
 
-        if not self.scaffold_map_output is None:
-            out_values_naturallaw = out_values
-            self.scaffold_map_output.set_values(out_values_naturallaw)
+        self._scaffold_mapper(out_values)
 
         return True
 
@@ -473,10 +491,7 @@ class Interpreter(_Instructor):
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
-
-        if not self.scaffold_map_output is None:
-            out_values_naturallaw = out_values[self.message_output.n_elements:]
-            self.scaffold_map_output.set_values(out_values_naturallaw) 
+        self._scaffold_mapper(out_values)
 
         return True 
 
@@ -588,10 +603,7 @@ class Moulder(_Instructor):
 
         out_values_intentional = out_values[:self.message_output.n_elements]
         self.message_output.set_values(out_values_intentional)
-
-        if not self.scaffold_map_output is None:
-            out_values_naturallaw = out_values[self.message_output.n_elements:]
-            self.scaffold_map_output.set_values(out_values_naturallaw) 
+        self._scaffold_mapper(out_values)
 
         return True
 
