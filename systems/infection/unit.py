@@ -68,11 +68,11 @@ class Unit(Agent):
 
         return d_a, d_b, d_c, -d_a, -d_b, -d_c
 
-    def _cmp_gulp_frac(self, belief_coop):
+    def _cmp_gulp_fraction(self, belief_coop):
         '''Compute fraction of environment to gulp up
 
         '''
-        ff = self._cmp_frac_gulp(self, x_val)
+        ff = self._cmp_frac_gulp(self, belief_coop)
 
         return ff
 
@@ -103,6 +103,8 @@ class Unit(Agent):
                                   'toxic'))
         unit_resource.set_values([0.0, 0.0, 0.0, 0.0])
         self.set_scaffold(unit_resource)
+        unit_resource_info = MessageOperator(unit_resource, 
+                                 slice_labels=['info_a', 'info_b', 'info_c'])
 
         #
         # Belief
@@ -113,6 +115,7 @@ class Unit(Agent):
         #
         # Interpreters
         buzz = Buzz('Neighbour Cooperator', ('revealed_coop',))
+        self.set_message(buzz)
         interpreter = Interpreter('Friendly Environment', 
                                   self._cmp_friendly_env,
                                   buzz,
@@ -144,3 +147,11 @@ class Unit(Agent):
                         None, coop_expose,
                         cortex_func_kwargs={'truthfulness' : 1.0})
         self.set_organ(cortex)
+
+class AgentAuxEnv(object):
+
+    def __init__(self, info_a, info_b, info_c, toxin):
+
+        self.container = {'info_a' : info_a, 'info_b' : info_b,
+                          'info_c' : info_c, 'toxin' : toxin}
+

@@ -931,7 +931,7 @@ class AgentManagementSystem(object):
                         raise ValueError('An iterable of agent environments ' + \
                                          'of wrong length %s' %(str(len(agent_env))))
 
-                    agent_envs = agents
+                    agent_envs = agent_env
 
             else:
                 agent_envs = [None] * len(agents)

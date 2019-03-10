@@ -5,7 +5,7 @@ from core.agent_ms import AgentManagementSystem
 
 from core.instructor import Sensor, Actuator
 from core.message import MessageOperator
-from core.scaffold_maps import ResourceMap, MapCollection
+from core.scaffold_map import ResourceMap, MapCollection, universal_map_maker
 
 import numpy as np
 
@@ -21,7 +21,7 @@ class World(AgentManagementSystem):
             return None
 
         else:
-            return node.tickle('Reveal Cooperation')
+            return node.agent_content.tickle('Reveal Cooperation').values()
 
     def _cmp_alter_env_resources(self, da, db, dc, calling_agent_id):
         '''Bla bla
@@ -35,11 +35,25 @@ class World(AgentManagementSystem):
             node.aux_content.container['info_b'] += db / n_neighbours
             node.aux_content.container['info_c'] += dc / n_neighbours
 
+        return -da, -db, -dc
+
     def _cmp_gulp_env(self, f_gulp, calling_agent_id):
         '''Bla bla
 
         '''
-        pass
+        env = self.get(calling_agent_id, get_aux=True)
+        
+        da = env.container['info_a'] * f_gulp
+        db = env.container['info_b'] * f_gulp
+        dc = env.container['info_c'] * f_gulp
+        d_tox = env.container['toxin'] * f_gulp
+
+        env.container['info_a'] -= da
+        env.container['info_b'] -= db
+        env.container['info_c'] -= dc
+        env.container['toxin'] -= d_tox
+        
+        return da, db, dc, d_tox
 
     def __init__(self, name, agents, local_ambient):
 
@@ -57,7 +71,7 @@ class World(AgentManagementSystem):
 
             #
             # Actuator
-            a_resources = MessageOperator(agent.resources,
+            a_resources = MessageOperator(agent.resource,
                               slice_labels=['info_a', 'info_b', 'info_c'])
             a_a_subtract = ResourceMap('Consume A', 'delta', 'info_a', ('removal',))
             a_b_subtract = ResourceMap('Consume B', 'delta', 'info_b', ('removal',))
@@ -66,12 +80,14 @@ class World(AgentManagementSystem):
             actuator = Actuator('Share Resources to Neighbours',
                                 self._cmp_alter_env_resources,
                                 agent.direction['Resources to Share'],
+                                agent_id_to_engine=True,
                                 resource_map_output=consume_resources)
             agent.set_organ(actuator)
 
+            add_from_env = universal_map_maker(agent.resource, 'delta', ('add',))
             actuator = Actuator('Gulp Environment',
                                 self._cmp_gulp_env,
-                                agent.direction['Gulp from Env'],
+                                agent.direction['Fraction to Gulp'],
                                 agent_id_to_engine=True,
-                                resource_map_output=gulped_resources)
+                                resource_map_output=add_from_env)
             agent.set_organ(actuator)
