@@ -34,3 +34,8 @@ class World(AgentManagementSystem):
                             agent.buzz['Neighbour Cooperator'],
                             agent_id_to_engine=True)
             agent.set_organ(sensor)
+
+            #
+            # Actuator
+
+            # SHARE RESOURCE AND GULP NEEDED WITH RESOURCEMAP

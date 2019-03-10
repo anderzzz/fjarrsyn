@@ -18,6 +18,14 @@ class Unit(Agent):
     '''Bla bla
 
     '''
+    def _cmp_frac_gulp(self, x_val):
+        '''Bla bla
+
+        '''
+        return sigmoid_10(self.essence['max_gulp'],
+                          self.essence['midpoint_gulp'],
+                          False, x_val)
+
     def _cmp_frac_share(self, x_val):
         '''Bla bla
 
@@ -59,6 +67,14 @@ class Unit(Agent):
         d_c = ff * info_c
 
         return d_a, d_b, d_c, -d_a, -d_b, -d_c
+
+    def _cmp_gulp_frac(self, belief_coop):
+        '''Compute fraction of environment to gulp up
+
+        '''
+        ff = self._cmp_frac_gulp(self, x_val)
+
+        return ff
 
     def __init__(self, name, 
                  midpoint_share, max_share,
@@ -121,6 +137,12 @@ class Unit(Agent):
                           direction,
                           resource_map_output=consume_resources,
                           resource_op_input=unit_resource_info)
+        self.set_organ(moulder)
+
+        direction = Direction('Fraction to Gulp', ('f_gulp',))
+        moulder = Moulder('Gulp from Env', self._cmp_gulp_fraction,
+                          unit_belief,
+                          direction)
         self.set_organ(moulder)
 
         #
