@@ -72,7 +72,7 @@ class Unit(Agent):
         '''Compute fraction of environment to gulp up
 
         '''
-        ff = self._cmp_frac_gulp(self, belief_coop)
+        ff = self._cmp_frac_gulp(belief_coop)
 
         return ff
 

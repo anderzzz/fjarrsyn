@@ -3,11 +3,13 @@
 '''
 from core.agent_ms import AgentManagementSystem
 
-from core.instructor import Sensor, Actuator
+from core.instructor import Sensor, Actuator, MultiMutation
 from core.message import MessageOperator
-from core.scaffold_map import ResourceMap, MapCollection, universal_map_maker
+from core.scaffold_map import EssenceMap, ResourceMap, MapCollection, universal_map_maker
 
 import numpy as np
+
+STRICT_ENGINE = True
 
 class World(AgentManagementSystem):
 
@@ -55,9 +57,22 @@ class World(AgentManagementSystem):
         
         return da, db, dc, d_tox
 
-    def __init__(self, name, agents, local_ambient):
+    def _midpoint_move(self):
 
-        super().__init__(name, agents, agent_env=local_ambient)
+        return self.midpoint_max_move
+
+    def _max_move(self):
+
+        return self.max_max_move, 0.0, 1.0
+
+    def __init__(self, name, agents, local_ambient, 
+                 midpoint_max_move, max_max_move, mutate_prob):
+
+        super().__init__(name, agents, agent_env=local_ambient,
+                         strict_engine=STRICT_ENGINE)
+
+        self.midpoint_max_move = midpoint_max_move
+        self.max_max_move = max_max_move
 
         for agent in agents:
             
@@ -91,3 +106,30 @@ class World(AgentManagementSystem):
                                 agent_id_to_engine=True,
                                 resource_map_output=add_from_env)
             agent.set_organ(actuator)
+
+        #
+        # Mutation
+        map_midpoint_share = EssenceMap('mutate_1', 'wiener',
+                                        'midpoint_share', ('range_step',))
+        map_midpoint_gulp = EssenceMap('mutate_2', 'wiener',
+                                       'midpoint_gulp', ('range_step',))
+        map_midpoint_tox = EssenceMap('mutate_3', 'wiener',
+                                      'midpoint_tox', ('range_step',))
+        map_max_share = EssenceMap('mutate_1b', 'wiener_bounded',
+                                   'max_share', ('range_step', 'lower', 'upper'))
+        map_max_gulp = EssenceMap('mutate_2b', 'wiener_bounded',
+                                  'max_gulp', ('range_step', 'lower', 'upper'))
+        map_max_tox = EssenceMap('mutate_3b', 'wiener_bounded',
+                                 'max_tox', ('range_step', 'lower', 'upper'))
+        mapper_midpoint = MapCollection([map_midpoint_share, 
+                                         map_midpoint_gulp, 
+                                         map_midpoint_tox])
+        mapper_max = MapCollection([map_max_share, map_max_gulp, map_max_tox])
+        mutate_midpoint = MultiMutation('Perturb Essence 1', self._midpoint_move, 
+                                        mapper_midpoint,
+                                        mutation_prob=mutate_prob)
+        mutate_max = MultiMutation('Perturb Essence 2', self._max_move, 
+                                   mapper_max, 
+                                   mutation_prob=mutate_prob)
+
+        self.set_laws(mutate_midpoint, mutate_max)
