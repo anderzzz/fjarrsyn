@@ -6,7 +6,7 @@ from core.agent import Agent
 from core.instructor import Cortex, Interpreter, Moulder
 from core.message import Essence, Resource, Belief, Feature, \
                          Buzz, Direction, MessageOperator
-from core.scaffold_map import universal_map_maker 
+from core.scaffold_map import universal_map_maker, MapCollection 
 
 from core.helper_funcs import sigmoid_10
 
@@ -85,8 +85,10 @@ class Unit(Agent):
         self.essence_map_reset.set_values(self.essence.values())
         self.essence_map_reset.apply_to(offspring_agent)
 
-        self.resource_map_scale.set_values((0.5, 0.5, 0.5, 0.5))
-        self.resource_map_scale.apply_to(offspring_agent)
+        self.resource_reset.set_values(self.resource.values()) 
+        self.resource_reset.apply_to(offspring_agent)
+        self.resource_scale.set_values([0.5, 0.5, 0.5, 0.5])
+        self.resource_scale.apply_to(offspring_agent)
 
         return offspring_agent, 0.5, 0.5, 0.5, 0.5
 
@@ -119,8 +121,9 @@ class Unit(Agent):
         unit_resource.set_values([0.0, 0.0, 0.0, 0.0])
         self.set_scaffold(unit_resource)
 
-        # Resource scale map, convenience function for offspring creation
-        self.resource_map_scale = universal_map_maker(unit_resource, 'scale', ('value',))
+        # Resource reset and scale map, convenience function for offspring creation
+        self.resource_reset = universal_map_maker(unit_resource, 'reset', ('value',))
+        self.resource_scale = universal_map_maker(unit_resource, 'scale', ('value',))
 
         # Resource operator only relating to info resource, not toxin
         unit_resource_info = MessageOperator(unit_resource, 
