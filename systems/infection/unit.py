@@ -34,6 +34,14 @@ class Unit(Agent):
                           self.essence['midpoint_share'],
                           False, x_val)
 
+    def _cmp_frac_lies(self, x_val):
+        '''Bla bla
+
+        '''
+        return sigmoid_10(self.essence['max_tox'],
+                          self.essence['midpoint_tox'],
+                          True, x_val)
+
     def _cmp_cooperative_feature(self, truthfulness):
         '''Compute a surface feature based on cooperative nature of agent
 
@@ -76,6 +84,18 @@ class Unit(Agent):
 
         return ff
 
+    def _cmp_lies_ejection(self, belief_coop,
+                           info_a, info_b, info_c):
+        '''Make info into lies
+
+        '''
+        ff = self._cmp_frac_lies(belief_coop)
+
+        info_limit = min(info_a, min(info_b, info_c))
+        lies = 3.0 * ff * info_limit 
+
+        return lies
+
     def _cmp_offspring(self):
         '''Generate offspring through division
 
@@ -117,8 +137,8 @@ class Unit(Agent):
         # Resource
         unit_resource = Resource('Internal Resources',
                                  ('info_a', 'info_b', 'info_c',
-                                  'toxic'))
-        unit_resource.set_values([0.0, 0.0, 0.0, 0.0])
+                                  'bad_info', 'lies'))
+        unit_resource.set_values([0.0, 0.0, 0.0, 0.0, 0.0])
         self.set_scaffold(unit_resource)
 
         # Resource reset and scale map, convenience function for offspring creation
@@ -128,6 +148,8 @@ class Unit(Agent):
         # Resource operator only relating to info resource, not toxin
         unit_resource_info = MessageOperator(unit_resource, 
                                  slice_labels=['info_a', 'info_b', 'info_c'])
+        unit_resource_lies = MessageOperator(unit_resource, 
+                                  slice_labels=['lies'])
 
         #
         # Belief
@@ -170,6 +192,13 @@ class Unit(Agent):
                           resource_map_output=split_resource)
         self.set_organ(moulder)
 
+        direction = Direction('Lies to Eject', ('amount',))
+        moulder = Moulder('Eject Lies', self._cmp_lies_ejection,
+                          unit_belief,
+                          direction,
+                          resource_op_input=unit_resource_info)
+        self.set_organ(moulder)
+
         #
         # Cortex
         coop_expose = Feature('Cooperative Reveal',
@@ -181,8 +210,8 @@ class Unit(Agent):
 
 class AgentAuxEnv(object):
 
-    def __init__(self, info_a, info_b, info_c, toxin):
+    def __init__(self, info_a, info_b, info_c, bad_info):
 
         self.container = {'info_a' : info_a, 'info_b' : info_b,
-                          'info_c' : info_c, 'toxin' : toxin}
+                          'info_c' : info_c, 'bad_info' : bad_info}
 

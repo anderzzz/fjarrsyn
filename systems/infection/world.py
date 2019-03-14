@@ -39,6 +39,18 @@ class World(AgentManagementSystem):
 
         return -da, -db, -dc
 
+    def _cmp_spread_lies(self, a_lies, calling_agent_id):
+        '''Bla bla
+
+        '''
+        neighbour_nodes = self.neighbours_to(calling_agent, agents_only=False)
+        n_neighbours = len(neighbour_nodes)
+
+        for node in neighbour_nodes:
+            node.aux_contant.container['bad_info'] += a_lies / n_neighbours
+
+        return 3 * [-a_lies / 3.0]
+
     def _cmp_gulp_env(self, f_gulp, calling_agent_id):
         '''Bla bla
 
@@ -48,14 +60,14 @@ class World(AgentManagementSystem):
         da = env.container['info_a'] * f_gulp
         db = env.container['info_b'] * f_gulp
         dc = env.container['info_c'] * f_gulp
-        d_tox = env.container['toxin'] * f_gulp
+        d_tox = env.container['bad_info'] * f_gulp
 
         env.container['info_a'] -= da
         env.container['info_b'] -= db
         env.container['info_c'] -= dc
-        env.container['toxin'] -= d_tox
+        env.container['bad_info'] -= d_tox
         
-        return da, db, dc, d_tox
+        return da, db, dc, 0.0, d_tox
 
     def _cmp_offspring_onto_world(self, offspring_agent, calling_agent_id):
         '''Bla bla
@@ -109,6 +121,13 @@ class World(AgentManagementSystem):
             actuator = Actuator('Share Resources to Neighbours',
                                 self._cmp_alter_env_resources,
                                 agent.direction['Resources to Share'],
+                                agent_id_to_engine=True,
+                                resource_map_output=consume_resources)
+            agent.set_organ(actuator)
+
+            actuator = Actuator('Spread Lies to Neighbours',
+                                self._cmp_spread_lies,
+                                agent.direction['Lies to Eject'],
                                 agent_id_to_engine=True,
                                 resource_map_output=consume_resources)
             agent.set_organ(actuator)
