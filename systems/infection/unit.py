@@ -6,7 +6,7 @@ from core.agent import Agent
 from core.instructor import Cortex, Interpreter, Moulder
 from core.message import Essence, Resource, Belief, Feature, \
                          Buzz, Direction, MessageOperator
-from core.scaffold_map import ResourceMap, MapCollection
+from core.scaffold_map import universal_map_maker 
 
 from core.helper_funcs import sigmoid_10
 
@@ -76,10 +76,24 @@ class Unit(Agent):
 
         return ff
 
+    def _cmp_offspring(self):
+        '''Generate offspring through division
+
+        '''
+        offspring_agent = self.__class__('offspring') 
+
+        self.essence_map_reset.set_values(self.essence.values())
+        self.essence_map_reset.apply_to(offspring_agent)
+
+        self.resource_map_scale.set_values((0.5, 0.5, 0.5, 0.5))
+        self.resource_map_scale.apply_to(offspring_agent)
+
+        return offspring_agent, 0.5, 0.5, 0.5, 0.5
+
     def __init__(self, name, 
-                 midpoint_share, max_share,
-                 midpoint_gulp, max_gulp,
-                 midpoint_tox, max_tox):
+                 midpoint_share=0.0, max_share=0.0,
+                 midpoint_gulp=0.0, max_gulp=0.0,
+                 midpoint_tox=0.0, max_tox=0.0):
 
         super().__init__(name, STRICT_ENGINE)
 
@@ -93,8 +107,9 @@ class Unit(Agent):
                                  midpoint_gulp, max_gulp,
                                  midpoint_tox, max_tox])
         self.set_scaffold(unit_essence)
-        slicer1_of_essence = MessageOperator(unit_essence, 
-                               slice_labels=['midpoint_share', 'max_share'])
+
+        # Essence reset map, convenience function for offspring creation
+        self.essence_map_reset = universal_map_maker(unit_essence, 'reset', ('value',))
 
         #
         # Resource
@@ -103,6 +118,11 @@ class Unit(Agent):
                                   'toxic'))
         unit_resource.set_values([0.0, 0.0, 0.0, 0.0])
         self.set_scaffold(unit_resource)
+
+        # Resource scale map, convenience function for offspring creation
+        self.resource_map_scale = universal_map_maker(unit_resource, 'scale', ('value',))
+
+        # Resource operator only relating to info resource, not toxin
         unit_resource_info = MessageOperator(unit_resource, 
                                  slice_labels=['info_a', 'info_b', 'info_c'])
 
@@ -137,6 +157,14 @@ class Unit(Agent):
         moulder = Moulder('Gulp from Env', self._cmp_gulp_fraction,
                           unit_belief,
                           direction)
+        self.set_organ(moulder)
+
+        split_resource = universal_map_maker(self.resource, 'scale', ('factor',))
+        direction = Direction('Offspring', ('agent_split',))
+        moulder = Moulder('Create Agent Offspring', self._cmp_offspring,
+                          None, 
+                          direction,
+                          resource_map_output=split_resource)
         self.set_organ(moulder)
 
         #

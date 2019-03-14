@@ -57,6 +57,22 @@ class World(AgentManagementSystem):
         
         return da, db, dc, d_tox
 
+    def _cmp_offspring_onto_world(self, offspring_agent, calling_agent_id):
+        '''Bla bla
+
+        '''
+        neighbour_nodes = self.neighbours_to(calling_agent_id, agents_only=False)
+
+        node_empty = [node for node in neighbour_nodes if node.agent_content is None]
+        if len(node_empty) > 0:
+            node_to_populate = np.random.choice(node_empty)
+
+        else:
+            node_to_populate = np.random.choice(neighbour_nodes)
+            self.terminate_agent(node_to_populate.agent_content.agent_id_system)
+
+        self.situate(offspring_agent, node_to_populate)
+
     def _midpoint_move(self):
 
         return self.midpoint_max_move
@@ -86,8 +102,6 @@ class World(AgentManagementSystem):
 
             #
             # Actuator
-            a_resources = MessageOperator(agent.resource,
-                              slice_labels=['info_a', 'info_b', 'info_c'])
             a_a_subtract = ResourceMap('Consume A', 'delta', 'info_a', ('removal',))
             a_b_subtract = ResourceMap('Consume B', 'delta', 'info_b', ('removal',))
             a_c_subtract = ResourceMap('Consume C', 'delta', 'info_c', ('removal',))
@@ -105,6 +119,12 @@ class World(AgentManagementSystem):
                                 agent.direction['Fraction to Gulp'],
                                 agent_id_to_engine=True,
                                 resource_map_output=add_from_env)
+            agent.set_organ(actuator)
+
+            actuator = Actuator('Push Offspring Onto World',
+                                self._cmp_offspring_onto_world,
+                                agent.direction['Offspring'],
+                                agent_id_to_engine=True)
             agent.set_organ(actuator)
 
         #

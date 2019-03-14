@@ -25,5 +25,16 @@ ww.mutate(u1, 'Perturb Essence 1')
 
 for nn in ww:
     print (nn)
+    print (nn.agent_content.name)
     print (nn.agent_content.resource, nn.aux_content.container,
     nn.agent_content.essence)
+
+u1.mould('Create Agent Offspring')
+u1.act('Push Offspring Onto World')
+
+for nn in ww:
+    print (nn)
+    print (nn.agent_content.name)
+    print (nn.agent_content.resource, nn.aux_content.container,
+    nn.agent_content.essence)
+
