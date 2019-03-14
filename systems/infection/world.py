@@ -43,11 +43,11 @@ class World(AgentManagementSystem):
         '''Bla bla
 
         '''
-        neighbour_nodes = self.neighbours_to(calling_agent, agents_only=False)
+        neighbour_nodes = self.neighbours_to(calling_agent_id, agents_only=False)
         n_neighbours = len(neighbour_nodes)
 
         for node in neighbour_nodes:
-            node.aux_contant.container['bad_info'] += a_lies / n_neighbours
+            node.aux_content.container['bad_info'] += a_lies / n_neighbours
 
         return 3 * [-a_lies / 3.0]
 

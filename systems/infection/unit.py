@@ -137,8 +137,8 @@ class Unit(Agent):
         # Resource
         unit_resource = Resource('Internal Resources',
                                  ('info_a', 'info_b', 'info_c',
-                                  'bad_info', 'lies'))
-        unit_resource.set_values([0.0, 0.0, 0.0, 0.0, 0.0])
+                                  'bad_info'))
+        unit_resource.set_values([0.1, 0.1, 0.1, 0.0])
         self.set_scaffold(unit_resource)
 
         # Resource reset and scale map, convenience function for offspring creation
@@ -148,8 +148,6 @@ class Unit(Agent):
         # Resource operator only relating to info resource, not toxin
         unit_resource_info = MessageOperator(unit_resource, 
                                  slice_labels=['info_a', 'info_b', 'info_c'])
-        unit_resource_lies = MessageOperator(unit_resource, 
-                                  slice_labels=['lies'])
 
         #
         # Belief
