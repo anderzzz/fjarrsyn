@@ -85,6 +85,18 @@ class World(AgentManagementSystem):
 
         self.situate(offspring_agent, node_to_populate)
 
+    def _cmp_resource_jump(self):
+        '''Bla bla
+
+        '''
+        ret_ = 3 * [0.0]
+
+        for k_resource in range(0, 3):
+            if np.random.rand() < self.resource_jump_prob:
+                ret_[k_resource] = self.resource_jump_magnitude
+
+        return tuple(ret_)
+
     def _midpoint_move(self):
 
         return self.midpoint_max_move
@@ -94,7 +106,9 @@ class World(AgentManagementSystem):
         return self.max_max_move, 0.0, 1.0
 
     def __init__(self, name, agents, local_ambient, 
-                 midpoint_max_move, max_max_move, mutate_prob):
+                 midpoint_max_move, max_max_move, mutate_prob,
+                 inverse_env_decay, 
+                 resource_jump_magnitude, resource_jump_prob):
 
         super().__init__(name, agents, agent_env=local_ambient,
                          strict_engine=STRICT_ENGINE)
@@ -170,5 +184,24 @@ class World(AgentManagementSystem):
         mutate_max = MultiMutation('Perturb Essence 2', self._max_move, 
                                    mapper_max, 
                                    mutation_prob=mutate_prob)
-
         self.set_laws(mutate_midpoint, mutate_max)
+
+        #
+        # Info decay in Environment
+        env_info = universal_map_maker(agent.resource, 'scale', ('inverse_loss_rate',)) 
+        env_info_loss = Compulsion('Decay of Info in Env', 
+                                   lambda _: inverse_env_decay,
+                                   env_info)
+        self.set_law(env_info_loss)
+
+        #
+        # Random increase in internal resources
+        self.resource_jump_magnitude = resource_jump_magnitude
+        self.resource_jump_prob = resource_jump_prob
+        a_jump = ResourceMap('Jump Increase A', 'delta', 'info_a', ('add',))
+        b_jump = ResourceMap('Jump Increase B', 'delta', 'info_b', ('add',))
+        c_jump = ResourceMap('Jump Increase C', 'delta', 'info_c', ('add',))
+        jump_resources = MapCollection([a_jump, b_jump, c_jump])
+        resource_jump = Compulsion('Random Jump of Resources',
+                                   self._cmp_resource_jump, jump_resources)
+        self.set_law(resource_jump)
