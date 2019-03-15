@@ -1,7 +1,7 @@
 '''Unit and World propagation code
 
 '''
-from core.policy import Plan, Clause, AutoResourceCondition
+from core.policy import Plan, Clause, AutoResourceCondition, Heartbeat
 
 class UnitPlan(Plan):
     '''Bla bla
@@ -24,7 +24,7 @@ class UnitPlan(Plan):
         '''Bla bla
 
         '''
-        pass
+        return bad_info > self.thrs_bad_info_death 
         
     def __init__(self, name, thrs_info_to_split, thrs_bad_info_death):
 
@@ -49,9 +49,6 @@ class UnitPlan(Plan):
                             ('act', 'Gulp Environment')],
                            condition=split_offspring)
 
-        clausul_3a = Clause('Death',
-                            condition=death_by_bad_info)
-
         clausul_3b = Clause('Breed',
                             [('mould', 'Create Agent Offspring'),
                              ('act', 'Push Offspring Onto World')])
@@ -62,4 +59,27 @@ class UnitPlan(Plan):
                             ('mould', 'Eject Lies'),
                             ('act', 'Spread Lies to Neighbours')])
 
+        heartbeat = Heartbeat('Death by Bad Info', death_by_bad_info)
 
+        k_1 = self.add_cargo('pronounce', 'Figure Out Env')
+        k_2 = self.add_cargo('pronounce', 'Collect From Env')
+        k_3 = self.add_cargo('pump', 'Death by Bad Info')
+        k_4 = self.add_cargo('pronounce', 'Breed')
+        k_5 = self.add_cargo('pronounce', 'Eject To Env')
+
+        self.add_dependency(k_1, k_2)
+        self.add_dependency(k_2, k_4, k_3)
+        self.add_dependency(k_4, k_3)
+        self.add_dependency(k_3, k_5)
+
+        self.stamp_and_approve()
+
+def propagate_(system, plan_name):
+    
+    system.cleanse_inert()
+
+    n_agents = len(system.agents_in_scope)
+    for agent in system.shuffle_nodes(True, n_agents, False):
+        agent.enact(plan_name)
+
+        system.engage_all_verbs(agent)

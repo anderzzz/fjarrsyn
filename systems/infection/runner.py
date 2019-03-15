@@ -6,9 +6,14 @@ from core.sampler import AgentSampler, EnvSampler, SystemIO
 
 from unit import Unit, AgentAuxEnv
 from world import World
+from propagation import UnitPlan
 
 u1 = Unit('test0', 0.5, 0.8, 0.0, 1.0, 1.0, 1.0)
 u2 = Unit('test1', 0.5, 0.8, 0.0, 0.0, 1.0, 1.0)
+
+u_plan = UnitPlan('One Time Step', 1.0, 1.0)
+u1.set_policy(u_plan)
+u2.set_policy(u_plan)
 
 env_agent = [AgentAuxEnv(0.0, 2.0, 0.0, 0.0), AgentAuxEnv(0.5, 0.5, 0.5, 0.0)]
 
