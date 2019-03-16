@@ -208,8 +208,19 @@ class Unit(Agent):
 
 class AgentAuxEnv(object):
 
-    def __init__(self, info_a, info_b, info_c, bad_info):
+    def decay(self):
+        '''Bla bla
+
+        '''
+        ret = {}
+        for resource_type, resource_amount in self.container.items():
+            resource_amount_new = self.inverse_rate * resource_amount
+            ret[resource_type] = resource_amount_new
+
+        self.container = ret
+
+    def __init__(self, info_a, info_b, info_c, bad_info, inverse_rate):
 
         self.container = {'info_a' : info_a, 'info_b' : info_b,
                           'info_c' : info_c, 'bad_info' : bad_info}
-
+        self.inverse_rate = inverse_rate

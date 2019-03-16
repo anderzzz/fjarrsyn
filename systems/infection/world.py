@@ -107,7 +107,6 @@ class World(AgentManagementSystem):
 
     def __init__(self, name, agents, local_ambient, 
                  midpoint_max_move, max_max_move, mutate_prob,
-                 inverse_env_decay, 
                  resource_jump_magnitude, resource_jump_prob):
 
         super().__init__(name, agents, agent_env=local_ambient,
@@ -185,14 +184,6 @@ class World(AgentManagementSystem):
                                    mapper_max, 
                                    mutation_prob=mutate_prob)
         self.set_laws(mutate_midpoint, mutate_max)
-
-        #
-        # Info decay in Environment
-        env_info = universal_map_maker(agent.resource, 'scale', ('inverse_loss_rate',)) 
-        env_info_loss = Compulsion('Decay of Info in Env', 
-                                   lambda _: inverse_env_decay,
-                                   env_info)
-        self.set_law(env_info_loss)
 
         #
         # Random increase in internal resources
