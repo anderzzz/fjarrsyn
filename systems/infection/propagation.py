@@ -74,7 +74,7 @@ class UnitPlan(Plan):
 
         self.stamp_and_approve()
 
-def propagate_(system, plan_name):
+def system_propagator(system, plan_name):
     
     system.cleanse_inert()
 

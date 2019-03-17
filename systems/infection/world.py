@@ -105,11 +105,11 @@ class World(AgentManagementSystem):
 
         return self.max_max_move, 0.0, 1.0
 
-    def __init__(self, name, agents, local_ambient, 
+    def __init__(self, name, agents, full_agents_graph, 
                  midpoint_max_move, max_max_move, mutate_prob,
                  resource_jump_magnitude, resource_jump_prob):
 
-        super().__init__(name, agents, agent_env=local_ambient,
+        super().__init__(name, agents, full_agents_graph=full_agents_graph,
                          strict_engine=STRICT_ENGINE)
 
         self.midpoint_max_move = midpoint_max_move
