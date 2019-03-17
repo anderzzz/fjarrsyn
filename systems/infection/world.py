@@ -20,13 +20,13 @@ class World(AgentManagementSystem):
         neighbour_nodes = self.neighbours_to(calling_agent_id, agents_only=False)
         node = np.random.choice(list(neighbour_nodes))
         if node is None:
-            return None
+            return 0.0 
 
         else:
             tickle_feature = node.agent_content.tickle('Reveal Cooperation')
             # Cover option that an inert agent is tickled
             if tickle_feature is False:
-                return None
+                return 0.0
 
             else:
                 return node.agent_content.tickle('Reveal Cooperation').values()

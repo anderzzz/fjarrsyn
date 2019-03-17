@@ -96,14 +96,10 @@ class AgentSampler(object):
         for node in ams:
             agent = node.agent_content
 
-            is_there_match = True
-            if not self.matcher is None:
-                is_there_match = self.matcher(agent)
-
             #
             # If agent is supposed to be sampled, proceed here
             #
-            if is_there_match:
+            if self.matcher(agent):
                 d_out = {self.indexer[0] : generation,
                          self.indexer[1] : agent.name,
                          self.indexer[2] : agent.agent_id_system}
@@ -180,7 +176,7 @@ class AgentSampler(object):
                 raise TypeError('The agent_matcher should be a callable')
             self.matcher = agent_matcher
         else:
-            self.matcher = lambda x: True
+            self.matcher = lambda x: False if x is None else True 
 
         self.sample_steps = sample_steps
 
@@ -269,11 +265,7 @@ class EnvSampler(object):
                 agent = node.agent_content
                 aux = node.aux_content
 
-                is_there_match = True
-                if not self.matcher is None:
-                    is_there_match = self.matcher(agent)
-
-                if is_there_match:
+                if self.matcher(agent): 
                     d_out = {self.indexer[0] : generation,
                              self.indexer[1] : agent.name,
                              self.indexer[2] : agent.agent_id_system}
@@ -311,7 +303,7 @@ class EnvSampler(object):
             self.matcher = agent_matcher
 
         else:
-            self.matcher = lambda x: True
+            self.matcher = lambda x: False if x is None else True
 
         self.sample_steps = sample_steps
 
