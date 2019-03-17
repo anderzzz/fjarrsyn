@@ -3,7 +3,7 @@
 '''
 from core.policy import Plan, Clause, AutoResourceCondition, Heartbeat
 
-class UnitPlan(Plan):
+class UnitPolicy(object):
     '''Bla bla
 
     '''
@@ -27,8 +27,6 @@ class UnitPlan(Plan):
         return bad_info > self.thrs_bad_info_death 
         
     def __init__(self, name, thrs_info_to_split, thrs_bad_info_death):
-
-        super().__init__(name)
 
         self.thrs_info_to_split = thrs_info_to_split
         self.thrs_bad_info_death = thrs_bad_info_death
@@ -61,21 +59,25 @@ class UnitPlan(Plan):
 
         heartbeat = Heartbeat('Death by Bad Info', death_by_bad_info)
 
-        k_0 = self.add_cargo('pronounce', 'Figure Out Env')
-        k_1 = self.add_cargo('pronounce', 'Collect From Env')
-        k_2 = self.add_cargo('pump', 'Death by Bad Info')
-        k_3 = self.add_cargo('pump', 'Death by Bad Info')
-        k_4 = self.add_cargo('pronounce', 'Breed')
-        k_5 = self.add_cargo('pronounce', 'Eject To Env')
-        k_6 = self.add_cargo('pronounce', 'Eject To Env')
+        the_plan = Plan(name)
+        k_0 = the_plan.add_cargo('pronounce', 'Figure Out Env')
+        k_1 = the_plan.add_cargo('pronounce', 'Collect From Env')
+        k_2 = the_plan.add_cargo('pump', 'Death by Bad Info')
+        k_3 = the_plan.add_cargo('pump', 'Death by Bad Info')
+        k_4 = the_plan.add_cargo('pronounce', 'Breed')
+        k_5 = the_plan.add_cargo('pronounce', 'Eject To Env')
+        k_6 = the_plan.add_cargo('pronounce', 'Eject To Env')
 
-        self.add_dependency(k_0, k_1)
-        self.add_dependency(k_1, k_4, k_2)
-        self.add_dependency(k_4, k_3)
-        self.add_dependency(k_3, k_5)
-        self.add_dependency(k_2, k_6)
+        the_plan.add_dependency(k_0, k_1)
+        the_plan.add_dependency(k_1, k_4, k_2)
+        the_plan.add_dependency(k_4, k_3)
+        the_plan.add_dependency(k_3, k_5)
+        the_plan.add_dependency(k_2, k_6)
 
-        self.stamp_and_approve()
+        the_plan.stamp_and_approve()
+
+        self.all = (the_plan, clausul_1, clausul_2, clausul_3b,
+                    clausul_4, heartbeat)
 
 def system_propagator(system, plan_name):
     

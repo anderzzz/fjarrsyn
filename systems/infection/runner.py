@@ -7,7 +7,7 @@ from core.graph import Node
 
 from unit import Unit, AgentAuxEnv
 from world import World
-from propagation import UnitPlan, system_propagator 
+from propagation import UnitPolicy, system_propagator 
 
 import networkx as nx
 import numpy as np
@@ -56,8 +56,8 @@ if __name__ == '__main__':
     #
     # Define agent intentions
     #
-    agent_plan = UnitPlan('One Heartbeat Step', THRS_INFO_TO_SPLIT,
-                          THRS_BAD_INFO_DEATH)
+    agent_policy = UnitPolicy('One Heartbeat Step', THRS_INFO_TO_SPLIT,
+                              THRS_BAD_INFO_DEATH)
 
     #
     # Place agents in spatial arrangement and assing them intentions
@@ -67,12 +67,14 @@ if __name__ == '__main__':
     for k_agent, coord in enumerate(network.nodes()):
         init_essence = INIT_ESSENCE_POOL[np.random.randint(len(INIT_ESSENCE_POOL))]
         agent_x = Unit('Agent', *init_essence)
-        agent_x.set_policy(agent_plan)
+        agent_x.set_policies(*agent_policy.all)
         agents.append(agent_x)
+
         env_x = AgentAuxEnv(0.0, 0.0, 0.0, 0.0, ENV_DECAY_INVERSE)
         node = Node('{0}'.format(k_agent), agent_x, env_x)
 
         mapping[coord] = node
+
     network = nx.relabel_nodes(network, mapping)
 
     #
