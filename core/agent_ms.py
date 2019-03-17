@@ -906,10 +906,25 @@ class AgentManagementSystem(object):
 
             self.lawbook[agent.agent_id_system] = word
 
-    def __len__(self):
+    def get_n_nodes(self):
+        '''Return number of nodes in agent graph'''
+
+        return nx.number_of_nodes(self.agents_graph)
+
+    def get_n_edges(self):
+        '''Return number of edges in agent graph'''
+
+        return nx.number_of_edges(self.agents_graph)
+
+    def get_n_agents(self):
         '''Return number of agents in the system'''
 
         return len(self.agents_in_scope)
+
+    def __len__(self):
+        '''Return number of agents in the system'''
+
+        return self.get_n_agents() 
 
     def __init__(self, name, agents, full_agents_graph=None,
                  agent_env=None, common_env=None, strict_engine=False):

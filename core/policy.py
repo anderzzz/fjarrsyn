@@ -403,7 +403,7 @@ class Plan(object):
         self.tree.add_node(self._cargo_counter, verb=verb_inp, phrase=phrase_inp)
         self._cargo_counter += 1
 
-        return self._cargo_counter
+        return self._cargo_counter - 1
 
     def add_dependency(self, cc_parent, cc_child_true, cc_child_false=None):
         '''Adds a dependency or parent-child relation between two execution
