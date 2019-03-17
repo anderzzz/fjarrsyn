@@ -3,7 +3,7 @@
 '''
 from core.agent_ms import AgentManagementSystem
 
-from core.instructor import Sensor, Actuator, MultiMutation
+from core.instructor import Sensor, Actuator, MultiMutation, Compulsion
 from core.message import MessageOperator
 from core.scaffold_map import EssenceMap, ResourceMap, MapCollection, universal_map_maker
 

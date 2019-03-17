@@ -61,16 +61,19 @@ class UnitPlan(Plan):
 
         heartbeat = Heartbeat('Death by Bad Info', death_by_bad_info)
 
-        k_1 = self.add_cargo('pronounce', 'Figure Out Env')
-        k_2 = self.add_cargo('pronounce', 'Collect From Env')
+        k_0 = self.add_cargo('pronounce', 'Figure Out Env')
+        k_1 = self.add_cargo('pronounce', 'Collect From Env')
+        k_2 = self.add_cargo('pump', 'Death by Bad Info')
         k_3 = self.add_cargo('pump', 'Death by Bad Info')
         k_4 = self.add_cargo('pronounce', 'Breed')
         k_5 = self.add_cargo('pronounce', 'Eject To Env')
+        k_6 = self.add_cargo('pronounce', 'Eject To Env')
 
-        self.add_dependency(k_1, k_2)
-        self.add_dependency(k_2, k_4, k_3)
+        self.add_dependency(k_0, k_1)
+        self.add_dependency(k_1, k_4, k_2)
         self.add_dependency(k_4, k_3)
         self.add_dependency(k_3, k_5)
+        self.add_dependency(k_2, k_6)
 
         self.stamp_and_approve()
 
@@ -78,8 +81,10 @@ def system_propagator(system, plan_name):
     
     system.cleanse_inert()
 
-    n_agents = len(system.agents_in_scope)
-    for agent in system.shuffle_nodes(True, n_agents, False):
-        agent.enact(plan_name)
+    n_nodes = system.get_n_nodes()
+    for node in system.shuffle_nodes(False, n_nodes, False):
+        if not node.agent_content is None:
+            node.agent_content.enact(plan_name)
+            system.engage_all_verbs(node.agent_content)
 
-        system.engage_all_verbs(agent)
+        node.aux_content.decay()

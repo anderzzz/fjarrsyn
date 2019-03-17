@@ -2,7 +2,7 @@
 
 '''
 from core.simulator import FiniteSystemRunner
-from core.sampler import AgentSampler, EnvSampler, SystemIO
+from core.sampler import AgentSampler, GraphSampler, EnvSampler, SystemIO
 from core.graph import Node
 
 from unit import Unit, AgentAuxEnv
@@ -42,6 +42,9 @@ N_ITER = 10
 
 if __name__ == '__main__':
 
+    #
+    # Define the spatial arrangement
+    #
     if NETWORK_TYPE == 'hexagonal lattice':
         network = nx.generators.lattice.hexagonal_lattice_graph(SQRT_N_AGENTS,
                       SQRT_N_AGENTS, periodic=True)
@@ -50,13 +53,19 @@ if __name__ == '__main__':
         network = nx.generators.random_graphs.connected_watts_strogatz_graph(TOTAL_AGENTS,
                       6, 0.25)
 
+    #
+    # Define agent intentions
+    #
     agent_plan = UnitPlan('One Heartbeat Step', THRS_INFO_TO_SPLIT,
                           THRS_BAD_INFO_DEATH)
 
+    #
+    # Place agents in spatial arrangement and assing them intentions
+    #
     agents = []
     mapping = {}
-    for coord in network.nodes():
-        init_essence = np.random.choice(INIT_ESSENCE_POOL)
+    for k_agent, coord in enumerate(network.nodes()):
+        init_essence = INIT_ESSENCE_POOL[np.random.randint(len(INIT_ESSENCE_POOL))]
         agent_x = Unit('Agent', *init_essence)
         agent_x.set_policy(agent_plan)
         agents.append(agent_x)
@@ -66,11 +75,40 @@ if __name__ == '__main__':
         mapping[coord] = node
     network = nx.relabel_nodes(network, mapping)
 
+    #
+    # Define the world
+    #
     ww = World('Agent World', agents, network,
                MID_MAX_MOVE, MAX_MAX_MOVE, MUT_PROB,
                RESOURCE_JUMP_MAG, RESOURCE_JUMP_PROB)
 
+    #
+    # Define samplers
+    #
+    a_sampler = AgentSampler(essence_args=[('Exterior Disposition', 'midpoint_share'),
+                    ('Exterior Disposition', 'max_share'),
+                    ('Exterior Disposition', 'midpoint_gulp'),
+                    ('Exterior Disposition', 'max_gulp'),
+                    ('Exterior Disposition', 'midpoint_tox'),
+                    ('Exterior Disposition', 'max_tox')],
+                             resource_args=[('Internal Resources', 'info_a'),
+                    ('Internal Resources', 'info_b'),
+                    ('Internal Resources', 'info_c'),
+                    ('Internal Resources', 'bad_info')],
+                             sample_steps=1)
+    g_sampler = GraphSampler(sample_steps=1)
+    system_io = SystemIO([('Agent Sample', a_sampler, 'to_csv'), 
+                          ('Graph Sample', g_sampler, 'edgelist.write_edgelist')])
+
+    #
+    # Set up how to propagate and sample world with agents
+    #
     simulator = FiniteSystemRunner(N_ITER, system_propagator,
+                    system_io=system_io,
                     system_propagator_kwargs={'plan_name' : 'One Heartbeat Step'})
 
+
+    #
+    # Run simulation
+    #
     simulator(ww)
