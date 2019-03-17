@@ -23,7 +23,13 @@ class World(AgentManagementSystem):
             return None
 
         else:
-            return node.agent_content.tickle('Reveal Cooperation').values()
+            tickle_feature = node.agent_content.tickle('Reveal Cooperation')
+            # Cover option that an inert agent is tickled
+            if tickle_feature is False:
+                return None
+
+            else:
+                return node.agent_content.tickle('Reveal Cooperation').values()
 
     def _cmp_alter_env_resources(self, da, db, dc, calling_agent_id):
         '''Bla bla
