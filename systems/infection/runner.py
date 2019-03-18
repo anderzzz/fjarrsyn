@@ -16,8 +16,8 @@ import numpy as np
 
 '''
 '''Type and size of spatial network'''
-NETWORK_TYPE = 'hexagonal lattice'
-SQRT_N_AGENTS = 10
+NETWORK_TYPE = '2d grid lattice'
+SQRT_N_AGENTS = 2
 TOTAL_AGENTS = SQRT_N_AGENTS * SQRT_N_AGENTS
 
 '''Rate of decay of compounds put into environment'''
@@ -38,20 +38,23 @@ RESOURCE_JUMP_MAG = 1.0
 RESOURCE_JUMP_PROB = 0.05
 
 '''Simulation parameters'''
-N_ITER = 10
+N_ITER = 2
 
 if __name__ == '__main__':
 
     #
     # Define the spatial arrangement
     #
-    if NETWORK_TYPE == 'hexagonal lattice':
-        network = nx.generators.lattice.hexagonal_lattice_graph(SQRT_N_AGENTS,
+    if NETWORK_TYPE == '2d grid lattice':
+        network = nx.generators.lattice.grid_2d_graph(SQRT_N_AGENTS,
                       SQRT_N_AGENTS, periodic=True)
 
     elif NETWORK_TYPE == 'small world':
         network = nx.generators.random_graphs.connected_watts_strogatz_graph(TOTAL_AGENTS,
                       6, 0.25)
+
+    else:
+        raise RuntimeError('Unknown network type: {0}'.format(NETWORK_TYPE))
 
     #
     # Define agent intentions

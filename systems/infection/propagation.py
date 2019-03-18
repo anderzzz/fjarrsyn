@@ -24,7 +24,7 @@ class UnitPolicy(object):
         '''Bla bla
 
         '''
-        return bad_info > self.thrs_bad_info_death 
+        return bad_info < self.thrs_bad_info_death 
         
     def __init__(self, name, thrs_info_to_split, thrs_bad_info_death):
 
@@ -52,7 +52,7 @@ class UnitPolicy(object):
                              ('act', 'Push Offspring Onto World')])
 
         clausul_4 = Clause('Eject To Env',
-                           [('mould', 'Resources to Share'),
+                           [('mould', 'Share Resources'),
                             ('act', 'Share Resources to Neighbours'),
                             ('mould', 'Eject Lies'),
                             ('act', 'Spread Lies to Neighbours')])
