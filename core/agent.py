@@ -1,6 +1,7 @@
 '''The Agent parent class.
 
 '''
+import copy
 import numpy
 import numpy.random
 from collections import namedtuple
@@ -637,6 +638,38 @@ class Agent(object):
         '''
         self.ticks = 0
         self.inert = False
+
+    def deepcopy(self):
+        '''Create a deep copy of the current agent, functional and parametric
+
+        Returns
+        -------
+        agent : Agent
+            A copy of current agent.
+
+        Notes
+        -----
+        The method creates a replica of the current agent, which means organs,
+        policies, resources, messages and essence are copied. The name as well
+        as the agent_id are however unassigned, since these relate to the agent
+        as a specific particle in the system and should be assigned as part of
+        assigning the agent a place within the system. The heart ticks are set
+        to zero as well, such that the new agent is at its youngest state.
+
+        If an agent has a more complex method of reproduction, like adjusting
+        certain of its parametric features (essence, resources, beliefs), these
+        additional adjustments should be added after calling the current
+        method.
+
+        '''
+        copy_agent = copy.deepcopy(self)
+
+        copy_agent.name = ''
+        copy_agent.agent_id_system = None
+        copy_agent.inert = False
+        copy_agent.ticks = 0
+
+        return copy_agent
 
     def __repr__(self):
 
