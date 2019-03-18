@@ -100,7 +100,8 @@ class Unit(Agent):
         '''Generate offspring through division
 
         '''
-        offspring_agent = self.__class__('offspring') 
+        offspring_agent = self.deepcopy()
+        offspring_agent.name = 'offspring'
 
         self.essence_map_reset.set_values(self.essence.values())
         self.essence_map_reset.apply_to(offspring_agent)
@@ -138,7 +139,7 @@ class Unit(Agent):
         unit_resource = Resource('Internal Resources',
                                  ('info_a', 'info_b', 'info_c',
                                   'bad_info'))
-        unit_resource.set_values([0.1, 0.1, 0.1, 0.0])
+        unit_resource.set_values([0.0, 0.0, 0.0, 0.0])
         self.set_scaffold(unit_resource)
 
         # Resource reset and scale map, convenience function for offspring creation
