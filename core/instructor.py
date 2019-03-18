@@ -1018,12 +1018,12 @@ class MultiMutation(Mutation):
         for key in self.scaffold_map_output:
             if np.random.ranf() < self.mutation_prob:
                 try:
-                    out_values.append(self.engine(*args, **self.kwargs))
+                    out_values.extend(list(self.engine(*args, **self.kwargs)))
                 except Exception as err:
                     return err
 
             else:
-                out_values.append(None)
+                out_values.extend([None] * key.n_elements)
 
         self.scaffold_map_output.set_values(out_values)
 
