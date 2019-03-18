@@ -994,5 +994,5 @@ class AgentManagementSystem(object):
         self.compulsion = {}
         self.mutation = {}
         self.law = {'compulsion' : self.compulsion,
-                    'mutator' : self.mutation}
+                    'mutation' : self.mutation}
         self.lawbook = {}
