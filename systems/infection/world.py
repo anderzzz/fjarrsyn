@@ -19,7 +19,7 @@ class World(AgentManagementSystem):
         '''
         neighbour_nodes = self.neighbours_to(calling_agent_id, agents_only=False)
         node = np.random.choice(list(neighbour_nodes))
-        if node is None:
+        if node.agent_content is None:
             return 0.0 
 
         else:
@@ -72,8 +72,8 @@ class World(AgentManagementSystem):
         env.container['info_b'] -= db
         env.container['info_c'] -= dc
         env.container['bad_info'] -= d_tox
-        
-        return da, db, dc, 0.0, d_tox
+
+        return da, db, dc, d_tox
 
     def _cmp_offspring_onto_world(self, offspring_agent, calling_agent_id):
         '''Bla bla
