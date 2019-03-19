@@ -116,7 +116,8 @@ class Unit(Agent):
     def __init__(self, name, 
                  midpoint_share=0.0, max_share=0.0,
                  midpoint_gulp=0.0, max_gulp=0.0,
-                 midpoint_tox=0.0, max_tox=0.0):
+                 midpoint_tox=0.0, max_tox=0.0,
+                 truthful_reveal=1.0):
 
         super().__init__(name, STRICT_ENGINE)
 
@@ -204,7 +205,7 @@ class Unit(Agent):
                               ('coop_with_coop',))
         cortex = Cortex('Reveal Cooperation', self._cmp_cooperative_feature,
                         None, coop_expose,
-                        cortex_func_kwargs={'truthfulness' : 1.0})
+                        cortex_func_kwargs={'truthfulness' : truthful_reveal})
         self.set_organ(cortex)
 
 class AgentAuxEnv(object):

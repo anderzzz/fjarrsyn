@@ -24,7 +24,7 @@ TOTAL_AGENTS = SQRT_N_AGENTS * SQRT_N_AGENTS
 ENV_DECAY_INVERSE = 0.0
 
 '''Pool of agent essence for initialization agents'''
-INIT_ESSENCE_POOL = [(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
+INIT_ESSENCE_POOL = [(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)]
 
 '''Birth and Death parameters of agent'''
 THRS_INFO_TO_SPLIT = 2.0
@@ -38,8 +38,11 @@ RESOURCE_JUMP_MAG = 1.0
 RESOURCE_JUMP_PROB = 0.01
 
 '''Simulation parameters'''
-N_ITER = 10000 
+N_ITER = 10001 
 N_SAMPLE = 1000
+
+def _extract_env_container(aux):
+    return aux.container
 
 if __name__ == '__main__':
 
@@ -103,8 +106,10 @@ if __name__ == '__main__':
                     ('Internal Resources', 'bad_info')],
                              sample_steps=N_SAMPLE)
     g_sampler = GraphSampler(sample_steps=N_SAMPLE)
+    e_sampler = EnvSampler(_extract_env_container, sample_steps=N_SAMPLE)
     system_io = SystemIO([('agent_sample', a_sampler, 'to_csv'), 
-                          ('graph_sample', g_sampler, 'edgelist.write_edgelist')])
+                          ('graph_sample', g_sampler, 'edgelist.write_edgelist'),
+                          ('env_sample', e_sampler, 'to_csv')])
 
     #
     # Set up how to propagate and sample world with agents
