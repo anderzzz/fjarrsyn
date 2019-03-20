@@ -48,8 +48,8 @@ class Unit(Agent):
         '''
         ff = self._cmp_frac_share(1.0)
         rando = np.random.uniform()
-        ff = self.essence['truthfulness'] * ff + \
-             (1.0 - self.essence['truthfulness']) * rando
+        ff = self.essence['truthful_reveal'] * ff + \
+             (1.0 - self.essence['truthful_reveal']) * rando
 
         return ff
 
