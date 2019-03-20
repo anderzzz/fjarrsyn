@@ -17,14 +17,23 @@ import numpy as np
 '''
 '''Type and size of spatial network'''
 NETWORK_TYPE = '2d grid lattice'
-SQRT_N_AGENTS = 3
+SQRT_N_AGENTS = 10 
 TOTAL_AGENTS = SQRT_N_AGENTS * SQRT_N_AGENTS
 
 '''Rate of decay of compounds put into environment'''
 ENV_DECAY_INVERSE = 0.0
 
 '''Pool of agent essence for initialization agents'''
-INIT_ESSENCE_POOL = [(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)]
+TRUTHFUL_REVEAL = 1.0
+INVERSE_FORGET_RATE = 0.5
+#INIT_ESSENCE_POOL = [(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+#                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE)]
+INIT_ESSENCE_POOL = []
+for x in range(20):
+    aa = list(np.random.ranf(6))
+    aa.append(TRUTHFUL_REVEAL)
+    aa.append(INVERSE_FORGET_RATE)
+    INIT_ESSENCE_POOL.append(tuple(aa))
 
 '''Birth and Death parameters of agent'''
 THRS_INFO_TO_SPLIT = 2.0
@@ -33,13 +42,13 @@ THRS_BAD_INFO_DEATH = 1.0
 '''Non-Intentional System Parameters'''
 MID_MAX_MOVE = 0.5
 MAX_MAX_MOVE = 0.5
-MUT_PROB = 0.01
+MUT_PROB = 0.002
 RESOURCE_JUMP_MAG = 1.0
-RESOURCE_JUMP_PROB = 0.01
+RESOURCE_JUMP_PROB = 0.02
 
 '''Simulation parameters'''
-N_ITER = 10001 
-N_SAMPLE = 1000
+N_ITER = 1000 
+N_SAMPLE = 100
 
 def _extract_env_container(aux):
     return aux.container

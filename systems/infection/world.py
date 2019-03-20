@@ -29,7 +29,7 @@ class World(AgentManagementSystem):
                 return 0.0
 
             else:
-                return node.agent_content.tickle('Reveal Cooperation').values()
+                return tickle_feature.values()
 
     def _cmp_alter_env_resources(self, da, db, dc, calling_agent_id):
         '''Bla bla
@@ -182,8 +182,8 @@ class World(AgentManagementSystem):
         mapper_midpoint = MapCollection([map_midpoint_share, 
                                          map_midpoint_gulp, 
                                          map_midpoint_tox])
-        #mapper_max = MapCollection([map_max_share, map_max_gulp, map_max_tox])
-        mapper_max = MapCollection([map_max_share, map_max_gulp])
+        mapper_max = MapCollection([map_max_share, map_max_gulp, map_max_tox])
+        #mapper_max = MapCollection([map_max_share, map_max_gulp])
         mutate_midpoint = MultiMutation('Perturb Essence 1', self._midpoint_move, 
                                         mapper_midpoint,
                                         mutation_prob=mutate_prob)

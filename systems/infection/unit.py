@@ -42,13 +42,14 @@ class Unit(Agent):
                           self.essence['midpoint_tox'],
                           True, x_val)
 
-    def _cmp_cooperative_feature(self, truthfulness):
+    def _cmp_cooperative_feature(self):
         '''Compute a surface feature based on cooperative nature of agent
 
         '''
         ff = self._cmp_frac_share(1.0)
         rando = np.random.uniform()
-        ff = truthfulness * ff + (1.0 - truthfulness) * rando
+        ff = self.essence['truthfulness'] * ff + \
+             (1.0 - self.essence['truthfulness']) * rando
 
         return ff
 
@@ -59,7 +60,8 @@ class Unit(Agent):
         if revealed_coop is None:
             return current_belief
 
-        new_belief = 0.5 * current_belief + 0.5 * revealed_coop
+        new_belief = self.essence['inv_forget_rate'] * current_belief + \
+                     (1.0 - self.essence['inv_forget_rate']) * revealed_coop
 
         return new_belief
 
@@ -117,7 +119,7 @@ class Unit(Agent):
                  midpoint_share=0.0, max_share=0.0,
                  midpoint_gulp=0.0, max_gulp=0.0,
                  midpoint_tox=0.0, max_tox=0.0,
-                 truthful_reveal=1.0):
+                 truthful_reveal=1.0, inverse_forget_rate=0.5):
 
         super().__init__(name, STRICT_ENGINE)
 
@@ -126,10 +128,12 @@ class Unit(Agent):
         unit_essence = Essence('Exterior Disposition',
                                ('midpoint_share', 'max_share',
                                 'midpoint_gulp', 'max_gulp',
-                                'midpoint_tox', 'max_tox'))
+                                'midpoint_tox', 'max_tox',
+                                'truthful_reveal', 'inv_forget_rate'))
         unit_essence.set_values([midpoint_share, max_share, 
                                  midpoint_gulp, max_gulp,
-                                 midpoint_tox, max_tox])
+                                 midpoint_tox, max_tox,
+                                 truthful_reveal, inverse_forget_rate])
         self.set_scaffold(unit_essence)
 
         # Essence reset map, convenience function for offspring creation
@@ -154,7 +158,7 @@ class Unit(Agent):
         #
         # Belief
         unit_belief = Belief('Surrounding', ('cooperative_env',))
-        unit_belief.set_values([1.0])
+        unit_belief.set_values([0.0])
         self.set_message(unit_belief)
 
         #
@@ -204,8 +208,7 @@ class Unit(Agent):
         coop_expose = Feature('Cooperative Reveal',
                               ('coop_with_coop',))
         cortex = Cortex('Reveal Cooperation', self._cmp_cooperative_feature,
-                        None, coop_expose,
-                        cortex_func_kwargs={'truthfulness' : truthful_reveal})
+                        None, coop_expose)
         self.set_organ(cortex)
 
 class AgentAuxEnv(object):
