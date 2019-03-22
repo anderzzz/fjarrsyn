@@ -113,7 +113,8 @@ class World(AgentManagementSystem):
 
     def __init__(self, name, agents, full_agents_graph, 
                  midpoint_max_move, max_max_move, mutate_prob,
-                 resource_jump_magnitude, resource_jump_prob):
+                 resource_jump_magnitude, resource_jump_prob,
+                 mutate_essence):
 
         super().__init__(name, agents, full_agents_graph=full_agents_graph,
                          strict_engine=STRICT_ENGINE)
@@ -179,18 +180,29 @@ class World(AgentManagementSystem):
                                   'max_gulp', ('range_step', 'lower', 'upper'))
         map_max_tox = EssenceMap('mutate_3b', 'wiener_bounded',
                                  'max_tox', ('range_step', 'lower', 'upper'))
-        mapper_midpoint = MapCollection([map_midpoint_share, 
-                                         map_midpoint_gulp, 
-                                         map_midpoint_tox])
-        mapper_max = MapCollection([map_max_share, map_max_gulp, map_max_tox])
-        #mapper_max = MapCollection([map_max_share, map_max_gulp])
-        mutate_midpoint = MultiMutation('Perturb Essence 1', self._midpoint_move, 
+
+        list_mid = []
+        list_max = []
+        if 'share' in mutate_essence:
+            list_mid.append(map_midpoint_share)
+            list_max.append(map_max_share)
+        if 'gulp' in mutate_essence:
+            list_mid.append(map_midpoint_gulp)
+            list_max.append(map_max_gulp)
+        if 'tox' in mutate_essence:
+            list_mid.append(map_midpoint_tox)
+            list_max.append(map_max_tox)
+
+        if len(list_mid) > 0:
+            mapper_midpoint = MapCollection(list_mid)
+            mapper_max = MapCollection(list_max)
+            mutate_midpoint = MultiMutation('Perturb Essence 1', self._midpoint_move, 
                                         mapper_midpoint,
                                         mutation_prob=mutate_prob)
-        mutate_max = MultiMutation('Perturb Essence 2', self._max_move, 
+            mutate_max = MultiMutation('Perturb Essence 2', self._max_move, 
                                    mapper_max, 
                                    mutation_prob=mutate_prob)
-        self.set_laws(mutate_midpoint, mutate_max)
+            self.set_laws(mutate_midpoint, mutate_max)
 
         #
         # Random increase in internal resources

@@ -1,6 +1,7 @@
 '''Main runner routine for cooperative and trust growers
 
 '''
+import sys
 from core.simulator import FiniteSystemRunner
 from core.sampler import AgentSampler, GraphSampler, EnvSampler, SystemIO
 from core.graph import Node
@@ -25,30 +26,35 @@ ENV_DECAY_INVERSE = 0.0
 
 '''Pool of agent essence for initialization agents'''
 TRUTHFUL_REVEAL = 1.0
-INVERSE_FORGET_RATE = 0.5
-#INIT_ESSENCE_POOL = [(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
-#                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE)]
-INIT_ESSENCE_POOL = []
-for x in range(20):
-    aa = list(np.random.ranf(6))
-    aa.append(TRUTHFUL_REVEAL)
-    aa.append(INVERSE_FORGET_RATE)
-    INIT_ESSENCE_POOL.append(tuple(aa))
+INVERSE_FORGET_RATE = 0.7
+INIT_ESSENCE_POOL = [(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                     (0.0, 1.0, 0.0, 1.0, 0.0, 0.0,
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                     (0.9, 1.0, 0.9, 1.0, 0.0, 0.0,
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE)]
+#INIT_ESSENCE_POOL = []
+#for x in range(20):
+#    aa = list(np.random.ranf(6))
+#    aa.append(TRUTHFUL_REVEAL)
+#    aa.append(INVERSE_FORGET_RATE)
+#    INIT_ESSENCE_POOL.append(tuple(aa))
 
 '''Birth and Death parameters of agent'''
 THRS_INFO_TO_SPLIT = 2.0
-THRS_BAD_INFO_DEATH = 1.0
+THRS_BAD_INFO_DEATH = 2.0
 
 '''Non-Intentional System Parameters'''
 MID_MAX_MOVE = 0.5
 MAX_MAX_MOVE = 0.5
-MUT_PROB = 0.002
+MUT_PROB = 0.001
 RESOURCE_JUMP_MAG = 1.0
-RESOURCE_JUMP_PROB = 0.02
+RESOURCE_JUMP_PROB = 0.05
+MUT_ESSENCE = []
 
 '''Simulation parameters'''
-N_ITER = 1000 
-N_SAMPLE = 100
+N_ITER = 5001 
+N_SAMPLE = 500
 
 def _extract_env_container(aux):
     return aux.container
@@ -98,7 +104,8 @@ if __name__ == '__main__':
     #
     ww = World('Agent World', agents, network,
                MID_MAX_MOVE, MAX_MAX_MOVE, MUT_PROB,
-               RESOURCE_JUMP_MAG, RESOURCE_JUMP_PROB)
+               RESOURCE_JUMP_MAG, RESOURCE_JUMP_PROB,
+               MUT_ESSENCE)
 
     #
     # Define samplers
@@ -116,9 +123,11 @@ if __name__ == '__main__':
                              sample_steps=N_SAMPLE)
     g_sampler = GraphSampler(sample_steps=N_SAMPLE)
     e_sampler = EnvSampler(_extract_env_container, sample_steps=N_SAMPLE)
-    system_io = SystemIO([('agent_sample', a_sampler, 'to_csv'), 
-                          ('graph_sample', g_sampler, 'edgelist.write_edgelist'),
-                          ('env_sample', e_sampler, 'to_csv')])
+
+    path_root = sys.argv[1]
+    system_io = SystemIO([(path_root + '/agent_sample', a_sampler, 'to_csv'), 
+                          (path_root + '/graph_sample', g_sampler, 'edgelist.write_edgelist'),
+                          (path_root + '/env_sample', e_sampler, 'to_csv')])
 
     #
     # Set up how to propagate and sample world with agents
