@@ -112,6 +112,8 @@ def create_new_world():
 
     network = nx.relabel_nodes(network, mapping)
 
+    print (agents[0].get_imprint_repr())
+    raise RuntimeError
     #
     # Define the world
     #

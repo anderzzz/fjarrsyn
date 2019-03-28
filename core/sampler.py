@@ -109,7 +109,7 @@ class AgentSampler(object):
                 #
                 # Loop over the imprint types of an Agent
                 #
-                for imprint_type in ['resource', 'essence', 'belief']:
+                for imprint_type in AGENT_IMPRINTS:
 
                     args = getattr(self, imprint_type + '_args')
                     if args is None:

@@ -625,6 +625,48 @@ class Agent(object):
         socket = Socket(name, func, verb, phrase, token)
         self.socket_offered[name] = socket
 
+    def get_imprint_repr(self, imprint_subset=None):
+        '''Return for agent the string representations for all or a subset of
+        agent imprints
+
+        Parameters
+        ----------
+        imprint_subset : list, optional
+            Subset of agent imprint names for which to create the string
+            representation. If None, all imprints are handled.
+
+        Returns
+        -------
+        imprint_reprs : dict
+            Dictionary of lists of string representations of designated agent
+            imprints, keyed on the type of imprint
+
+        '''
+        def _get_minor_keys(a):
+            return [(a.name, key_) for key_ in a.keys()]
+                
+        if not imprint_subset is None:
+            if not set(imprint_subset).issubset(AGENT_IMPRINTS):
+                raise ValueError('Imprint subset not a subset to AGENT_IMPRINTS constant')
+
+        else:
+            imprint_subset = AGENT_IMPRINTS
+
+        ret = {} 
+        for impr in imprint_subset:
+
+            a_imprint = getattr(self, impr)
+            if impr == 'belief':
+                for major_key in a_imprint.keys():
+                    _minor = _get_minor_keys(a_imprint[major_key])
+
+            else:
+                _minor = _get_minor_keys(a_imprint)
+
+            ret[impr] = [(x1, x2) for x1, x2 in _minor]
+
+        return ret
+
     def hooked_up(self):
         '''Determines if agent is part of an agent management system
 
