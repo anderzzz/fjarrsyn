@@ -656,9 +656,16 @@ class Agent(object):
         for impr in imprint_subset:
 
             a_imprint = getattr(self, impr)
+
+            if a_imprint is None:
+                continue
+            if len(a_imprint) == 0:
+                continue
+
             if impr == 'belief':
+                _minor = []
                 for major_key in a_imprint.keys():
-                    _minor = _get_minor_keys(a_imprint[major_key])
+                    _minor += _get_minor_keys(a_imprint[major_key])
 
             else:
                 _minor = _get_minor_keys(a_imprint)

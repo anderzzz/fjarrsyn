@@ -114,6 +114,10 @@ class _Array(object):
 
         return str_out
 
+    def __len__(self):
+        '''Return the length or number of entries in OrderedDictionary'''
+        return len(self._items)
+
     def __setitem__(self, key, value):
         '''Set the value of the array associated with the key. This can only be
         used to change existing values, not create new keys
