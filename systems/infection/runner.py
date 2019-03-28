@@ -12,6 +12,7 @@ from propagation import UnitPolicy, system_propagator
 
 import networkx as nx
 import numpy as np
+import pickle
 
 '''Parameters for running simulation
 
@@ -26,12 +27,20 @@ ENV_DECAY_INVERSE = 0.0
 
 '''Pool of agent essence for initialization agents'''
 TRUTHFUL_REVEAL = 1.0
-INVERSE_FORGET_RATE = 0.7
-INIT_ESSENCE_POOL = [(0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 
+INVERSE_FORGET_RATE = 0.0
+INIT_ESSENCE_POOL = [(-0.5, 0.0, -0.5, 1.0, 0.0, 0.0, 
                       TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
-                     (0.0, 1.0, 0.0, 1.0, 0.0, 0.0,
+                     (-0.5, 1.0, -0.5, 1.0, 0.0, 0.0,
                       TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
-                     (0.9, 1.0, 0.9, 1.0, 0.0, 0.0,
+                     (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                     (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                     (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                     (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                     (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
                       TRUTHFUL_REVEAL, INVERSE_FORGET_RATE)]
 #INIT_ESSENCE_POOL = []
 #for x in range(20):
@@ -53,13 +62,17 @@ RESOURCE_JUMP_PROB = 0.05
 MUT_ESSENCE = []
 
 '''Simulation parameters'''
-N_ITER = 5001 
-N_SAMPLE = 500
+N_ITER = 1001 
+N_SAMPLE = 100
+
+'''Save and load data'''
+PICKLE_OUTPUT = 'world_save_001.pkl'
+PICKLE_INPUT = None
 
 def _extract_env_container(aux):
     return aux.container
 
-if __name__ == '__main__':
+def create_new_world():
 
     #
     # Define the spatial arrangement
@@ -107,6 +120,22 @@ if __name__ == '__main__':
                RESOURCE_JUMP_MAG, RESOURCE_JUMP_PROB,
                MUT_ESSENCE)
 
+    return ww
+
+if __name__ == '__main__':
+
+    path_root = sys.argv[1]
+
+    #
+    # Construct or load world
+    #
+    if PICKLE_INPUT is None:
+        ww = create_new_world()
+
+    else:
+        with open(path_root + '/' + PICKLE_INPUT, 'r') as fin:
+            ww = pickle.load(fin)
+
     #
     # Define samplers
     #
@@ -124,7 +153,6 @@ if __name__ == '__main__':
     g_sampler = GraphSampler(sample_steps=N_SAMPLE)
     e_sampler = EnvSampler(_extract_env_container, sample_steps=N_SAMPLE)
 
-    path_root = sys.argv[1]
     system_io = SystemIO([(path_root + '/agent_sample', a_sampler, 'to_csv'), 
                           (path_root + '/graph_sample', g_sampler, 'edgelist.write_edgelist'),
                           (path_root + '/env_sample', e_sampler, 'to_csv')])
@@ -141,3 +169,10 @@ if __name__ == '__main__':
     # Run simulation
     #
     simulator(ww)
+
+    #
+    # Pickle the world for restarts
+    #
+    with open(path_root + '/' + PICKLE_OUTPUT, 'w') as fout:
+        pickle.dump(ww, fout)
+

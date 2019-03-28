@@ -8,6 +8,8 @@ from collections import Iterable
 import networkx as nx
 import operator
 
+from core.agent import AGENT_IMPRINTS
+
 class AgentSampler(object):
     '''Given an Agent Management System, the state of the agents are sampled in
     an easy to use data format.
@@ -154,7 +156,7 @@ class AgentSampler(object):
 
         self.indexer = ['generation', 'name', 'agent_index']
 
-        for imprint_type in ['resource', 'essence', 'belief']:
+        for imprint_type in AGENT_IMPRINTS: 
             args = locals()[imprint_type + '_args']
             if not args is None:
                 args_ok = False

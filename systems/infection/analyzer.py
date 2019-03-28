@@ -132,8 +132,8 @@ def main(args):
     df_agent_groups = grouper(df)
 
     idx = pd.IndexSlice
-    df = df_agent_groups.loc[idx[:, 1000, :], :]
-    print (df.groupby('friend_type').count())
+    df = df_agent_groups.loc[idx[:, 20000, :], :]
+    print (df.groupby(['friend_type', 'ufriend_type']).count())
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

@@ -10,6 +10,11 @@ from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
 from core.policy import Plan, Clause, Heartbeat
 from core.message import Resource, Essence, Feature, Buzz, Belief, Direction
 
+AGENT_IMPRINTS = set(['resource', 'essence', 'belief'])
+'''The labels for agent imprints. These constants are used in other functions
+that store or sample a persistent state of an agent
+
+'''
 class SocketConnectionError(Exception):
     pass
 
