@@ -312,6 +312,42 @@ class Agent(object):
         for policy in policies:
             self.set_policy(policy)
 
+    def set_sampler(self, sampler):
+        '''Set a sampler the agent can access to extract parameter values
+
+        Parameters
+        ----------
+        sampler
+            The sampler object
+
+        Raises
+        ------
+        TypeError
+            If the sampler input is of unknown type
+
+        '''
+        if isinstance(sampler, AgentSampler):
+            self._set('sampler', sampler.name, sampler)
+
+        elif isinstance(sampler, EnvSampler):
+            self._set('sampler', sampler.name, sampler)
+
+        else:
+            raise TypeError('Unknown sampler type: %s' %(str(type(sampler))))
+
+    def set_samplers(self, *samplers):
+        '''Add samplers to the agent
+
+        Parameters
+        ----------
+        samplers
+            Container of elements of the sampler class instance to add to the
+            agent in bulk
+
+        '''
+        for sampler in samplers:
+            self.set_sampler(sampler)
+
     @_IsInert.check
     def tickle(self, phrase):
         '''Verb for the agent to execute a Cortex organ
@@ -557,11 +593,13 @@ class Agent(object):
         return still_alive
 
     @_IsInert.check
-    def sample(self, generation=0):
+    def sample(self, phrase, generation=0):
         '''Sample the agent imprints according to a sampler
 
         Parameters
         ----------
+        phrase : str
+            Name of the sampling to perform
         generation : int, optional
             Meta data about when the agent is sampled. If not specified set to
             zero.
@@ -576,13 +614,13 @@ class Agent(object):
             sample time (generation)
 
         '''
-        if self.sampler is None:
-            raise TypeError('An AgentSampler instance has not been set')
+        if not phrase in self.sampler:
+            raise KeyError('Agent lacks AgentSampler for %s' %(phrase))
 
-        if not isinstance(self.sampler, AgentSampler):
-            raise TypeError('The sampler for agent must be instance of AgentSampler')
+        else:
+            the_sampler = self.sampler[phrase]
 
-        return self.sampler.sample(self, generation)
+        return the_sampler.sample(self, generation)
 
     def connect_to(self, other_agent, socket_id, token=None):
         '''Method to use for given agent in order to connect to a socket
@@ -797,7 +835,7 @@ class Agent(object):
         #
         # Optional sampler for agent
         #
-        self.sampler = None
+        self.sampler = {} 
 
         #
         # Organs of the agent. These are assigned with the appropriate setter

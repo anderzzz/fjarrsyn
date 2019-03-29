@@ -179,9 +179,11 @@ class AgentSampler(object):
 
         return df
 
-    def __init__(self, resource_args=None, essence_args=None, belief_args=None,
+    def __init__(self, name, 
+                 resource_args=None, essence_args=None, belief_args=None,
                  agent_matcher=None, sample_steps=1):
 
+        self.name = name
         self.indexer = ['generation', 'name', 'agent_index']
 
         for imprint_type in AGENT_IMPRINTS: 
@@ -318,10 +320,11 @@ class EnvSampler(object):
 
         return df
 
-    def __init__(self, sampler_func, 
+    def __init__(self, name, sampler_func, 
                  common_env=False, agent_matcher=None, 
                  sample_steps=1):
 
+        self.name = name
         self.sampler_func = sampler_func
         
         self.common_env = common_env
@@ -480,10 +483,12 @@ class GraphSampler(object):
 
         return network_labels_only
 
-    def __init__(self, 
+    def __init__(self, name,
                  key_occ_node=None,
                  key_unocc_node=None,
                  report_empty_to_empty=True, sample_steps=1):
+
+        self.name = name
 
         if key_occ_node is None:
             self.key_occ_ = lambda x: x.agent_content.agent_id_system

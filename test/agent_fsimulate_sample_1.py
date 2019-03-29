@@ -61,12 +61,14 @@ class Thinker(Agent):
 agent_1 = Thinker('Alpha', 10000.0, 100.0, 2.0)
 agent_2 = Thinker('Beta', 8000.0, 200.0, 5.0)
 ams = AgentManagementSystem('Pair', [agent_1, agent_2])
-agent_sampler_1 = AgentSampler(resource_args=[('Dietary energy', 'value')],
+agent_sampler_1 = AgentSampler('sampler_1',
+                               resource_args=[('Dietary energy', 'value')],
                                essence_args=[('Persistence', 'value')],
                                belief_args=[('The diameter of the world', 'value'),
                                             ('Sky colour', 'colour_name')],
                                sample_steps=2)
-agent_sampler_2 = AgentSampler(essence_args=[('Persistence', 'value')],
+agent_sampler_2 = AgentSampler('sampler_2',
+                               essence_args=[('Persistence', 'value')],
                                sample_steps=3)
 io = SystemIO([('tmp_1', agent_sampler_1, 'to_csv'),
                ('tmp_2', agent_sampler_2, 'to_json')])

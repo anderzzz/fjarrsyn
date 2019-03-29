@@ -12,6 +12,7 @@ from uuid import uuid4
 from core.agent import Agent
 from core.graph import Node
 from core.instructor import Compulsion, Mutation
+from core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
 
 class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or
@@ -658,6 +659,24 @@ class AgentManagementSystem(object):
         for law in laws:
             self.set_law(law)
 
+    def set_sampler(self, sampler):
+        '''Bla bla
+
+        '''
+        raise NotImplementedError('AMS Samplers not implemented yet')
+
+    def set_samplers(self, *samplers):
+        '''Add samplers for system
+
+        Parameters
+        ----------
+        samplers
+            Argument tuple of the samplers to add to the system.
+
+        '''
+        for sampler in samplers:
+            self.set_sampler(sampler)
+
     def bookkeep(self, agent):
         '''Add an agent to the book keeping of the agent management system
 
@@ -688,6 +707,12 @@ class AgentManagementSystem(object):
         self.bookkeep(agent)
         node.agent_content = agent
         self.node_from_agent_id_[agent.agent_id_system] = node
+
+    def sample(self, generation=0):
+        '''Bla bla
+
+        '''
+        pass
 
     def switch_node_content(self, node_1, node_2, 
                             switch_agent=True, switch_aux=True):
@@ -927,7 +952,8 @@ class AgentManagementSystem(object):
         return self.get_n_agents() 
 
     def __init__(self, name, agents, full_agents_graph=None,
-                 agent_env=None, common_env=None, strict_engine=False):
+                 agent_env=None, common_env=None, 
+                 restartable=False, strict_engine=False):
 
         self.name = name
         self.strict_engine = strict_engine
@@ -996,3 +1022,14 @@ class AgentManagementSystem(object):
         self.law = {'compulsion' : self.compulsion,
                     'mutation' : self.mutation}
         self.lawbook = {}
+
+        #
+        # Initialize system samplers
+        #
+        self.sampler = {}
+
+        #
+        # Initialize for restartable AMS
+        #
+        if restartable:
+            raise NotImplementedError('Restartable AMS not implemented')

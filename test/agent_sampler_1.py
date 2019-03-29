@@ -128,16 +128,18 @@ for node in ams:
             agent.sense('Feel microwaves')
             agent.interpret('From Freq to Object')
 
-central_a_sampler = AgentSampler(essence_args=[('Coordinator Essence', 'param_2'),
+central_a_sampler = AgentSampler('central_sampler',
+                                 essence_args=[('Coordinator Essence', 'param_2'),
                                                ('Coordinator Essence', 'param_6')],
                                  resource_args=[('Coordinator Resource', 'Energy Status')],
                                  agent_matcher=_match_c)
-leaf_a_sampler = AgentSampler(resource_args=[('Sensor Resource', 'Battery Power')],
+leaf_a_sampler = AgentSampler('leaf_sampler',
+                              resource_args=[('Sensor Resource', 'Battery Power')],
                               belief_args=[('Is There Motion', 'size'),
                                            ('Is There Motion', 'speed')],
                               agent_matcher=_match_l)
-env_sampler = EnvSampler(env_stuff, agent_matcher=_match_l)
-graph_sampler = GraphSampler(lambda x: x.name)
+env_sampler = EnvSampler('env_sampler', env_stuff, agent_matcher=_match_l)
+graph_sampler = GraphSampler('g_sampler', lambda x: x.name)
 
 io = SystemIO()
 io.set_write_rule('central', central_a_sampler, 'to_csv')

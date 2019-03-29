@@ -3,9 +3,11 @@
 '''
 from core.agent import Agent
 from core.message import Belief, Essence, Resource
-from core.instructor import Interpreter
+from core.instructor import Interpreter, Compulsion
 from core.scaffold_map import ResourceMap, MapCollection
 from core.agent_ms import AgentManagementSystem
+from core.graph import Node
+from core.sampler import AgentSampler
 
 import networkx as nx
 
@@ -53,13 +55,45 @@ class Bacteria(Agent):
 
 class Mess(AgentManagementSystem):
 
+    def boost(self):
+        return 0.25
+
     def __init__(self, name, agents, graph, a_env):
 
         super().__init__(name, agents, graph, a_env, 
-                         restartable=True, strict_engine=True)
+                         restart_path='.', strict_engine=True)
+
+        mapper = ResourceMap('Boost R1', 'delta', 'R1', ('shift',))
+        compel = Compulsion('Resource Boost', self.boost, mapper)
+        self.set_law(compel)
 
 a1 = Bacteria('bacteria 1', 1.0, 1.0, 10.0, 10.0, 0.5, 0.5)
 a2 = Bacteria('bacteria 2', 1.0, 0.5, 5.0, 6.0, 0.5, 0.5)
 a3 = Bacteria('bacteria 3', 1.1, 0.3, 10.0, 2.0, 0.9, 0.1)
+e1 = Env('environment 1', 0.1, 0.1)
+e2 = Env('environment 2', 0.2, 0.2)
+e3 = Env('environment 3', 0.3, 0.3)
+n1 = Node('first', a1, e1)
+n2 = Node('second', a2, e2)
+n3 = Node('third', a3, e3)
 
+a_graph = nx.Graph()
+a_graph.add_edge(n1, n2)
+a_graph.add_edge(n2, n3)
 
+mess = Mess('3 bacteria', [a1, a2, a3], a_graph)
+
+for agent in mess.cycle_nodes(True, 3):
+    agent.interpret('Belief and Resource Tweak')
+    mess.compel(agent, 'Resource Boost')
+
+mess.state_save('foobar.tmp')
+
+mess2 = ams_loader('foobar.tmp')
+
+for agent in mess2.cycle_nodes(True, 3):
+    agent.interpret('Belief and Resource Tweak')
+    mess2.compel(agent, 'Resource Boost')
+for agent in mess.cycle_nodes(True, 3):
+    agent.interpret('Belief and Resource Tweak')
+    mess.compel(agent, 'Resource Boost')
