@@ -64,6 +64,65 @@ class AgentSampler(object):
         If the matcher is not a callable
 
     '''
+    def sample(self, agent, generation=0):
+        '''Perform a sampling of specific agent
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent to sample with the AgentSampler
+        generation : int, optional
+            If the sampling is part of a simulation, this parameter enables to
+            provide the current generation or iteration of the sampling, such
+            that this value becomes included as meta data in the sampling
+            output
+
+        Returns
+        -------
+        d_out : dict
+            Dictionary with sampled data, key being the type of data, value the
+            data. The content of dictionary is mostly specified in the
+            initilization of the class instance. Exception is three entries
+            that specifies the agent identity (name and agent system ID) and
+            sample time (generation)
+
+        '''
+        d_out = {self.indexer[0] : generation,
+                 self.indexer[1] : agent.name,
+                 self.indexer[2] : agent.agent_id_system}
+
+        #
+        # Loop over the imprint types of an Agent
+        #
+        for imprint_type in AGENT_IMPRINTS:
+
+            args = getattr(self, imprint_type + '_args')
+            if args is None:
+                continue
+
+            #
+            # Loop over imprint names and arguments
+            #
+            for array_name, arg_name in args:
+
+                if imprint_type == 'belief': 
+                    imprint = agent.belief[array_name]
+
+                else:
+                    imprint = getattr(agent, imprint_type)
+
+                for key, value in imprint.items():
+
+                    #
+                    # If a match on all counts, construct the compact
+                    # label and retrieve the corresponding value
+                    #
+                    if key == arg_name:
+                        label = ':'.join([imprint_type, array_name, key])
+                        d_out[label] = value
+
+        return d_out
+
     def __call__(self, ams, generation=0):
         '''Perform a sampling of agents of a system
 
@@ -102,39 +161,8 @@ class AgentSampler(object):
             # If agent is supposed to be sampled, proceed here
             #
             if self.matcher(agent):
-                d_out = {self.indexer[0] : generation,
-                         self.indexer[1] : agent.name,
-                         self.indexer[2] : agent.agent_id_system}
-
-                #
-                # Loop over the imprint types of an Agent
-                #
-                for imprint_type in AGENT_IMPRINTS:
-
-                    args = getattr(self, imprint_type + '_args')
-                    if args is None:
-                        continue
-
-                    #
-                    # Loop over imprint names and arguments
-                    #
-                    for array_name, arg_name in args:
-
-                        if imprint_type == 'belief': 
-                            imprint = agent.belief[array_name]
-
-                        else:
-                            imprint = getattr(agent, imprint_type)
-
-                        for key, value in imprint.items():
-
-                            #
-                            # If a match on all counts, construct the compact
-                            # label and retrieve the corresponding value
-                            #
-                            if key == arg_name:
-                                label = ':'.join([imprint_type, array_name, key])
-                                d_out[label] = value
+                
+                d_out = self.sample(agent, generation)
 
                 df_row = Series(d_out)
                 rows.append(df_row)
