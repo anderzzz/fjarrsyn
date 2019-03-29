@@ -8,7 +8,7 @@ from collections import Iterable
 import networkx as nx
 import operator
 
-from core.agent import AGENT_IMPRINTS
+from core.constants import AGENT_IMPRINTS
 
 class AgentSampler(object):
     '''Given an Agent Management System, the state of the agents are sampled in

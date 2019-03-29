@@ -9,12 +9,9 @@ from collections import namedtuple
 from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
 from core.policy import Plan, Clause, Heartbeat
 from core.message import Resource, Essence, Feature, Buzz, Belief, Direction
+from core.sampler import AgentSampler
+from core.constants import AGENT_IMPRINTS
 
-AGENT_IMPRINTS = set(['resource', 'essence', 'belief'])
-'''The labels for agent imprints. These constants are used in other functions
-that store or sample a persistent state of an agent
-
-'''
 class SocketConnectionError(Exception):
     pass
 
@@ -559,6 +556,34 @@ class Agent(object):
 
         return still_alive
 
+    @_IsInert.check
+    def sample(self, generation=0):
+        '''Sample the agent imprints according to a sampler
+
+        Parameters
+        ----------
+        generation : int, optional
+            Meta data about when the agent is sampled. If not specified set to
+            zero.
+
+        Returns
+        -------
+        ret_data : dict
+            Dictionary with sampled data, key being the type of data, value the
+            data. The content of dictionary is mostly specified in the
+            initilization of the sampler. Exception is three entries
+            that specifies the agent identity (name and agent system ID) and
+            sample time (generation)
+
+        '''
+        if self.sampler is None:
+            raise TypeError('An AgentSampler instance has not been set')
+
+        if not isinstance(self.sampler, AgentSampler):
+            raise TypeError('The sampler for agent must be instance of AgentSampler')
+
+        return self.sampler.sample(self, generation)
+
     def connect_to(self, other_agent, socket_id, token=None):
         '''Method to use for given agent in order to connect to a socket
         of the other agent
@@ -768,6 +793,11 @@ class Agent(object):
                         'buzz' : self.buzz,
                         'direction' : self.direction,
                         'feature' : self.feature}
+
+        #
+        # Optional sampler for agent
+        #
+        self.sampler = None
 
         #
         # Organs of the agent. These are assigned with the appropriate setter
