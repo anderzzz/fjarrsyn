@@ -183,12 +183,6 @@ class AgentSampler(object):
         df : Pandas DataFrame
             A stacked pandas DataFrame of sampled agent data. 
 
-        Raises
-        ------
-        TypeError
-            If the object to sample from is neither of the Agent or
-            AgentManagementSystem class
-
         Notes
         -----
         The sampling data is in the form of a pandas DataFrame. The Pandas
@@ -197,16 +191,15 @@ class AgentSampler(object):
         the method `.to_csv('output.csv')` to the DataFrame output.
 
         '''
-        print (x_obj)
-        if True: 
+        #
+        # Agent cannot be iterated over, AgentManagementSystem can
+        #
+        if not hasattr(x_obj, '__iter__'):
             data = [self.sample_one(x_obj, generation)]
 
-        elif isinstance(x_obj, AgentManagementSystem):
+        else: 
             data = self.sample_many(x_obj, generation)
 
-        else:
-            raise TypeError('Object to sample from must be of class Agent ' + \
-                            'or AgentManagementSystem')
         #
         # 1. Create a DataFrame, pivotted, such that there is one row per agent
         # 2. Stack the data columns, such that there is one row per data entry
