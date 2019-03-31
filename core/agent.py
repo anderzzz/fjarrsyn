@@ -620,7 +620,7 @@ class Agent(object):
         else:
             the_sampler = self.sampler[phrase]
 
-        return the_sampler.sample(self, generation)
+        return the_sampler(self, generation)
 
     def connect_to(self, other_agent, socket_id, token=None):
         '''Method to use for given agent in order to connect to a socket

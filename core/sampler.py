@@ -64,7 +64,7 @@ class AgentSampler(object):
         If the matcher is not a callable
 
     '''
-    def sample(self, agent, generation=0):
+    def sample_one(self, agent, generation=0):
         '''Perform a sampling of specific agent
 
         Parameters
@@ -79,14 +79,20 @@ class AgentSampler(object):
 
         Returns
         -------
-        d_out : dict
-            Dictionary with sampled data, key being the type of data, value the
-            data. The content of dictionary is mostly specified in the
+        d_row : Series
+            Pandas Series with sampled data, index being the type of data,
+            value the data. The content of the Series is mostly specified in the
             initilization of the class instance. Exception is three entries
             that specifies the agent identity (name and agent system ID) and
             sample time (generation)
 
         '''
+        #
+        # If agent does not match criteria, return empty
+        #
+        if not self.matcher(agent):
+            return None 
+
         d_out = {self.indexer[0] : generation,
                  self.indexer[1] : agent.name,
                  self.indexer[2] : agent.agent_id_system}
@@ -121,9 +127,9 @@ class AgentSampler(object):
                         label = ':'.join([imprint_type, array_name, key])
                         d_out[label] = value
 
-        return d_out
+        return Series(d_out)
 
-    def __call__(self, ams, generation=0):
+    def sample_many(self, ams, generation=0):
         '''Perform a sampling of agents of a system
 
         Parameters
@@ -139,8 +145,49 @@ class AgentSampler(object):
 
         Returns
         -------
+        rows : list
+            List of Pandas Series, each element in the list corresponds to an
+            Agent, each Series contains data as specified in the sampler
+            initialization, see ``sample_one`` for details.
+
+        '''
+        rows = []
+        for node in ams:
+            agent = node.agent_content
+
+            if self.matcher(agent):
+                
+                df_row = self.sample_one(agent, generation)
+                rows.append(df_row)
+
+        return rows
+
+    def __call__(self, x_obj, generation=0):
+        '''Dynamic sampling of object by the AgentSampler class. The object
+        that is sampled can be a single Agent or a system of Agents contained
+        in an AgentManagementSYstem
+
+        Parameters
+        ----------
+        x_obj
+            An instance of either Agent or AgentManagementSystem from which to
+            sample specified agent data
+        generation : int, optional
+            If the sampling is part of a simulation, this parameter enables to
+            provide the current generation or iteration of the sampling, such
+            that this value becomes included as meta data in the sampling
+            output
+
+        Returns
+        -------
         df : Pandas DataFrame
             A stacked pandas DataFrame of sampled agent data. 
+
+        Raises
+        ------
+        TypeError
+            If the object to sample from is neither of the Agent or
+            AgentManagementSystem class
 
         Notes
         -----
@@ -150,29 +197,22 @@ class AgentSampler(object):
         the method `.to_csv('output.csv')` to the DataFrame output.
 
         '''
-        #
-        # Loop pver agents in system
-        #
-        rows = []
-        for node in ams:
-            agent = node.agent_content
+        print (x_obj)
+        if True: 
+            data = [self.sample_one(x_obj, generation)]
 
-            #
-            # If agent is supposed to be sampled, proceed here
-            #
-            if self.matcher(agent):
-                
-                d_out = self.sample(agent, generation)
+        elif isinstance(x_obj, AgentManagementSystem):
+            data = self.sample_many(x_obj, generation)
 
-                df_row = Series(d_out)
-                rows.append(df_row)
-
+        else:
+            raise TypeError('Object to sample from must be of class Agent ' + \
+                            'or AgentManagementSystem')
         #
         # 1. Create a DataFrame, pivotted, such that there is one row per agent
         # 2. Stack the data columns, such that there is one row per data entry
         # 3 & 4. Adjust labels and ordering of rows to be intuitive
         #
-        df = DataFrame(rows)
+        df = DataFrame(data)
         df = df.melt(id_vars=self.indexer)
         df = df.set_index(self.indexer + ['variable'])
         df = df.sort_values(self.indexer)
@@ -247,6 +287,11 @@ class EnvSampler(object):
         If the agent_matcher is not callable
 
     '''
+    def sample(self, agent, generation=0):
+        '''Bla bla
+
+        '''
+
     def __call__(self, ams, generation=0):
         '''Perform a sampling of environment of a system
 
