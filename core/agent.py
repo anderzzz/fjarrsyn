@@ -317,20 +317,21 @@ class Agent(object):
 
         Parameters
         ----------
-        sampler
+        sampler : AgentSampler
             The sampler object
 
         Raises
         ------
         TypeError
-            If the sampler input is of unknown type
+            If the sampler input is of invalid or unknown type
 
         '''
         if isinstance(sampler, AgentSampler):
             self._set('sampler', sampler.name, sampler)
 
-        elif isinstance(sampler, EnvSampler):
-            self._set('sampler', sampler.name, sampler)
+        elif isinstance(sampler, (EnvSampler, GraphSampler)):
+            raise TypeError('Environment or GraphSampler only valid ' + \
+                            'for an AgentManagementSystem, not Agent')
 
         else:
             raise TypeError('Unknown sampler type: %s' %(str(type(sampler))))
@@ -606,12 +607,9 @@ class Agent(object):
 
         Returns
         -------
-        ret_data : dict
-            Dictionary with sampled data, key being the type of data, value the
-            data. The content of dictionary is mostly specified in the
-            initilization of the sampler. Exception is three entries
-            that specifies the agent identity (name and agent system ID) and
-            sample time (generation)
+        df : Pandas DataFrame
+            A stacked pandas DataFrame of sampled agent data, indexed with data
+            keys and agent IDs and generation
 
         '''
         if not phrase in self.sampler:

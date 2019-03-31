@@ -280,10 +280,18 @@ class EnvSampler(object):
         If the agent_matcher is not callable
 
     '''
-    def sample(self, agent, generation=0):
+    def sample_one(self, agent, aux, generation=0):
         '''Bla bla
 
         '''
+        d_out = {self.indexer[0] : generation,
+                 self.indexer[1] : agent.name,
+                 self.indexer[2] : agent.agent_id_system}
+
+        data_dict = self.sampler_func(aux)
+        d_out.update(data_dict)
+
+        return Series(d_out)
 
     def __call__(self, ams, generation=0):
         '''Perform a sampling of environment of a system
@@ -336,15 +344,7 @@ class EnvSampler(object):
                 aux = node.aux_content
 
                 if self.matcher(agent): 
-                    d_out = {self.indexer[0] : generation,
-                             self.indexer[1] : agent.name,
-                             self.indexer[2] : agent.agent_id_system}
-
-                    data_dict = self.sampler_func(aux)
-                    d_out.update(data_dict)
-
-                    df_row = Series(d_out)
-                    rows.append(df_row)
+                    rows.append(self.sample_one(agent, aux, generation))
 
             #
             # 1. Create a DataFrame, pivotted, such that there is one row per agent

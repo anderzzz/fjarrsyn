@@ -663,7 +663,11 @@ class AgentManagementSystem(object):
         '''Bla bla
 
         '''
-        raise NotImplementedError('AMS Samplers not implemented yet')
+        if isinstance(sampler, (AgentSampler, GraphSampler, EnvSampler)):
+            self.sampler[sampler.name] = sampler
+
+        else:
+            raise TypeError('Unknown sampler type: %s' %(str(type(sampler))))
 
     def set_samplers(self, *samplers):
         '''Add samplers for system
@@ -708,11 +712,30 @@ class AgentManagementSystem(object):
         node.agent_content = agent
         self.node_from_agent_id_[agent.agent_id_system] = node
 
-    def sample(self, generation=0):
-        '''Bla bla
+    def sample(self, phrase, generation=0):
+        '''Sample the agent management system according to a named sampler
+
+        Parameters
+        ----------
+        phrase : str
+            Name of the sampling to perform
+        generation : int, optional
+            Meta data about when the agent management system is sampled. If not
+            specified set to zero.
+
+        Returns
+        -------
+        xxx
 
         '''
-        pass
+        if not phrase in self.sampler:
+            raise KeyError('Agent Management System lacks sampler for ' + \
+                           '%s' %(phrase))
+
+        else:
+            the_sampler = self.sampler[phrase]
+
+        return the_sampler(self, generation)
 
     def switch_node_content(self, node_1, node_2, 
                             switch_agent=True, switch_aux=True):
