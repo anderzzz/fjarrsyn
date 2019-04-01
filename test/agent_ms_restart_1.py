@@ -10,11 +10,13 @@ from core.graph import Node
 from core.sampler import AgentSampler
 
 import networkx as nx
+import pickle
 
 class Env(object):
 
-    def __init__(self, env_1, env_2):
+    def __init__(self, name, env_1, env_2):
 
+        self.name = name
         self.env_1 = env_1
         self.env_2 = env_2
 
@@ -23,7 +25,7 @@ class Bacteria(Agent):
     def belief_adj(self, b1_inp, b2_inp):
 
         b1_out = b1_inp + 0.1
-        b2_out = b2_out * (-1)
+        b2_out = b2_inp * (-1)
 
         r1_shift = -1.0 * self.essence['E1']
         r2_shift = -1.0 * self.essence['E2']
@@ -32,7 +34,7 @@ class Bacteria(Agent):
 
     def __init__(self, name, e1, e2, r1, r2, b1, b2):
 
-        super().__init__(name, True)
+        super().__init__(name, strict_engine=True)
 
         essence = Essence('Bacteria Essence', ['E1', 'E2'])
         essence.set_values([e1, e2])
@@ -43,7 +45,8 @@ class Bacteria(Agent):
         belief = Belief('Bacteria Belief', ['B1', 'B2'])
         belief.set_values([b1, b2])
 
-        self.set_messages(essence, resource, belief)
+        self.set_scaffolds(essence, resource)
+        self.set_messages(belief)
 
         metabolism_1 = ResourceMap('Eat stuff', 'delta', 'R1', ('shift',))
         metabolism_2 = ResourceMap('Eat stuff', 'delta', 'R2', ('shift',))
@@ -52,20 +55,25 @@ class Bacteria(Agent):
                                    self.belief_adj,
                                    belief, belief,
                                    metabolism)
+        self.set_organ(belief_organ)
 
 class Mess(AgentManagementSystem):
 
     def boost(self):
         return 0.25
 
-    def __init__(self, name, agents, graph, a_env):
+    def __init__(self, name, agents, graph):
 
-        super().__init__(name, agents, graph, a_env, 
-                         restart_path='.', strict_engine=True)
+        super().__init__(name, agents, graph,  
+                         strict_engine=True)
 
         mapper = ResourceMap('Boost R1', 'delta', 'R1', ('shift',))
         compel = Compulsion('Resource Boost', self.boost, mapper)
         self.set_law(compel)
+
+        all_sampler_agent
+        all_sampler_env
+        all_sampler_graph
 
 a1 = Bacteria('bacteria 1', 1.0, 1.0, 10.0, 10.0, 0.5, 0.5)
 a2 = Bacteria('bacteria 2', 1.0, 0.5, 5.0, 6.0, 0.5, 0.5)

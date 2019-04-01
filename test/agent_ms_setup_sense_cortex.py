@@ -60,7 +60,7 @@ class TestAgent(Agent):
         return the_type 
 
 
-agents_init = [TestAgent('LEFT', True), TestAgent('RIGHT', True)]
+agents_init = [TestAgent('LEFT', strict_engine=True), TestAgent('RIGHT', strict_engine=True)]
 agent_ms = TestAgentMS('pair_of_agents', agents_init)
 
 cnt = 0

@@ -17,7 +17,7 @@ def simple_decline(poison_amount_getter, doodle):
 resource = Resource('poison in body', ['amount', 'kind'])
 resource.set_values([10.0, 'mercury'])
 
-agent = Agent('thin agent', True)
+agent = Agent('thin agent', strict_engine=True)
 agent.set_scaffold(resource)
 
 ams = AgentManagementSystem('exterior laws', [agent])

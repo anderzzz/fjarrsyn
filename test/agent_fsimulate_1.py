@@ -36,7 +36,7 @@ class Thinker(Agent):
         
     def __init__(self, name, diameter_init, energy_init, essence_value):
 
-        super().__init__(name, True)
+        super().__init__(name, strict_engine=True)
 
         belief = Belief('The diameter of the world', ('value', 'precision'))
         belief.set_values([diameter_init, 10.0])

@@ -23,7 +23,7 @@ REF = [[0.0, 0.0, 0.0, 0.0, 0.0],
 essence = Essence('inclinations', ['t_1', 't_2', 't_3', 't_4', 't_5']) 
 essence.set_values([0.0, 0.0, 0.0, 0.0, 0.0])
 
-agent = Agent('thin agent', True)
+agent = Agent('thin agent', strict_engine=True)
 agent.set_scaffold(essence)
 
 ams = AgentManagementSystem('exterior laws', [agent])

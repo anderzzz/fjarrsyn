@@ -61,7 +61,7 @@ actuator1 = Actuator('collect', env.excretor, direction1, add_internal)
 #
 # Initialize Agent
 #
-agent = Agent('test_agent', True)
+agent = Agent('test_agent', strict_engine=True)
 agent.set_organ(moulder1)
 agent.set_organ(actuator1)
 agent.set_scaffold(agent_resources)

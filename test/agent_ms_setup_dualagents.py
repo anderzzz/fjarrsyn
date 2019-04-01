@@ -19,13 +19,13 @@ def farm_name_test(name):
 
 resource = Resource('harvest', ('wheat', 'rye', 'barley', 'oats'))
 resource.set_values([35.0, 12.0, 8.0, 6.0])
-agent1 = Agent('farmer Joe', True)
+agent1 = Agent('farmer Joe', strict_engine=True)
 agent1.set_scaffold(resource)
 
 resource = Resource('food producer', ('wheat', 'rye', 'barley', 'oats', 
                                       'cash_on_hand'))
 resource.set_values([0.0, 0.0, 0.0, 0.0, 100.0])
-agent2 = Agent('yummy Inc', True)
+agent2 = Agent('yummy Inc', strict_engine=True)
 agent2.set_scaffold(resource)
 
 ams = AgentManagementSystem('food market', [agent1, agent2])

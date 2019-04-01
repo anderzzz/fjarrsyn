@@ -65,7 +65,7 @@ class Teacher(Agent):
 
     def __init__(self, name):
 
-        super().__init__(name, True)
+        super().__init__(name, strict_engine=True)
 
         essence = Essence('Trusting', ('degree',))
         essence.set_values([100.0])

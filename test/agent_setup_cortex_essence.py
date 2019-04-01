@@ -47,7 +47,7 @@ cortex = Cortex('colour_revealer', expose_distort, slicer_of_essence,
 #
 # Initialize Agent
 #
-agent = Agent('test_agent', True)
+agent = Agent('test_agent', strict_engine=True)
 agent.set_organ(cortex)
 agent.set_scaffold(agent_essence)
 

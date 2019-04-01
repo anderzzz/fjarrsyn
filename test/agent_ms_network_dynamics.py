@@ -42,7 +42,7 @@ class Ant(Agent):
 
     def __init__(self, name, food_finder, rel_builder, name_try):
 
-        super().__init__(name, True)
+        super().__init__(name, strict_engine=True)
 
         essence = Essence('Ant disposition', ('food finder', 'relationship builder'))
         essence.set_values([food_finder, rel_builder])

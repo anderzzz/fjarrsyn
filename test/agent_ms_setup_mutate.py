@@ -27,7 +27,7 @@ REF = [[0.7, 1.5, 0.5],
 essence = Essence('inclinations', ['t_1', 't_2', 'volatility']) 
 essence.set_values([0.7, 1.5, 0.5])
 
-agent = Agent('thin agent', True)
+agent = Agent('thin agent', strict_engine=True)
 agent.set_scaffold(essence)
 
 ams = AgentManagementSystem('exterior laws', [agent])

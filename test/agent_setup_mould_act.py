@@ -75,7 +75,7 @@ actuator2 = Actuator('shout', env.shout_into_void, direction2)
 #
 # Initialize Agent
 #
-agent = Agent('test_agent', True)
+agent = Agent('test_agent', strict_engine=True)
 agent.set_organ(moulder1)
 agent.set_organ(moulder2)
 agent.set_organ(actuator1)

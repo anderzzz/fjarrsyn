@@ -69,7 +69,7 @@ moulder = Moulder('fetch_umbrella_type', make_decision, total_belief, direction,
 #
 # Initialize Agent
 #
-agent = Agent('test_agent', True)
+agent = Agent('test_agent', strict_engine=True)
 agent._set('buzz', 'nerve_endings', buzz)
 agent.set_organ(moulder)
 agent.set_organ(interpreter_1)

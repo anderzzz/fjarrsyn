@@ -26,7 +26,7 @@ class Bacteria(Agent):
 
     def __init__(self, name, e1, e2, r1, r2, b1, b2):
 
-        super().__init__(name, True)
+        super().__init__(name, strict_engine=True)
 
         essence = Essence('Bacteria Essence', ['E1', 'E2'])
         essence.set_values([e1, e2])
