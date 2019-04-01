@@ -798,7 +798,7 @@ class Agent(object):
         raise RuntimeError('Basic Agent class has no executive function. ' + \
                            'That should be implemented in specific agent classes.')
 
-    def __init__(self, name, strict_engine=False):
+    def __init__(self, name, agent_id_system=None, strict_engine=False):
 
         self.name = name
         self.strict_engine = strict_engine
@@ -807,7 +807,7 @@ class Agent(object):
         # Agent ID is a property of the agent assigned by the agent system 
         # manager as agents are included in the bookkeeping
         #
-        self.agent_id_system = None
+        self.agent_id_system = agent_id_system
 
         #
         # Scaffolds of the agent. There can be only one resource and one

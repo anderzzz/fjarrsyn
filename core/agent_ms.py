@@ -700,7 +700,13 @@ class AgentManagementSystem(object):
             raise TypeError('Only instances of the Agent class can be ' + \
                             'in Agent System book keeping')
 
-        agent.agent_id_system = str(uuid4())
+        if agent.agent_id_system is None:
+            agent.agent_id_system = str(uuid4())
+
+        if agent.agent_id_system in self.agents_in_scope:
+            raise KeyError('Duplicate agent ID encountered: ' + \
+                           '%s' %(agent.agent_id_system))
+
         self.agents_in_scope[agent.agent_id_system] = agent
 
     def situate(self, agent, node):
@@ -982,7 +988,7 @@ class AgentManagementSystem(object):
 
     def __init__(self, name, agents, full_agents_graph=None,
                  agent_env=None, common_env=None, 
-                 restartable=False, strict_engine=False):
+                 strict_engine=False):
 
         self.name = name
         self.strict_engine = strict_engine
@@ -1056,9 +1062,3 @@ class AgentManagementSystem(object):
         # Initialize system samplers
         #
         self.sampler = {}
-
-        #
-        # Initialize for restartable AMS
-        #
-        if restartable:
-            raise NotImplementedError('Restartable AMS not implemented')
