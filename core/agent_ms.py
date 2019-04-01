@@ -660,7 +660,13 @@ class AgentManagementSystem(object):
             self.set_law(law)
 
     def set_sampler(self, sampler):
-        '''Bla bla
+        '''Add sampler for agents, environments or agent graph of system.
+        Typically invoked with the `sample` verb
+
+        Parameters
+        ----------
+        sampler
+            Instance of a sampler to be added to the agent management system.
 
         '''
         if isinstance(sampler, (AgentSampler, GraphSampler, EnvSampler)):

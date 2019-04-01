@@ -281,12 +281,37 @@ class EnvSampler(object):
 
     '''
     def sample_one(self, agent, aux, generation=0):
-        '''Bla bla
+        '''Basic function for sampling one node environment
+
+        Parameters
+        ----------
+        agent : Agent
+            Agent content of node that is sampled. Can be None for node without
+            agent content
+        aux 
+            Environment instance
+        generation : int, optional
+            If the sampling is part of a simulation, this parameter enables to
+            provide the current generation or iteration of the sampling, such
+            that this value becomes included as meta data in the sampling
+            output
+
+        Returns
+        -------
+        d_out : Series
+            A pandas Series of sampled environment data
 
         '''
+        if agent is None:
+            ind_1 = 'unoccupied'
+            ind_2 = 'NaN'
+        else:
+            ind_1 = agent.name
+            ind_2 = agent.agent_id_system
+
         d_out = {self.indexer[0] : generation,
-                 self.indexer[1] : agent.name,
-                 self.indexer[2] : agent.agent_id_system}
+                 self.indexer[1] : ind_1,
+                 self.indexer[2] : ind_2}
 
         data_dict = self.sampler_func(aux)
         d_out.update(data_dict)
