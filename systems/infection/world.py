@@ -111,6 +111,30 @@ class World(AgentManagementSystem):
 
         return self.max_max_move, 0.0, 1.0
 
+    def save(self, save_dir):
+        '''Save World as files on disk
+
+        '''
+        def _env_sample(aux):
+            resource = aux.container
+            essence = {'inverse_rate' : aux.inverse_rate}
+            return resource.update(essence)
+
+        template_agent = self.__iter__().next()
+        imprints_all = template_agent.get_imprint_repr()
+        total_a_sampler = AgentSampler('full_a_state',
+                              resource_args=imprints_all['resource'],
+                              essence_args=imprints_all['essence'],
+                              belief_args=imprints_all['belief'])
+        total_e_sampler = EnvSampler('full_e_state', _env_sample)
+        total_g_sampler = GraphSampler('full_g_state')
+         
+        io = SystemIO()
+        io.set_write_rule(save_dir + '/save_agent_state.csv', total_a_sampler, 'to_csv')
+        io.set_write_rule(save_dir + '/save_env_state.csv', total_e_sampler, 'to_csv')
+        io.set_write_rule(save_dir + '/save_graph_state.csv', total_g_sampler, 'edgelist.write_edgelist')
+        io.try_stamp(self, 0)
+
     def __init__(self, name, agents, full_agents_graph, 
                  midpoint_max_move, max_max_move, mutate_prob,
                  resource_jump_magnitude, resource_jump_prob,
