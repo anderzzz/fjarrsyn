@@ -121,7 +121,7 @@ class Unit(Agent):
                  midpoint_tox=0.0, max_tox=0.0,
                  truthful_reveal=1.0, inverse_forget_rate=0.5):
 
-        super().__init__(name, STRICT_ENGINE)
+        super().__init__(name, strict_engine=STRICT_ENGINE)
 
         #
         # Essence

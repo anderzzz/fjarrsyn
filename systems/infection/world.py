@@ -6,6 +6,7 @@ from core.agent_ms import AgentManagementSystem
 from core.instructor import Sensor, Actuator, MultiMutation, Compulsion
 from core.message import MessageOperator
 from core.scaffold_map import EssenceMap, ResourceMap, MapCollection, universal_map_maker
+from core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
 
 import numpy as np
 
@@ -118,9 +119,13 @@ class World(AgentManagementSystem):
         def _env_sample(aux):
             resource = aux.container
             essence = {'inverse_rate' : aux.inverse_rate}
+            print (aux)
+            print (resource)
+            print (essence)
+            print (resource.update(essence))
             return resource.update(essence)
 
-        template_agent = self.__iter__().next()
+        template_agent = list(self.__iter__()).pop().agent_content
         imprints_all = template_agent.get_imprint_repr()
         total_a_sampler = AgentSampler('full_a_state',
                               resource_args=imprints_all['resource'],

@@ -112,8 +112,6 @@ def create_new_world():
 
     network = nx.relabel_nodes(network, mapping)
 
-    print (agents[0].get_imprint_repr())
-    raise RuntimeError
     #
     # Define the world
     #
@@ -128,20 +126,13 @@ if __name__ == '__main__':
 
     path_root = sys.argv[1]
 
-    #
-    # Construct or load world
-    #
-    if PICKLE_INPUT is None:
-        ww = create_new_world()
-
-    else:
-        with open(path_root + '/' + PICKLE_INPUT, 'r') as fin:
-            ww = pickle.load(fin)
+    ww = create_new_world()
 
     #
     # Define samplers
     #
-    a_sampler = AgentSampler(essence_args=[('Exterior Disposition', 'midpoint_share'),
+    a_sampler = AgentSampler('standard_agent',
+                             essence_args=[('Exterior Disposition', 'midpoint_share'),
                     ('Exterior Disposition', 'max_share'),
                     ('Exterior Disposition', 'midpoint_gulp'),
                     ('Exterior Disposition', 'max_gulp'),
@@ -152,8 +143,8 @@ if __name__ == '__main__':
                     ('Internal Resources', 'info_c'),
                     ('Internal Resources', 'bad_info')],
                              sample_steps=N_SAMPLE)
-    g_sampler = GraphSampler(sample_steps=N_SAMPLE)
-    e_sampler = EnvSampler(_extract_env_container, sample_steps=N_SAMPLE)
+    g_sampler = GraphSampler('standard_graph', sample_steps=N_SAMPLE)
+    e_sampler = EnvSampler('standard_env', _extract_env_container, sample_steps=N_SAMPLE)
 
     system_io = SystemIO([(path_root + '/agent_sample', a_sampler, 'to_csv'), 
                           (path_root + '/graph_sample', g_sampler, 'edgelist.write_edgelist'),
@@ -175,6 +166,5 @@ if __name__ == '__main__':
     #
     # Pickle the world for restarts
     #
-    with open(path_root + '/' + PICKLE_OUTPUT, 'w') as fout:
-        pickle.dump(ww, fout)
+    ww.save(path_root)
 
