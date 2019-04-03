@@ -20,7 +20,7 @@ import pickle
 '''
 '''Type and size of spatial network'''
 NETWORK_TYPE = '2d grid lattice'
-SQRT_N_AGENTS = 10 
+SQRT_N_AGENTS = 20 
 TOTAL_AGENTS = SQRT_N_AGENTS * SQRT_N_AGENTS
 
 '''Rate of decay of compounds put into environment'''
@@ -43,12 +43,6 @@ INIT_ESSENCE_POOL = [(-0.5, 0.0, -0.5, 1.0, 0.0, 0.0,
                       TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
                      (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
                       TRUTHFUL_REVEAL, INVERSE_FORGET_RATE)]
-#INIT_ESSENCE_POOL = []
-#for x in range(20):
-#    aa = list(np.random.ranf(6))
-#    aa.append(TRUTHFUL_REVEAL)
-#    aa.append(INVERSE_FORGET_RATE)
-#    INIT_ESSENCE_POOL.append(tuple(aa))
 
 '''Birth and Death parameters of agent'''
 THRS_INFO_TO_SPLIT = 2.0
@@ -60,15 +54,15 @@ MAX_MAX_MOVE = 0.5
 MUT_PROB = 0.001
 RESOURCE_JUMP_MAG = 1.0
 RESOURCE_JUMP_PROB = 0.05
-MUT_ESSENCE = []
+MUT_ESSENCE = ['share','gulp','tox']
 
 '''Simulation parameters'''
-N_ITER = 1001 
-N_SAMPLE = 100
+N_ITER = 10001 
+N_SAMPLE = 1000
 
 '''Load or Start New World'''
-LOAD_WORLD=True
-GENERATION_OFFSET=1000
+LOAD_WORLD=False
+GENERATION_OFFSET=0
 
 def _extract_env_container(aux):
     return aux.container
