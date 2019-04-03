@@ -36,7 +36,7 @@ class _Simulator(object):
         self.step_count += 1
 
     def __init__(self, system_propagator, system_propagator_kwargs={},
-                 system_io=None):
+                 system_io=None, step_offset=0):
 
         if not callable(system_propagator):
             raise TypeError("The system_propagator is not defined as a callable")
@@ -44,7 +44,7 @@ class _Simulator(object):
         self.propagate_kwargs = system_propagator_kwargs
         self.io = system_io
 
-        self.step_count = 0
+        self.step_count = step_offset
 
 class FiniteSystemRunner(_Simulator):
     '''Class to create an object that runs a simulation of an agent system
@@ -99,6 +99,7 @@ class FiniteSystemRunner(_Simulator):
                     print (self.print_progress(k_iter))
 
     def __init__(self, n_iter, system_propagator, 
+                 n_iter_init_offset=0,
                  system_io=None, progress_report_step=None,
                  system_propagator_kwargs={}):
 
@@ -108,7 +109,8 @@ class FiniteSystemRunner(_Simulator):
         self.print_progress = lambda x: '---> ' + str(x) + 'steps of total ' + \
                               str(self.n_iter) + ' have been executed'
 
-        super().__init__(system_propagator, system_propagator_kwargs, system_io)
+        super().__init__(system_propagator, system_propagator_kwargs,
+                         system_io, n_iter_init_offset)
 
 class ConditionalSystemRunner(_Simulator):
     '''A simulator of an Agent Management System where the termination criteria

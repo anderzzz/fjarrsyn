@@ -12,6 +12,7 @@ from propagation import UnitPolicy, system_propagator
 
 import networkx as nx
 import numpy as np
+import pandas as pd
 import pickle
 
 '''Parameters for running simulation
@@ -62,15 +63,116 @@ RESOURCE_JUMP_PROB = 0.05
 MUT_ESSENCE = []
 
 '''Simulation parameters'''
-N_ITER = 101 
-N_SAMPLE = 50
+N_ITER = 1001 
+N_SAMPLE = 100
 
-'''Save and load data'''
-PICKLE_OUTPUT = 'world_save_001.pkl'
-PICKLE_INPUT = None
+'''Load or Start New World'''
+LOAD_WORLD=True
+GENERATION_OFFSET=1000
 
 def _extract_env_container(aux):
     return aux.container
+
+def load_old_world(load_dir):
+
+    #
+    # Saved files
+    #
+    agent_file = load_dir + '/save_agent_state0.csv'
+    env_file = load_dir + '/save_env_state0.csv'
+    graph_file = load_dir + '/save_graph_state0.edgelist'
+
+    #
+    # Define agent intentions
+    #
+    agent_policy = UnitPolicy('One Heartbeat Step', THRS_INFO_TO_SPLIT,
+                              THRS_BAD_INFO_DEATH)
+
+    #
+    # Create populated Agents
+    #
+    df_a = pd.read_csv(agent_file)
+    gg_a = df_a.groupby('agent_index')
+    agents = {} 
+    for a_id, a_data in gg_a:
+        belief_d = {}
+        essence_d = {}
+        resource_d = {}
+
+        agent = Unit('Agent', agent_id=a_id)
+        for _, row in a_data.iterrows():
+            dd = row.to_dict()
+            xx = dd['variable'].split(':')
+
+            if xx[0] == 'belief':
+                belief_d[(xx[1], xx[2])] = dd['value']
+            if xx[0] == 'essence':
+                essence_d[xx[2]] = dd['value']
+            if xx[0] == 'resource':
+                resource_d[xx[2]] = dd['value']
+
+        essence_val = []
+        for e_key in agent.essence.keys():
+            essence_val.append(essence_d[e_key])
+
+        resource_val = []
+        for r_key in agent.resource.keys():
+            resource_val.append(resource_d[r_key])
+
+        belief_val = []
+        for b_key_1 in agent.belief:
+            for b_key_2 in agent.belief[b_key_1].keys():
+                belief_val.append(belief_d[(b_key_1, b_key_2)])
+
+        agent.essence.set_values(essence_val)
+        agent.resource.set_values(resource_val)
+        agent.belief[b_key_1].set_values(belief_val)
+        agent.set_policies(*agent_policy.all)
+
+        agents[a_id] = agent
+
+    #
+    # Create populated environments
+    #
+    df_e = pd.read_csv(env_file)
+    gg_e = df_e.groupby('agent_index')
+    envs = {}
+    for a_id, e_data in gg_e:
+        r_container = {}
+        for _, row in e_data.iterrows():
+            dd = row.to_dict()
+            r_container[dd['variable']] = dd['value']
+        env = AgentAuxEnv(**r_container)
+
+        envs[a_id] = env
+
+    #
+    # Make Nodes
+    #
+    nodes = {}
+    for a_id in agents:
+        nn = Node('', agents[a_id], envs[a_id])
+        nodes[a_id] = nn
+
+    #
+    # Make the Graph
+    #
+    graph = nx.Graph()
+    graph.add_nodes_from(nodes.values())
+    fin = open(graph_file)
+    lines = fin.read().split('\n')
+    for line in lines[:-1]:
+        xx = line.split(' ')
+        n1 = nodes[xx[0]]
+        n2 = nodes[xx[1]]
+        graph.add_edge(n1, n2)
+
+    ww = World('Agent World', agents.values(), graph,
+               MID_MAX_MOVE, MAX_MAX_MOVE, MUT_PROB,
+               RESOURCE_JUMP_MAG, RESOURCE_JUMP_PROB,
+               MUT_ESSENCE)
+
+    return ww
 
 def create_new_world():
 
@@ -126,7 +228,11 @@ if __name__ == '__main__':
 
     path_root = sys.argv[1]
 
-    ww = create_new_world()
+    if LOAD_WORLD:
+        ww = load_old_world(path_root)
+
+    else:
+        ww = create_new_world()
 
     #
     # Define samplers
@@ -154,6 +260,7 @@ if __name__ == '__main__':
     # Set up how to propagate and sample world with agents
     #
     simulator = FiniteSystemRunner(N_ITER, system_propagator,
+                    GENERATION_OFFSET,
                     system_io=system_io,
                     system_propagator_kwargs={'plan_name' : 'One Heartbeat Step'})
 
