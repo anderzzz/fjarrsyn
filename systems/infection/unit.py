@@ -115,13 +115,14 @@ class Unit(Agent):
 
         return offspring_agent, 0.5, 0.5, 0.5, 0.5
 
-    def __init__(self, name, 
+    def __init__(self, name,
                  midpoint_share=0.0, max_share=0.0,
                  midpoint_gulp=0.0, max_gulp=0.0,
                  midpoint_tox=0.0, max_tox=0.0,
-                 truthful_reveal=1.0, inverse_forget_rate=0.5):
+                 truthful_reveal=1.0, inverse_forget_rate=0.5,
+                 agent_id=None):
 
-        super().__init__(name, strict_engine=STRICT_ENGINE)
+        super().__init__(name, agent_id_system=agent_id, strict_engine=STRICT_ENGINE)
 
         #
         # Essence

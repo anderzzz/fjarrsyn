@@ -62,8 +62,8 @@ RESOURCE_JUMP_PROB = 0.05
 MUT_ESSENCE = []
 
 '''Simulation parameters'''
-N_ITER = 1001 
-N_SAMPLE = 100
+N_ITER = 101 
+N_SAMPLE = 50
 
 '''Save and load data'''
 PICKLE_OUTPUT = 'world_save_001.pkl'

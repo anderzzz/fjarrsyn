@@ -119,11 +119,10 @@ class World(AgentManagementSystem):
         def _env_sample(aux):
             resource = aux.container
             essence = {'inverse_rate' : aux.inverse_rate}
-            print (aux)
-            print (resource)
-            print (essence)
-            print (resource.update(essence))
-            return resource.update(essence)
+            ret = resource.copy()
+            ret.update(essence)
+
+            return ret 
 
         template_agent = list(self.__iter__()).pop().agent_content
         imprints_all = template_agent.get_imprint_repr()
@@ -135,9 +134,9 @@ class World(AgentManagementSystem):
         total_g_sampler = GraphSampler('full_g_state')
          
         io = SystemIO()
-        io.set_write_rule(save_dir + '/save_agent_state.csv', total_a_sampler, 'to_csv')
-        io.set_write_rule(save_dir + '/save_env_state.csv', total_e_sampler, 'to_csv')
-        io.set_write_rule(save_dir + '/save_graph_state.csv', total_g_sampler, 'edgelist.write_edgelist')
+        io.set_write_rule(save_dir + '/save_agent_state', total_a_sampler, 'to_csv')
+        io.set_write_rule(save_dir + '/save_env_state', total_e_sampler, 'to_csv')
+        io.set_write_rule(save_dir + '/save_graph_state', total_g_sampler, 'edgelist.write_edgelist')
         io.try_stamp(self, 0)
 
     def __init__(self, name, agents, full_agents_graph, 
