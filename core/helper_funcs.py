@@ -2,9 +2,7 @@
 
 '''
 import numpy as np
-
-RAPID_SHIFT_STEEPNESS = 100.0
-HORIZONTAL_SHIFT = 0.25
+from core.constants import RAPID_SHIFT_STEEPNESS
 
 def sigmoid(max_height, steepness, midpoint, up_down, x_value):
     '''Basic sigmoidal function

@@ -32,6 +32,10 @@ for nn in ams.shuffle_nodes(True, 20, True):
     stuff.append(nn.name)
 
 assert (len(stuff) == 20)
+#
+# Small chance this test fails randomly. This checks that sampling is mostly
+# uneven, but randomly it can become even.
+#
 assert (not numpy.std([stuff.count('a1'), stuff.count('a2'), 
                        stuff.count('a3'), stuff.count('a4')])<0.01)
 
