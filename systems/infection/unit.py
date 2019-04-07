@@ -53,6 +53,19 @@ class Unit(Agent):
 
         return ff
 
+    def _cmp_cooperative_feature2(self):
+        '''Bla bla
+
+        '''
+        f1 = self._cmp_frac_share(1.0)
+        f2 = min(1.0, max(0.0, 1.0 - self.essence['midpoint_share']))
+        rando = np.random.uniform()
+
+        pheno = self.essence['truthful_reveal'] * f1 * f2 + \
+                (1.0 - self.essence['truthful_reveal']) * rando
+
+        return pheno
+
     def _cmp_friendly_env(self, revealed_coop, current_belief):
         '''Update belief about environment friendliness
 
@@ -208,7 +221,7 @@ class Unit(Agent):
         # Cortex
         coop_expose = Feature('Cooperative Reveal',
                               ('coop_with_coop',))
-        cortex = Cortex('Reveal Cooperation', self._cmp_cooperative_feature,
+        cortex = Cortex('Reveal Cooperation', self._cmp_cooperative_feature2,
                         None, coop_expose)
         self.set_organ(cortex)
 
