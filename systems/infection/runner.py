@@ -57,8 +57,8 @@ RESOURCE_JUMP_PROB = 0.05
 MUT_ESSENCE = ['share','gulp','tox']
 
 '''Simulation parameters'''
-N_ITER = 10001 
-N_SAMPLE = 1000
+N_ITER = 20001 
+N_SAMPLE = 100
 
 '''Load or Start New World'''
 LOAD_WORLD=False
@@ -157,8 +157,14 @@ def load_old_world(load_dir):
     lines = fin.read().split('\n')
     for line in lines[:-1]:
         xx = line.split(' ')
-        n1 = nodes[xx[0]]
-        n2 = nodes[xx[1]]
+        if 'unocc' in xx[0]:
+            n1 = Node('', None, AgentAuxEnv(0.0, 0.0, 0.0, 0.0, ENV_DECAY_INVERSE)) 
+        else:
+            n1 = nodes[xx[0]]
+        if 'unocc' in xx[1]:
+            n2 = Node('', None, AgentAuxEnv(0.0, 0.0, 0.0, 0.0, ENV_DECAY_INVERSE)) 
+        else:
+            n2 = nodes[xx[1]]
         graph.add_edge(n1, n2)
 
     ww = World('Agent World', agents.values(), graph,

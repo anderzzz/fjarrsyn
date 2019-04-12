@@ -130,10 +130,12 @@ def main(args):
 
     df_qq_trend = trender(df)
     df_agent_groups = grouper(df)
+    df_agent_groups.to_csv('aaa.csv')
 
     idx = pd.IndexSlice
-    df = df_agent_groups.loc[idx[:, 20000, :], :]
-    print (df.groupby(['friend_type', 'ufriend_type']).count())
+    for ii in args[1:]:
+        df = df_agent_groups.loc[idx[:, int(ii), :], :]
+        print (df.groupby(['friend_type', 'ufriend_type']).count())
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
