@@ -20,45 +20,45 @@ import pickle
 '''
 '''Type and size of spatial network'''
 NETWORK_TYPE = '2d grid lattice'
-SQRT_N_AGENTS = 20 
+SQRT_N_AGENTS = 2 
 TOTAL_AGENTS = SQRT_N_AGENTS * SQRT_N_AGENTS
 
 '''Rate of decay of compounds put into environment'''
 ENV_DECAY_INVERSE = 0.0
 
+'''Birth and Death parameters of agent'''
+THRS_INFO_TO_SPLIT = 2.0
+THRS_BAD_INFO_DEATH = 2.0
+
 '''Pool of agent essence for initialization agents'''
 TRUTHFUL_REVEAL = 1.0
 INVERSE_FORGET_RATE = 0.0
 INIT_ESSENCE_POOL = [(-0.5, 0.0, -0.5, 1.0, 0.0, 0.0, 
-                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE, THRS_INFO_TO_SPLIT),
                      (-0.5, 1.0, -0.5, 1.0, 0.0, 0.0,
-                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE, THRS_INFO_TO_SPLIT),
                      (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
-                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE, THRS_INFO_TO_SPLIT),
                      (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
-                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE, THRS_INFO_TO_SPLIT),
                      (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
-                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE, THRS_INFO_TO_SPLIT),
                      (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
-                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE),
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE, THRS_INFO_TO_SPLIT),
                      (0.9, 1.0, -0.5, 1.0, 0.0, 0.0,
-                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE)]
-
-'''Birth and Death parameters of agent'''
-THRS_INFO_TO_SPLIT = 2.0
-THRS_BAD_INFO_DEATH = 2.0
+                      TRUTHFUL_REVEAL, INVERSE_FORGET_RATE, THRS_INFO_TO_SPLIT)]
 
 '''Non-Intentional System Parameters'''
 MID_MAX_MOVE = 0.5
 MAX_MAX_MOVE = 0.5
 MUT_PROB = 0.001
 RESOURCE_JUMP_MAG = 1.0
-RESOURCE_JUMP_PROB = 0.05
+RESOURCE_JUMP_PROB = 0.5
 MUT_ESSENCE = ['share','gulp','tox']
 
 '''Simulation parameters'''
-N_ITER = 20001 
-N_SAMPLE = 100
+N_ITER = 11 
+N_SAMPLE = 1
 
 '''Load or Start New World'''
 LOAD_WORLD=False
@@ -182,6 +182,12 @@ def create_new_world():
     if NETWORK_TYPE == '2d grid lattice':
         network = nx.generators.lattice.grid_2d_graph(SQRT_N_AGENTS,
                       SQRT_N_AGENTS, periodic=True)
+
+    elif NETWORK_TYPE == 'cube lattice':
+        network = nx.generators.lattice.grid_graph([CUBE_N_AGENTS,
+                                                    CUBE_N_AGENTS,
+                                                    CUBE_N_AGENTS],
+                                                    periodic=True)
 
     elif NETWORK_TYPE == 'small world':
         network = nx.generators.random_graphs.connected_watts_strogatz_graph(TOTAL_AGENTS,

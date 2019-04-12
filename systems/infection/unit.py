@@ -64,6 +64,9 @@ class Unit(Agent):
         pheno = self.essence['truthful_reveal'] * f1 * f2 + \
                 (1.0 - self.essence['truthful_reveal']) * rando
 
+        print (f1, f2)
+        print (pheno)
+
         return pheno
 
     def _cmp_friendly_env(self, revealed_coop, current_belief):
@@ -111,7 +114,7 @@ class Unit(Agent):
 
         return lies
 
-    def _cmp_offspring(self):
+    def _cmp_offspring(self, birth_delta):
         '''Generate offspring through division
 
         '''
@@ -123,16 +126,24 @@ class Unit(Agent):
 
         self.resource_reset.set_values(self.resource.values()) 
         self.resource_reset.apply_to(offspring_agent)
-        self.resource_scale.set_values([0.5, 0.5, 0.5, 0.5])
+        print (offspring_agent.resource)
+        self.resource_scale.set_values([-birth_delta, 0.5, 
+                                        -birth_delta, 0.5, 
+                                        -birth_delta, 0.5, 
+                                        0.0, 0.5])
         self.resource_scale.apply_to(offspring_agent)
+        print (offspring_agent.resource)
+        raise RuntimeError
 
-        return offspring_agent, 0.5, 0.5, 0.5, 0.5
+        return offspring_agent, -birth_delta, 0.5, -birth_delta, 0.5, \
+                                -birth_delta, 0.5, 0.0, 0.5
 
     def __init__(self, name,
                  midpoint_share=0.0, max_share=0.0,
                  midpoint_gulp=0.0, max_gulp=0.0,
                  midpoint_tox=0.0, max_tox=0.0,
                  truthful_reveal=1.0, inverse_forget_rate=0.5,
+                 birth_cost=2.0,
                  agent_id=None):
 
         super().__init__(name, agent_id_system=agent_id, strict_engine=STRICT_ENGINE)
@@ -163,7 +174,8 @@ class Unit(Agent):
 
         # Resource reset and scale map, convenience function for offspring creation
         self.resource_reset = universal_map_maker(unit_resource, 'reset', ('value',))
-        self.resource_scale = universal_map_maker(unit_resource, 'scale', ('value',))
+        self.resource_scale = universal_map_maker(unit_resource, 'delta_scale', 
+                                                  ('value1', 'value2'))
 
         # Resource operator only relating to info resource, not toxin
         unit_resource_info = MessageOperator(unit_resource, 
@@ -202,12 +214,14 @@ class Unit(Agent):
                           direction)
         self.set_organ(moulder)
 
-        split_resource = universal_map_maker(self.resource, 'scale', ('factor',))
+        split_resource = universal_map_maker(self.resource, 'delta_scale',
+                                             ('delta', 'factor',))
         direction = Direction('Offspring', ('agent_split',))
         moulder = Moulder('Create Agent Offspring', self._cmp_offspring,
                           None, 
                           direction,
-                          resource_map_output=split_resource)
+                          resource_map_output=split_resource,
+                          moulder_func_kwargs={'birth_delta':birth_cost})
         self.set_organ(moulder)
 
         direction = Direction('Lies to Eject', ('amount',))
