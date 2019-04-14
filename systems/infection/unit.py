@@ -64,9 +64,6 @@ class Unit(Agent):
         pheno = self.essence['truthful_reveal'] * f1 * f2 + \
                 (1.0 - self.essence['truthful_reveal']) * rando
 
-        print (f1, f2)
-        print (pheno)
-
         return pheno
 
     def _cmp_friendly_env(self, revealed_coop, current_belief):
@@ -126,14 +123,11 @@ class Unit(Agent):
 
         self.resource_reset.set_values(self.resource.values()) 
         self.resource_reset.apply_to(offspring_agent)
-        print (offspring_agent.resource)
         self.resource_scale.set_values([-birth_delta, 0.5, 
                                         -birth_delta, 0.5, 
                                         -birth_delta, 0.5, 
                                         0.0, 0.5])
         self.resource_scale.apply_to(offspring_agent)
-        print (offspring_agent.resource)
-        raise RuntimeError
 
         return offspring_agent, -birth_delta, 0.5, -birth_delta, 0.5, \
                                 -birth_delta, 0.5, 0.0, 0.5
@@ -235,7 +229,7 @@ class Unit(Agent):
         # Cortex
         coop_expose = Feature('Cooperative Reveal',
                               ('coop_with_coop',))
-        cortex = Cortex('Reveal Cooperation', self._cmp_cooperative_feature2,
+        cortex = Cortex('Reveal Cooperation', self._cmp_cooperative_feature,
                         None, coop_expose)
         self.set_organ(cortex)
 

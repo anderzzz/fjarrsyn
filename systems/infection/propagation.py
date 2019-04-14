@@ -11,9 +11,9 @@ class UnitPolicy(object):
         '''Bla bla
 
         '''
-        if info_a > self.thrs_info_to_split and \
-           info_b > self.thrs_info_to_split and \
-           info_c > self.thrs_info_to_split:
+        if info_a >= self.thrs_info_to_split and \
+           info_b >= self.thrs_info_to_split and \
+           info_c >= self.thrs_info_to_split:
 
             return True
 

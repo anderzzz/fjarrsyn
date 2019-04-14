@@ -19,9 +19,10 @@ import pickle
 
 '''
 '''Type and size of spatial network'''
-NETWORK_TYPE = '2d grid lattice'
-SQRT_N_AGENTS = 2 
-TOTAL_AGENTS = SQRT_N_AGENTS * SQRT_N_AGENTS
+NETWORK_TYPE = 'cube lattice'
+CUBE_N_AGENTS = 5
+#SQRT_N_AGENTS = 2 
+#TOTAL_AGENTS = SQRT_N_AGENTS * SQRT_N_AGENTS
 
 '''Rate of decay of compounds put into environment'''
 ENV_DECAY_INVERSE = 0.0
@@ -53,12 +54,12 @@ MID_MAX_MOVE = 0.5
 MAX_MAX_MOVE = 0.5
 MUT_PROB = 0.001
 RESOURCE_JUMP_MAG = 1.0
-RESOURCE_JUMP_PROB = 0.5
-MUT_ESSENCE = ['share','gulp','tox']
+RESOURCE_JUMP_PROB = 0.05
+MUT_ESSENCE = ['share','gulp']
 
 '''Simulation parameters'''
-N_ITER = 11 
-N_SAMPLE = 1
+N_ITER = 1001 
+N_SAMPLE = 100
 
 '''Load or Start New World'''
 LOAD_WORLD=False
