@@ -19,4 +19,4 @@ predators and prey, warring states etc.). The definition of the agent is
 therefore a key feature of Fjarrsyn.
 
 # Agent Definition
-.. image:: /docs/fjarrsyn_agent.jpg
+.. image:: docs/fjarrsyn_agent.jpg
