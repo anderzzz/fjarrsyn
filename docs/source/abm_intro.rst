@@ -1,19 +1,69 @@
 #####################################
-What and Why of Agent-Based Modelling
+What is Agent-Based Modelling
 #####################################
  
+This page introduces Agent-Based Modelling (ABM) and what it enables.
+
 ==================================
 Purpose of Agent-Based Modelling 
 ==================================
 Agent-Based Modelling (ABM) is a means to investigate a system of interacting 
 agents. Each agent can take actions. These actions are chosen independently by
-each agent on basis of information and resources said agent has at the moment.
-In particular the information can reflect outcomes of actions by other agents. 
+each agent on basis of information and resources said agent has at any
+given moment.
+The information can reflect one or more properties of the
+system the agent is part of. The properties of the system can in turn depend on
+the accumulated outcomes of actions by other agents of the system.
+ 
 Under these conditions, the system of agents evolves and macroscopic or 
-system-wide patterns can emerge that are not simple reflections of the intentions
-or actions of any single agent. ABM enables
+system-wide patterns can emerge that are not straight-forward reflections of 
+the intentions or actions of any single agent. ABM enables
 the study and design of these emergent phenomena as complex functions of agent and
 agent interaction properties.
+
+Examples of real-world systems that can be modelled with ABM include: 
+
+* Car traffic. Each driver decides what actions to take on basis of an
+  objective and incomplete information about the state of the roads, including
+  what other drivers are choosing to do.
+
+* Housing market. The buyers and sellers are agents in the market each 
+  seeking to meet some objective in an environment of incomplete, possibly asymmetric,
+  information about a given real-estate property as well as the intentions
+  of other buyers and sellers in the market.
+
+* Evolution of predator and prey. The agents are organisms that relate to each
+  other through death and survival, where survival strategies can proliferate as
+  agents mutate and procreate.
+
+* Geopolitics. The agents are nations or political institutions with potentially
+  conflicting objectives that each seek to exploit its information and resources
+  in order to attain their respective objectives.
+
+Neither of these systems have an all-knowing, omnipotent agent that decides the
+actions of all agents. A housing market, for example, may have rules that constrain it,
+but no single agent decides all outcomes. Evolution through natural selection
+is the archetypical system in which intricate and durable structure and 
+function exist without any single ruler that determines all.
+
+Under these circumstances a system design objective can be: what rules and 
+constraints would lead to the maximum collective utility or benefit given
+that the system is populated by agents that each attempts to maximize its
+own utility or benefit, not that of the system as a whole. 
+
+ABM is related to game theory. The latter is a theory of strategy in an
+environment of self-interested agents with potentially conflicting objectives.
+The Prisoner's Dilemma is the best known outcome of a type of game
+between two agents, where the optimal outcome for both self-interested and
+rational agents eludes them. Game theory is by design built on very
+simple agents and agent interactions. ABM enables diverse agents that are
+internally complicated engaged in a wide variety of interactions. ABM can
+therefore be used to quantitatively explore more types of systems that
+correspond better with the real-world.  
+
+============================
+Fjarrsyn ABM Library Outline
+============================
 
 Fjarrsyn is a library to perform ABM. The 
 The agent in fjarrsyn is constrained with respect to its internal structure,
