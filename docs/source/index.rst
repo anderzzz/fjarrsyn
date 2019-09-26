@@ -11,6 +11,7 @@ Welcome to fjarrsyn's documentation!
    :caption: Contents:
 
    abm_intro
+   fjarrsyn_outline
 
 
 Indices and tables

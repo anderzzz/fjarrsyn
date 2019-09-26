@@ -1,9 +1,3 @@
-#####################################
-What is Agent-Based Modelling
-#####################################
- 
-This page introduces Agent-Based Modelling (ABM) and what it enables.
-
 ==================================
 Purpose of Agent-Based Modelling 
 ==================================
@@ -20,6 +14,9 @@ system-wide patterns can emerge that are not straight-forward reflections of
 the intentions or actions of any single agent. ABM enables
 the study and design of these emergent phenomena as complex functions of agent and
 agent interaction properties.
+
+Examples of Systems
+-------------------
 
 Examples of real-world systems that can be modelled with ABM include: 
 
@@ -40,62 +37,70 @@ Examples of real-world systems that can be modelled with ABM include:
   conflicting objectives that each seek to exploit its information and resources
   in order to attain their respective objectives.
 
-Neither of these systems have an all-knowing, omnipotent agent that decides the
-actions of all agents. A housing market, for example, may have rules that constrain it,
-but no single agent decides all outcomes. Evolution through natural selection
+Emergence as the Object of Study
+--------------------------------
+
+Neither of the above examples have an all-knowing, omnipotent agent that decides the
+actions of all agents. 
+
+A housing market, for example, may have rules that constrain it,
+but no single agent dictates all outcomes. Evolution through natural selection
 is the archetypical system in which intricate and durable structure and 
-function exist without any single ruler that determines all.
+function emerges without any single ruler that determines all. 
 
-Under these circumstances a system design objective can be: what rules and 
-constraints would lead to the maximum collective utility or benefit given
-that the system is populated by agents that each attempts to maximize its
-own utility or benefit, not that of the system as a whole. Or conversely,
-given a system design, what properties of an agent lead to what emergent
-outcomes.
+*Something from nothing* is what emergence of regularity in the absence of
+an explicit instruction from above is called at times. That mechanism,
+and agent and system conditions under which a mechanism
+imply specific outcomes, are therefore objects of study suitable for ABM.
 
-Finally it is noted that ABM is related to game theory. 
-The latter is a theory of strategy in an
+In Relation to Game Theory
+--------------------------
+
+ABM is related to *game theory*. The latter is a theory of strategy in an
 environment of self-interested agents with potentially conflicting objectives.
-The Prisoner's Dilemma is the best known outcome of a type of game
+The *Prisoner's Dilemma* is the best known outcome of a type of game
 between two agents, where the optimal outcome for both self-interested and
-rational agents eludes them. Game theory is by design built on very
+rational agents eludes them. 
+
+Game theory is by design built on very
 simple agents and agent interactions. ABM enables diverse agents that are
-internally complicated engaged in a wide variety of interactions. ABM can
+internally complicated, engaged in a wide variety of interactions. ABM can
 therefore be used to quantitatively explore more types of systems that
 correspond better with the real-world of agents, information and 
-intentional actions.
+intentional actions, while any specific game theoretical theorem can
+be numerically explicated with ABM.
 
-============================
-Fjarrsyn ABM Library Outline
-============================
+In Relation to Philosophy
+-------------------------
 
-Fjarrsyn is a library to perform ABM. It is built as a very general and 
-flexible tool, such that the nature of the agents or the system they are
-part of is unconstrained by any particular domain, such as biology, markets,
-orientation and so on.
+The best way to conceptualize a human mind and how a human decides to take
+some action to alter the external world are topics of philosophy. One 
+philosophical model on this subject understands human action as an
+outcome of said human's beliefs, desires and intentions, and how these
+interact with an objective environment. This is at a high-level how
+most ABMs conceptualize the agent.
 
-In this short subsection Fjarrsyn is introduced at the highest level, and
-in subsequent sections are specific aspects documented, including tutorials.
-The description that follows in particular to Fjarrsyn and may not
-always apply to ABM in general.
+In philosophy there is an enduring debate around *free will*, which especially
+with a material understanding of the universe is greatly complicated.
+In a strict sense one can challenge how distinct the human mind is
+from the material universe, and in an extreme limit doubt the reality
+of intentions and beliefs as things in themselves. 
 
-The agent is constrained with respect to its internal structure,
-such that the logic connections between inputs, beliefs, actions etc. can be
-clearly defined, analyzed and compared. However, the functional constraints 
-implied by the structural constraints are few, therefore the agent 
-as defined in Fjarrsyn can model diverse types of domain specific agents. 
-In particular, the belief-desire-intention (BDI) type of agent can be
-modelled in Fjarrsyn.
+The fact that ABM is built on models of beliefs, intentions and how these
+(among other things) are formed within a distinct agent, does *not* 
+imply that ABM stands and falls with the truth of a particular metaphysics.
+Rather, it is the *intentional stance* that ABM is built on, that is, the
+usefulness of the conceptualization of a section of the universe as being 
+in possession of intentions as we understand how said section of
+the universe acquires a particular order. If the ground truth of how said
+order comes about is found in mechanical laws of nature and the trajectory
+the universe started out on at the Big Bang, or in a God-given soul
+and ethical reason, or some other way, is therefore immaterial to ABM. 
 
-A visual representation of key structural features and nomenclature of an
-agent is shown in the image below. The details of this image will be
-described in later sections. The image conveys how a set of messages and
-instructors connect in order to generate an agent that can interact in
-meaningful ways with its environment.
-
-.. image:: /_static/fjarrsyn_agent.jpg
-
-The system a set of agents is part of is structurally defined as a network
-of arbitrary topology. A system wherein any agents can interact with all other
-agents for example, corresponds to a fully connected network. In some 
-domains 
+However, the exact division between what aspects
+of a system under study is a property a given agent is in possession of,
+or a property of the system and external laws of which the agent is
+constrained by, does not have to be self-evident. That division will
+be a choice of the person modelling a given system and should ideally
+conform to useful conventions. This finer philosophical point 
+informs how Fjarrsyn is formulated.
