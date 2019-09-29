@@ -135,6 +135,22 @@ As noted in the Introduction the exact boundaries between what is contained
 in the various Arrays are a matter of model conventions, like what is
 intentional and what is non-intentional.
 
+Essence and Resources have functionally different roles than the 
+other types of Arrays. This will be clearly defined in subsequent 
+sections. The semantic grouping is *Scaffold* and *Message*, 
+and is illustrated in the table below.
+
++--------------------+---------------+------------------+
+|                    | Imprint       | Flash            |
++====================+===============+==================+
+| **Scaffold**       | Resource,     | ...              |
+|                    | Essence       |                  |
++--------------------+---------------+------------------+
+| **Message**        | Belief        | Buzz,            |
+|                    |               | Direction,       |
+|                    |               | Feature          |
++--------------------+---------------+------------------+
+
 Instructor Definitions
 ----------------------
 
