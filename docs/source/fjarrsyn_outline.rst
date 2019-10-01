@@ -1,5 +1,5 @@
 ================================
-Fjarrsyn ABM Library Definitions
+Fjarrsyn Library Design
 ================================
 
 Fjarrsyn is a library to perform ABM. It is built as a very general and 
@@ -7,12 +7,14 @@ flexible tool, such that the nature of the agents or the system they are
 part of is unconstrained by any particular domain, such as biology, markets,
 spatial orientation and so on.
 
+This section describes the design of Fjarrsyn, the conceptual framework
+that informs the implementation and object definitions, as well as 
+terminology. Implementation details are *not* part of this section, rather
+handled when specific classes are documented. Concepts and terminology
+defined here are used throughout the remainder of the documentation.
+
 The terminology and model constraints that are defined below are 
 particular to Fjarrsyn and may not apply to ABM in general. 
-The specific documentation of the classes, methods, attributes, and 
-other software components and how to work with these, is available
-in a section to follow. Later sections will use terminology and
-definitions introduced in this section.
 
 Agent Definition
 ----------------
@@ -218,8 +220,8 @@ A *Mutation* is a Principle that alters the Essence of an Agent. The
 Mutation is a property of the Agent System Manager (ASM), see further below,
 but it can be specifically applied to a given Agent. An example of a real-world
 function that can be modelled as a Mutation is a random mutation to the
-genetic code of an Agent or the physical degradation of a semiconductor with
-time.
+genetic code of an Agent or the continuous thermal degradation of a 
+semiconductor with time.
 
 A *Compulsion* is a Principle that alters the Resource of an Agent. The
 Compulsion is a property of the Agent System Manager (ASM), see further below,
@@ -283,16 +285,56 @@ and object. The invokation of the verb and object furthermore executes
 the scaffold map. 
 
 This chain of events for an Organ, and within which object it takes place, is
-illustrated in the swim-lane diagram below.
+illustrated in the swim-lane diagram below. 
 
 .. image:: /_static/fjarrsyn_swim_organ.png
 
-Scaffold Maps
--------------
-foo
+Each step is further exemplified 
+as an invokation of an Interpreter Organ in which a transducer signal that
+senses audio in the environment is interpreted and turned into a Belief
+about an engine failure. The interpretation requires parameters about how
+sensitive, or suspicious, the interpretation should be, wherein said parameters
+are part of the Essence of the Agent. The interpretation in the example 
+consumes battery resources, which is embodied as a Resource Map. 
 
-Agent System Manager (ASM)
---------------------------
+Scaffold Map Definition
+-----------------------
+As described in an earlier section, the scaffold of an Agent is comprised
+of the Essence and Resources of the Agent. The Agent Organs can only read
+the content of the Resources and Essence, but not *directly* alter the
+scaffold. This embodies that Organs perform *intentional* efforts. However,
+in case an intentional effort has a necessary consequence, that is 
+something not
+within the purview of the agent's intentions and choice, that part of
+the effort should be modelled distinctly from the output message of the Organ.
+
+A Scaffold Map is an *executable instruction* for how to alter either
+a Resource or an Essence. As illustrated in a figure in the previous 
+section, an Organ can populate a Scaffold Map for subsequent execution. 
+This is therefore the mechanism by which intentional efforts can imply
+necessary consequences, while maintaining a clear distinction between what
+is modelled as intentional and what is modelled as non-intentional in any
+given Agent-Based Model.
+
+Scaffold Maps are the only output from Principle Instructors, since these
+models non-intentional efforts. How they fit within the ABM in Fjarrsyn is
+further described in the section on the Agent System Manager (ASM).
+
+Agent System Manager Definition
+-------------------------------
+Bla bla
+
+Agent Network Definition
+------------------------
+Bla bla
+
+Agent Environment Definition
+----------------------------
+Bla bla
+
+Propagator and Simulator Definitions
+------------------------------------
+Bla bla
 
 
 
