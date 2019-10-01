@@ -236,11 +236,60 @@ and therefore the semantic distinction is justified.
 For simpler Agents Principles do not model any property of the system
 under study. Therefore Principles are optional features.
 
-Instructor Method Types
------------------------
+Instructor Structure and Execution
+----------------------------------
 
 In this section the internal structure of an Instructor are described and
-terminology is defined.
+terminology is defined. The image below shows the most general structure of 
+an Instructor.
+
+.. image:: /_static/fjarrsyn_instructor_structure.png
+
+The mandatory part of an Instructor is the *Engine*. This corresponds to 
+an executable.
+
+An Instructor that requires a Message as input, and yields a Message as
+output is a *transformer* Instructor. The Interpreter belongs to this
+category because it transform the content in a Buzz message into content
+of a Belief message.
+
+An Instructor that requires a Message as input, but has no Message as
+output is a *consumer* Instructor. The Actuator belongs to this
+category.
+
+An Instructor that requires a Message as output, but has no Message as
+input is a *producer* Instructor. The Sensor belongs to this
+category.
+
+Instructors can also produce a *Scaffold Map*. These are described in more
+detail below. These are executables, which when applied to the appropriate
+Scaffold alters the content as specified in the executable. An Instructor 
+that generates a Scaffold Map is called a *tangible* Instructor, while an
+Instructor without a Scaffold Map as output is called an *abstract* Instructor.
+Scaffold Map outputs can appear with or without Message inputs or outputs.
+Hence, an Instructor can for example be an abstract transformer, tangible
+transformer, tangible producer etc. Different types of Instructors enforce
+different input and output requirements.
+
+The Engine of an Instructor can access a subset of the Agent Scaffold,
+that is the Agent Resource and Essence. Note these are read-only relations.
+
+The creation of a specific Instructor therefore defines the objects that
+corresponds to each of the relevant inputs and outputs, as well as the Engine.
+That is the structure of the Instructor.
+
+An Instructor that is an Organ is executed by invoking the appropriate verb 
+and object. The invokation of the verb and object furthermore executes
+the scaffold map. 
+
+This chain of events for an Organ, and within which object it takes place, is
+illustrated in the swim-lane diagram below.
+
+.. image:: /_static/fjarrsyn_swim_organ.png
+
+Scaffold Maps
+-------------
+foo
 
 Agent System Manager (ASM)
 --------------------------
