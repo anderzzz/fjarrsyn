@@ -322,11 +322,32 @@ further described in the section on the Agent System Manager (ASM).
 
 Agent System Manager Definition
 -------------------------------
-Bla bla
+In previous sections the structure and function of an Agent are
+described. An Agent-Based Model is used to study a plurality of Agents
+interacting in some manner. An Agent System Manager (ASM) is an object
+that manages properties of the system of Agents that are not properties
+of any single Agent. The system properties are defined next, some of which
+are given more detailed descriptions in separate sections to follow.
+
+An *Environment* is an object that is external to any Agent, but which can
+be, in part or entirely, be sensed and acted upon by Agents. The Environment
+can be subdivided into objects associated to specific Agents, thus 
+modelling a local environment. The Environment can also be a single common
+object to all Agents. The Environment object or objects are owned by the ASM.
+
+An *Agent Network* is an object that defines the relative structure of
+Agents of the system. Since agents can influence each other, but not
+necessarily to the same degree due to different strength of pairwise
+association, a network or graph quantifies this relation through its topology
+and optional edge weights. An Agent Network
+is comprised of *Nodes* and *Edges*, the latter connecting a pair of the
+former.
+
+SYSTEM TRANSFORMING TOOLS
 
 Agent Network Definition
 ------------------------
-Bla bla
+ttt
 
 Agent Environment Definition
 ----------------------------
