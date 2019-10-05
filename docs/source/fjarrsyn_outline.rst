@@ -324,37 +324,65 @@ Agent System Manager Definition
 -------------------------------
 In previous sections the structure and function of an Agent are
 described. An Agent-Based Model is used to study a plurality of Agents
-interacting in some manner. An Agent System Manager (ASM) is an object
-that manages properties of the system of Agents that are not properties
-of any single Agent. The system properties are defined next, some of which
+interacting in some manner, the *agent system* or *system*. 
+An Agent System Manager (ASM) is an object
+that defines the system and methods for its management. 
+These properties include how the
+Agents relate to each other as well as anything that is not modelled as
+part of the intentional aspects of the Agents.
+
+The system properties are defined next, some of which
 are given more detailed descriptions in separate sections to follow.
+
+..image:: /_static/fjarrsyn_system_structure.png
+
+The *Agent Network* defines the relative positions of the
+Agents of the system. In the figure above the network is illustrated with 
+a line topology with three nodes.
+Since agents can influence each other, but not
+necessarily to the same degree due to different pairwise
+association or abstract proximity, a network or graph enables quantification of 
+this relation through its topology
+and optional edge weights. In the particular case where there is no variable
+degree of association or abstract proximity, the network is fully connected.
+In the general case any weighted non-directional graph can be used. The 
+network topology and node content can also change during the modelling,
+as described in more detail later.
 
 An *Environment* is an object that is external to any Agent, but which can
 be, in part or entirely, be sensed and acted upon by Agents. The Environment
 can be subdivided into objects associated to specific Agents, thus 
 modelling a local environment. The Environment can also be a single common
-object to all Agents. The Environment object or objects are owned by the ASM.
+object to all Agents. The Environment object is therefore contained in
+the same node in the Agent Network as the relevant Agent. Note that a node
+in the Agent Network can also contain only an Environment object without
+an Agent.
 
-An *Agent Network* is an object that defines the relative structure of
-Agents of the system. Since agents can influence each other, but not
-necessarily to the same degree due to different strength of pairwise
-association, a network or graph quantifies this relation through its topology
-and optional edge weights. An Agent Network
-is comprised of *Nodes* and *Edges*, the latter connecting a pair of the
-former.
+As described in an earlier section, non-intentional qualities can also alter
+the state of an Agent, referred to as Principles. Since these are not within
+the control of the Agent, the Principles are rather attributes of the ASM.
+Collectively the Principles are referred to as the ASM *Lawbook*, which 
+matches which Principles should apply to which Agents.
 
-SYSTEM TRANSFORMING TOOLS
-
-Agent Network Definition
-------------------------
-ttt
+Finally the ASM contains a number of read and write methods that can alter
+the network, environment or lawbook, or iterate over or otherwise index
+node content in useful ways.
 
 Agent Environment Definition
 ----------------------------
 Bla bla
 
-Propagator and Simulator Definitions
-------------------------------------
+Agent Policy Definition
+-----------------------
+All description so far relate to structure and methods of Agents and the ASM.
+In order to study the evolution of a system, it is necessary to propagate
+it by some rules. In this section the way to propagate a single Agent is
+described, and the other system propagation is described in the next section.
+
+
+
+System Simulator Definition
+---------------------------
 Bla bla
 
 
