@@ -427,7 +427,32 @@ Belief of the Agent. The verb that invokes a Heartbeat is *pump*.
 The image above illustrates one possible Plan. A particular verb-object
 pair A, is followed by an Auto Condition. Another verb-object pair B is
 also part of the Plan, but it is not associated with any condition. All
-possible executions of the Plan concludes with a Hearbeat. 
+possible executions of the Plan concludes with a Hearbeat.
+
+Finally, a plan is executed by an Agent through the verb *enact*. 
+
+All verbs an Agent has are summarized
+in the table below.
+
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| Agent Verb         | Object Type   | Atomic | What Invokation Accomplishes                                          |
++====================+===============+========+=======================================================================+
+| **sense**          | Sensor        | Yes    | External precept to internal Buzz                                     |
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| **interpret**      | Interpreter   | Yes    | Process internal Buzz/Belief to internal Belief                       |
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| **mould**          | Moulder       | Yes    | Process internal Belief to internal Direction                         |
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| **act**            | Actuator      | Yes    | Process internal Direction to external interaction                    |
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| **tickle**         | Cortex        | Yes    | Process internal state to external Feature. NB not for internal action|
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| **pronouce**       | Clause        | No     | Execute sequence of other Agent verbs                                 |
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| **pump**           | Heartbeat     | No     | Check internal termination condition                                  |
++--------------------+---------------+--------+-----------------------------------------------------------------------+
+| **enact**          | Plan          | No     | Execute sequence of other Agent verbs and internal imprint conditions |
++--------------------+---------------+--------+-----------------------------------------------------------------------+
 
 System Simulator Definition
 ---------------------------
