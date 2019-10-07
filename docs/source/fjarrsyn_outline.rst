@@ -53,12 +53,18 @@ A typical chain of *intentional action* for an agent can be as follows:
    the environment to the agent. Note that the Actuator can return
    something to the Agent.
 
-Semantically a chain of actions can be coded as an ordered set of verbs 
-and objects. The Sensor senses object, the Interpreter interprets 
+Semantically a chain of actions can be coded as an ordered set of 
+*verbs and objects*. The Sensor senses an external precept, 
+the Interpreter interprets 
 sensory data, the Moulder moulds direction on basis of current beliefs,
 and the Actuator acts on the environment as directed. This enables
 a compact and semantically meaningful encoding of what an Agent 
 is doing, see more later. 
+
+As described in detail below, a plurality of
+verbs and objects can be combined into *named clauses*. Therefore the
+verbs above are referred to as *atomic verbs* when it is salient to make
+the distinction.
 
 The Agent can also have non-intentional qualities. These are 
 encoded in the other entities in the above figure. Further details
@@ -280,7 +286,8 @@ The creation of a specific Instructor therefore defines the objects that
 corresponds to each of the relevant inputs and outputs, as well as the Engine.
 That is the structure of the Instructor.
 
-An Instructor that is an Organ is executed by invoking the appropriate verb 
+An Instructor that is an Organ is executed by invoking the appropriate 
+atomic verb 
 and object. The invokation of the verb and object furthermore executes
 the scaffold map. 
 
@@ -334,7 +341,7 @@ part of the intentional aspects of the Agents.
 The system properties are defined next, some of which
 are given more detailed descriptions in separate sections to follow.
 
-..image:: /_static/fjarrsyn_system_structure.png
+.. image:: /_static/fjarrsyn_system_structure.png
 
 The *Agent Network* defines the relative positions of the
 Agents of the system. In the figure above the network is illustrated with 
@@ -376,10 +383,51 @@ Agent Policy Definition
 -----------------------
 All description so far relate to structure and methods of Agents and the ASM.
 In order to study the evolution of a system, it is necessary to propagate
-it by some rules. In this section the way to propagate a single Agent is
-described, and the other system propagation is described in the next section.
+the system by some rules. In this section the propagation of a single Agent is
+described. 
 
+The executive function of an Agent, where intentional decisions are made,
+is encoded as a *Plan*. As a Plan
+is executed, a specific sequence of atomic verbs and objects are executed.
 
+A *Plan* is an execution tree object. The tree is comprised of
+*cargo* and *dependencies*. Each cargo is comprised of one or more
+verb and object pairs, which implies a specific invokation of Agent Organs.
+A unit of cargo returns a Boolean output, by default *True*. A collection
+of cargo is joined into parent-child relationships by adding dependencies,
+where the dependencies are based on the Boolean output.
+
+The verb and object pair of the cargo can be atomic verbs. Since for many
+Agent models many atomic verbs only make sense in unison with other 
+specific verbs, a convenience object *Clause* is available. The Clause
+is a named object comprised of several atomic verbs and objects. A Clause
+is invoked with the verb *pronounce* and the associated object name.
+
+The Boolean output of cargo is True unless an *Auto Condition* is defined
+and evaluated to be False. An Auto Condition is a relation with respect to
+either a Belief or a Resource of the Agent. These are the two internal
+Imprints that are transparent to the Agent as the Agent is engaged in
+intentional action. In other words the particular sequence of Organ
+invokations a Plan imply can depend explicitly on current 
+Beliefs and Resources.
+
+A plan can also contain a special-case object *Hearbeat*. The Heartbeat 
+defines a death, or termination, condition for the Agent. 
+It is possible with the tools defined so far to model an Agent
+that chooses death, and it is possible to model an Agent that is terminated
+by another external Agent. But an Agent that terminates due to a necessary
+internal condition, like exhaustion of battery power, or a random release of
+radioactive poison, has neither chosen that outcome nor had it imposed 
+from an external source. Like the Boolean output of cargo, the Hearbeat
+condition is encoded as one or several Auto Conditions for Resource or
+Belief of the Agent. The verb that invokes a Heartbeat is *pump*.
+
+.. image:: /_static/fjarrsyn_exampleplan.png
+
+The image above illustrates one possible Plan. A particular verb-object
+pair A, is followed by an Auto Condition. Another verb-object pair B is
+also part of the Plan, but it is not associated with any condition. All
+possible executions of the Plan concludes with a Hearbeat. 
 
 System Simulator Definition
 ---------------------------
