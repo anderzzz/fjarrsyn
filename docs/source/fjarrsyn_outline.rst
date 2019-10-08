@@ -1,10 +1,10 @@
 ================================
-Fjarrsyn Library Design
+Fjarrsyn Design
 ================================
 
-Fjarrsyn is a library to perform ABM. It is built as a very general and 
+Fjarrsyn is a library to perform ABM. It is built as a general and 
 flexible tool, such that the nature of the agents or the system they are
-part of is unconstrained by any particular domain, such as biology, markets,
+part of is not narrowly fit to any particular domain, such as biology, markets,
 spatial orientation and so on.
 
 This section describes the design of Fjarrsyn, the conceptual framework
@@ -12,6 +12,16 @@ that informs the implementation and object definitions, as well as
 terminology. Implementation details are *not* part of this section, rather
 handled when specific classes are documented. Concepts and terminology
 defined here are used throughout the remainder of the documentation.
+
+At a high-level of abstraction, the design splits the system across two
+binary variables: who and what. The *who* is either intentional aspects
+of the Agent, or it is non-intentional aspects of the system. This is a
+fundamental distinction of an ABM. The *what* is either structure
+or dynamics. The structure is how the state and objects of the system are
+composed and logically related, and dynamics is how the structure is
+executed in order to evolve the system over time. Therefore in the sections
+that follow, almost all design elements fit unambiguously into one of the
+four combined categories.
 
 The terminology and model constraints that are defined below are 
 particular to Fjarrsyn and may not apply to ABM in general. 
@@ -377,9 +387,18 @@ node content in useful ways.
 
 Agent Environment Definition
 ----------------------------
-Bla bla
+The Environment is not required to conform to any particular structure.
+It can be something as simple as a single variable that is read or written
+by the Sensor and Actuator engine. It can be a web-service that returns
+a range of meterological data.
 
-Agent Policy Definition
+It is therefore in the implementation of the engine of the relevant 
+Sensor or Actuator that the particular properties of the Environment are
+fit into the internal structure of the Agent. The structure of the Agent
+otherwise only has to know which environment object belongs to which
+Agent. 
+
+Agent Plan Definition
 -----------------------
 All description so far relate to structure and methods of Agents and the ASM.
 In order to study the evolution of a system, it is necessary to propagate
@@ -454,8 +473,50 @@ in the table below.
 | **enact**          | Plan          | No     | Execute sequence of other Agent verbs and internal imprint conditions |
 +--------------------+---------------+--------+-----------------------------------------------------------------------+
 
-System Simulator Definition
----------------------------
+AMS Propagation
+---------------
+Any evolving aspect of the system, not part of the internal actions of 
+the Agent, are modelled as propagation of the AMS. As defined above, the AMS
+is comprised of three distinct objects: the Agent Network, the Environment,
+and the Lawbook. Each of these can be propagated.
+
+The Lawbook is comprised of a number of Principles that can be applied to one
+or many of the Agents of the system. Therefore the propagation of the Lawbook
+is similar to the Agent Plan in that a sequence of verb-object pairs are
+invoked, for the Lawbook, however, the verbs are *compel* and *mutate*.
+
+The Agent Network can be propagated in any way a network can be transformed.
+The specific implementation of the network, as detailed in later sections,
+enables custom functionality to be written. Particular Agent Network 
+transformations included are switching an Agent from one node to another,
+changing the edge properties of the network, including breaking an edge.
+
+The Environment is as defined above very general and therefore the dynamics
+can be defined generally as well. As described in relation to specific 
+implementations, there are convenience functions that allows easy 
+implementations of standard dynamics, like Wiener processes or exponential
+decay of defined half-life.
+
+The AMS propagation contain two additional features. The order in which the
+Agents of the system are propagated can matter, since the actions of one
+Agent can alter the Environment of a second Agent, and thus making the 
+outcome dependent on the order in which the first and second Agent are
+executed. In a single-threaded execution this is reduced to how to iterate
+over the set of Agents. The AMS provides a variety of ways to do so. In a
+multi-threaded execution this is reduced to how to model the synchronicity
+of the real-world process, and how to ensure common system properties,
+are handled properly. At this time, no standard methods have been implemented
+for this.
+
+Finally, if an Agent has died or terminated due to an internal condition,
+as implemented in the Heartbeat object, the Agent is not immediately removed
+from the system. The reason is that an Agent cannot delete itself. 
+The termination of an Agent is marked with an attribute. As part of the
+propagation of the AMS, terminated Agents can be deleted from the
+system.
+
+Simulator Definition
+--------------------
 Bla bla
 
 
