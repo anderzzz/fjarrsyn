@@ -26,8 +26,13 @@ four combined categories.
 The terminology and model constraints that are defined below are 
 particular to Fjarrsyn and may not apply to ABM in general. 
 
-Agent Definition
-----------------
+Intentional Structure
+---------------------
+The Agent is the key unit in ABM. The components, and logical connections
+and constraints of the Agent design are described in the subsections below.
+
+Agent Structure
+^^^^^^^^^^^^^^^
 
 The agent is constrained with respect to its internal structure,
 such that the logic connections between inputs and outputs fit in
@@ -94,8 +99,8 @@ information and pre-dispositions are required.
 Analogous arguments apply to the connection between Belief, Moulder,
 and Actuator.
 
-Array Definitions
------------------
+Array Structure
+^^^^^^^^^^^^^^^^
 
 The types of Arrays are hierarchically defined in parent-child relations
 as represented in the figure below. In practical usage of Fjarrsyn, 
@@ -169,8 +174,8 @@ and is illustrated in the table below.
 |                    |               | Feature          |
 +--------------------+---------------+------------------+
 
-Instructor Definitions
-----------------------
+Instructor Function
+^^^^^^^^^^^^^^^^^^^^^
 
 The types of Instructors are hierarchically defined in parent-child relations
 as represented in the figure below. In practical usage of Fjarrsyn, 
@@ -254,8 +259,8 @@ and therefore the semantic distinction is justified.
 For simpler Agents Principles do not model any property of the system
 under study. Therefore Principles are optional features.
 
-Instructor Structure and Execution
-----------------------------------
+Instructor Structure
+^^^^^^^^^^^^^^^^^^^^^^
 
 In this section the internal structure of an Instructor are described and
 terminology is defined. The image below shows the most general structure of 
@@ -314,8 +319,9 @@ sensitive, or suspicious, the interpretation should be, wherein said parameters
 are part of the Essence of the Agent. The interpretation in the example 
 consumes battery resources, which is embodied as a Resource Map. 
 
-Scaffold Map Definition
------------------------
+Scaffold Map
+^^^^^^^^^^^^
+
 As described in an earlier section, the scaffold of an Agent is comprised
 of the Essence and Resources of the Agent. The Agent Organs can only read
 the content of the Resources and Essence, but not *directly* alter the
@@ -337,11 +343,15 @@ Scaffold Maps are the only output from Principle Instructors, since these
 models non-intentional efforts. How they fit within the ABM in Fjarrsyn is
 further described in the section on the Agent System Manager (ASM).
 
-Agent System Manager Definition
--------------------------------
-In previous sections the structure and function of an Agent are
-described. An Agent-Based Model is used to study a plurality of Agents
-interacting in some manner, the *agent system* or *system*. 
+Non-Intentional Structure
+--------------------------
+All structure other than the Agents are described next. This is contained
+in an Agent System Manager (ASM). Unlike the Agent, this unit of the design
+does not necessarily correspond to a real-world unit. It can be a collection
+of external geometrical and natural constraints on the actions of the Agents.
+
+Agent System Manager Structure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 An Agent System Manager (ASM) is an object
 that defines the system and methods for its management. 
 These properties include how the
@@ -385,8 +395,8 @@ Finally the ASM contains a number of read and write methods that can alter
 the network, environment or lawbook, or iterate over or otherwise index
 node content in useful ways.
 
-Agent Environment Definition
-----------------------------
+Agent Environment Structure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The Environment is not required to conform to any particular structure.
 It can be something as simple as a single variable that is read or written
 by the Sensor and Actuator engine. It can be a web-service that returns
@@ -398,13 +408,14 @@ fit into the internal structure of the Agent. The structure of the Agent
 otherwise only has to know which environment object belongs to which
 Agent. 
 
-Agent Plan Definition
------------------------
-All description so far relate to structure and methods of Agents and the ASM.
-In order to study the evolution of a system, it is necessary to propagate
-the system by some rules. In this section the propagation of a single Agent is
-described. 
+Intentional Dynamics
+---------------------
+The structure of the Agents is not sufficient to evolve the Agents. The
+manner and the order the components of the Agent are executed as processes
+over time are known as the intentional dynamics.
 
+Agent Plan
+^^^^^^^^^^^^
 The executive function of an Agent, where intentional decisions are made,
 is encoded as a *Plan*. As a Plan
 is executed, a specific sequence of atomic verbs and objects are executed.
@@ -473,8 +484,10 @@ in the table below.
 | **enact**          | Plan          | No     | Execute sequence of other Agent verbs and internal imprint conditions |
 +--------------------+---------------+--------+-----------------------------------------------------------------------+
 
-AMS Propagation
----------------
+Non-Intentional Dynamics
+-------------------------
+STRUCTURE THIS SECTION BETTER
+
 Any evolving aspect of the system, not part of the internal actions of 
 the Agent, are modelled as propagation of the AMS. As defined above, the AMS
 is comprised of three distinct objects: the Agent Network, the Environment,
@@ -514,11 +527,3 @@ from the system. The reason is that an Agent cannot delete itself.
 The termination of an Agent is marked with an attribute. As part of the
 propagation of the AMS, terminated Agents can be deleted from the
 system.
-
-Simulator Definition
---------------------
-Bla bla
-
-
-
-
