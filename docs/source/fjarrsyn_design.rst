@@ -410,9 +410,24 @@ Agent.
 
 Intentional Dynamics
 ---------------------
-The structure of the Agents is not sufficient to evolve the Agents. The
-manner and the order the components of the Agent are executed as processes
-over time are known as the intentional dynamics.
+The structure of the Agents is not sufficient to evolve the Agents. 
+The intentional dynamics of an Agent is the
+manner and order the components of the Agent are executed as processes
+over time. 
+
+.. image:: /_static/fjarrsyn_policy_top.png
+
+The different intentional dynamics of an Agent are impleneted as
+*Policy* attributes of the Agent. A Policy in turn is comprised of 
+a *Clause* or a *Heartbeat* or a *Plan* object. As described in further detail
+below, a Plan is comprised of a directional graph of Clause and Heartbeat
+objects.
+
+Clause and Auto Condition
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Heartbeat
+^^^^^^^^^
 
 Agent Plan
 ^^^^^^^^^^^^
