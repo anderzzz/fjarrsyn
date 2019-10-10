@@ -477,40 +477,50 @@ by some arithmetic operation, typically addition by 1. This is a special
 variable or resource, which models how often the Heartbeat has been 
 invoked. The value of *ticker* can be used to define a death condition as well.
 
+A Heartbeat is executed by the Agent through the verb *pump*.
+
 Agent Plan
 ^^^^^^^^^^^^
-The executive function of an Agent, where intentional decisions are made,
-is encoded as a *Plan*. As a Plan
-is executed, a specific sequence of atomic verbs and objects are executed.
+A *Plan* is a Policy that encodes a binary tree. 
+The tree is comprised of
+*cargo* and *dependencies*. Each cargo is comprised of one
+verb-object pair, which typically corresponds to the pronounciation of
+a Clause when executed.
 
-A *Plan* is an execution tree object. The tree is comprised of
-*cargo* and *dependencies*. Each cargo is comprised of one or more
-verb and object pairs, which implies a specific invokation of Agent Organs.
-A unit of cargo returns a Boolean output, by default *True*. A collection
-of cargo is joined into parent-child relationships by adding dependencies,
-where the dependencies are based on the Boolean output.
+The execution of a verb-object pair by default returns *True*. As described
+in a previous section, a Clause can return *False* in case an Auto Condition
+evaluates accordingly. 
 
-The verb and object pair of the cargo can be atomic verbs. Since for many
-Agent models many atomic verbs only make sense in unison with other 
-specific verbs, a convenience object *Clause* is available. The Clause
-is a named object comprised of several atomic verbs and objects. A Clause
-is invoked with the verb *pronounce* and the associated object name.
+A collection
+of cargo is joined into directional parent-child relationships by adding 
+dependencies, where the dependencies are based on the Boolean output following
+the execution of the content of the cargo.
 
-The Boolean output of cargo is True unless an *Auto Condition* is defined
-and evaluated to be False. An Auto Condition is a relation with respect to
-either a Belief or a Resource of the Agent.  In other words the particular sequence of Organ
-invokations a Plan imply can depend explicitly on current 
-Beliefs and Resources.
+Unlike a Clause, a Plan therefore encodes multiple mutually exclusive 
+sequences of verb-object pairs and possible Heartbeat, where each sequence
+is a product of Boolean outputs from Auto Conditions, in other words,
+conditions on Agent Resournce and Belief.
 
+For simpler Agents, Policy comprised of a Clause is sufficient, which for
+practical convenience can be how the Policy is directly defined. Plans enable
+more complex Policy.
 
-.. image:: /_static/fjarrsyn_exampleplan.png
+.. image:: /_static/fjarrsyn_plan_example.png
 
-The image above illustrates one possible Plan. A particular verb-object
-pair A, is followed by an Auto Condition. Another verb-object pair B is
-also part of the Plan, but it is not associated with any condition. All
-possible executions of the Plan concludes with a Hearbeat.
+The image above illustrates one possible Plan (left of the vertical dotted 
+line) and what it corresponds to (right of the vertical dotted line). 
+The Plan begins with pronouncing a Clause A. This Clause consists of a
+particular sequence of sense, interpret, mould and act, after which a
+condition is tested. The output of that test determines how the tree is
+traversed next. One path leads to a Heartbeat, which corresponds to
+a test of another condition. The other path leads to a Clause B, where a
+sequence of sense and interpret is defined. This Clause contains no
+Auto Condition, therefore only one path is available leading to the same
+Heartbeat object as above.
 
-Finally, a plan is executed by an Agent through the verb *enact*. 
+A particular plan is executed by an Agent through the verb *enact*. It is
+therefore possible, though not recommended, to have Plans comprised 
+of other Plans. 
 
 All verbs an Agent has are summarized
 in the table below.
