@@ -415,19 +415,67 @@ The intentional dynamics of an Agent is the
 manner and order the components of the Agent are executed as processes
 over time. 
 
-.. image:: /_static/fjarrsyn_policy_top.png
+.. image:: /_static/fjarrsyn_policy.png
 
-The different intentional dynamics of an Agent are impleneted as
+The various intentional dynamics of an Agent are impleneted as
 *Policy* attributes of the Agent. A Policy in turn is comprised of 
-a *Clause* or a *Heartbeat* or a *Plan* object. As described in further detail
-below, a Plan is comprised of a directional graph of Clause and Heartbeat
-objects.
+a *Plan* object. As described in further detail
+below, a Plan is comprised of a directional graph of *Clause* and *Heartbeat*
+objects. The Agent *enact* a Plan, which accordingly invokes verb-object
+pairs corresponding the Organs of the Agent. The enactment of a Plan can
+therefore create or update Beliefs and Resources of the Agent, and due to
+the Actuator also update the Environment of the Agent.
+
+For reasons of practical convenience, a Policy can also 
+consist of a single Clause or Heartbeat. 
+Formally this is the same as a Plan with a single node in the graph.
 
 Clause and Auto Condition
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+A Clause is comprised of a sequence of verb-object pairs, the length of
+the sequence can be one or greater. The pairs are labels that the Agent
+has associated to a particular invokation of an Organ. This part of the
+Clause is therefore only labels with no information of how the Agent
+or its Organs transform them into intentional action or meaning.
+
+A Clause can optionally conclude with an evaluation of a logical test with
+respect to Belief or Resource. These are the two internal
+Imprints that are transparent to the Agent as the Agent is engaged in
+intentional action. The logical test is encoded in an *Auto Condition* 
+object, further specialized in objects *Auto Resource Condition* and
+*Auto Belief Condition*. 
+
+By default when an Agent *pronounce* a Clause, it returns *True*, unless
+an Auto Condition is present and it evaluates to *False*.
+
+Typically the verb-object pairs of a Clause consist of atomic verbs. 
+However, it can use other verbs too, including pronouncing other Clauses.
+Hence a Clause can be nested, though it ultimately translates into the 
+one and same sequence of atomic verb-object pairs when deconvoluted.
 
 Heartbeat
 ^^^^^^^^^
+A Policy can also contain a *Hearbeat* object, which encodes a special-case
+type of dynamics. The Heartbeat 
+defines a *death condition* (or sanity condition) for the Agent. 
+It is possible with the tools defined so far to model an Agent
+that *chooses* death, and it is possible to model an Agent that is terminated
+by another external Agent. But an Agent that terminates due to a necessary
+internal condition, like exhaustion of battery power, or a random release of
+radioactive poison, has neither chosen that outcome nor had it imposed 
+from an external source. Heartbeat is therefore not really part of the
+Agent exercising intentions, however it is part of an internal logic that
+can have an impact during the course of a sequence of verb-object pairs.
+Heartbeat is therefore a feature of an Agent that does not fit perfectly
+in the abstraction used in Fjarrsyn.
+
+The death/sanity condition is in turn encoded by an Auto Condition, as
+described in the previous section.
+
+Heartbeat also contains an integer value *ticker*, which is incremented
+by some arithmetic operation, typically addition by 1. This is a special
+variable or resource, which models how often the Heartbeat has been 
+invoked. The value of *ticker* can be used to define a death condition as well.
 
 Agent Plan
 ^^^^^^^^^^^^
@@ -450,22 +498,10 @@ is invoked with the verb *pronounce* and the associated object name.
 
 The Boolean output of cargo is True unless an *Auto Condition* is defined
 and evaluated to be False. An Auto Condition is a relation with respect to
-either a Belief or a Resource of the Agent. These are the two internal
-Imprints that are transparent to the Agent as the Agent is engaged in
-intentional action. In other words the particular sequence of Organ
+either a Belief or a Resource of the Agent.  In other words the particular sequence of Organ
 invokations a Plan imply can depend explicitly on current 
 Beliefs and Resources.
 
-A plan can also contain a special-case object *Hearbeat*. The Heartbeat 
-defines a death, or termination, condition for the Agent. 
-It is possible with the tools defined so far to model an Agent
-that chooses death, and it is possible to model an Agent that is terminated
-by another external Agent. But an Agent that terminates due to a necessary
-internal condition, like exhaustion of battery power, or a random release of
-radioactive poison, has neither chosen that outcome nor had it imposed 
-from an external source. Like the Boolean output of cargo, the Hearbeat
-condition is encoded as one or several Auto Conditions for Resource or
-Belief of the Agent. The verb that invokes a Heartbeat is *pump*.
 
 .. image:: /_static/fjarrsyn_exampleplan.png
 
