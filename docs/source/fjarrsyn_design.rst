@@ -547,45 +547,62 @@ in the table below.
 
 Non-Intentional Dynamics
 -------------------------
-HOW CAN THIS BE BAKED INTO AN EXECUTION THREAD OR
-IS THAT EVEN USEFUL?
+The dynamics of the system is comprised of the agent dynamics and other
+non-intentional dynamics. The two types of dynamics can take place together,
+not necessarily one before the other. Therefore the entire system dynamics
+is designed such that it can be modelled as one unit.
 
-Any evolving aspect of the system, not part of the internal actions of 
-the Agent, are modelled as propagation of the AMS. As defined above, the AMS
-is comprised of three distinct objects: the Agent Network, the Environment,
-and the Lawbook. Each of these can be propagated.
+The system dynamics is encoded by a *Percolator* and it enacts Agent
+Plans (or other Policy) in addition to non-intentional dynamics. This aspect
+of Fjarrsyn ABM contains few constraints in order to enable modelling
+of diverse systems. The general function of a Percolator is shown in the image
+below. For convenience, simple standard Percolators are available.
 
-The Lawbook is comprised of a number of Principles that can be applied to one
-or many of the Agents of the system. Therefore the propagation of the Lawbook
-is similar to the Agent Plan in that a sequence of verb-object pairs are
-invoked, for the Lawbook, however, the verbs are *compel* and *mutate*.
+.. image:: /_static/fjarrsyn_percolator.png
 
-The Agent Network can be propagated in any way a network can be transformed.
-The specific implementation of the network, as detailed in later sections,
-enables custom functionality to be written. Particular Agent Network 
-transformations included are switching an Agent from one node to another,
-changing the edge properties of the network, including breaking an edge.
+The image above is divided into three rows. In the top row the components that
+comprises an AMS are shown, and as described in an earlier section. The
+Agent Network contains the Agents, their Environment as well as their
+relative position. The AMS also contains a Lawbook and IO Methods that
+are executables that can be applied to the Agent Network and its contents.
 
-The Environment is as defined above very general and therefore the dynamics
-can be defined generally as well. As described in relation to specific 
-implementations, there are convenience functions that allows easy 
-implementations of standard dynamics, like Wiener processes or exponential
-decay of defined half-life.
+In the second row the components of the Percolator are shown. The Engine is
+a function that takes at least the AMS as input, and hence has access to
+the components from the top row. In addition the Engine takes an optional
+set of arguments. Upon execution, the Engine of the Percolator executes
+the intentional and non-intentional dynamics.
 
-The AMS propagation contain two additional features. The order in which the
+The non-intentional dynamics can employ functionality in the Lawbook through
+the AMS verbs *compel* and *mutate*, see description of the Principle
+Instructor above.
+
+The order in which the
 Agents of the system are propagated can matter, since the actions of one
-Agent can alter the Environment of a second Agent, and thus making the 
+Agent can alter the Environment of a second Agent, and thus making the
 outcome dependent on the order in which the first and second Agent are
 executed. In a single-threaded execution this is reduced to how to iterate
-over the set of Agents. The AMS provides a variety of ways to do so. In a
+over the set of Agents. The AMS provides a variety of iterator or
+indexers to do so. In a
 multi-threaded execution this is reduced to how to model the synchronicity
 of the real-world process, and how to ensure common system properties,
 are handled properly. At this time, no standard methods have been implemented
-for this.
+for this. These model choices are contained in the Engine.
 
-Finally, if an Agent has died or terminated due to an internal condition,
+If an Agent has died or terminated due to an internal condition,
 as implemented in the Heartbeat object, the Agent is not immediately removed
-from the system. The reason is that an Agent cannot delete itself. 
+from the system. The reason is that an Agent cannot delete itself from the
+AMS.
 The termination of an Agent is marked with an attribute. As part of the
-propagation of the AMS, terminated Agents can be deleted from the
-system.
+system percolation, terminated Agents can be deleted from the
+system through a method of the AMS.
+
+In the third and final row of the image, the modified
+Agent Network is shown. This encodes the
+Agents, their Environment and relative position after all intentional and
+non-intentional dynamics have been applied. The Agent Network in the AMS is
+updated and the system has propagated one step forward in time. The dynamic
+process is ready for another iteration of percolation.
+
+From this description the Engine of the Percolator is designed to be
+very general. For convenience a set of template or standard Engines are
+provided.
