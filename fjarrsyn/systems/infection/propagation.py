@@ -1,7 +1,7 @@
 '''Unit and World propagation code
 
 '''
-from core.policy import Plan, Clause, AutoResourceCondition, Heartbeat
+from fjarrsyn.core.policy import Plan, Clause, AutoResourceCondition, Heartbeat
 
 class UnitPolicy(object):
     '''Bla bla

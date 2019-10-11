@@ -2,12 +2,13 @@
 of an agent or other scaffolded object
 
 '''
-import numpy as np
-import numpy.random
 from collections import Iterable
 
-from core.array import _Flash, _SupraArray, EmptyFlashError 
-from core.message import Resource, Essence
+import numpy as np
+import numpy.random
+
+from fjarrsyn.core.array import _Flash, _SupraArray, EmptyFlashError
+from fjarrsyn.core.message import Resource, Essence
 
 class _Map(_Flash):
     '''Base class for all scaffold maps. 

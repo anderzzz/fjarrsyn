@@ -1,16 +1,15 @@
 '''Agent unit
 
 '''
-from core.agent import Agent
-
-from core.instructor import Cortex, Interpreter, Moulder
-from core.message import Essence, Resource, Belief, Feature, \
-                         Buzz, Direction, MessageOperator
-from core.scaffold_map import universal_map_maker, MapCollection 
-
-from core.helper_funcs import sigmoid_10
-
 import numpy as np
+
+from fjarrsyn.core.agent import Agent
+
+from fjarrsyn.core.instructor import Cortex, Interpreter, Moulder
+from fjarrsyn.core.message import Essence, Resource, Belief, Feature, \
+                         Buzz, Direction, MessageOperator
+from fjarrsyn.core.scaffold_map import universal_map_maker, MapCollection
+from fjarrsyn.core.helper_funcs import sigmoid_10
 
 STRICT_ENGINE = True
 

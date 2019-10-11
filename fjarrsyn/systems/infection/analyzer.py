@@ -3,10 +3,11 @@
 '''
 import sys
 import os
+
 import numpy as np
 import pandas as pd
 
-from core.helper_funcs import sigmoid_10
+from fjarrsyn.core.helper_funcs import sigmoid_10
 
 AGENT_PREFIX = 'agent_sample'
 GRAPH_PREFIX = 'graph_sample'

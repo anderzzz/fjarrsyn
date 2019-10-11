@@ -1,12 +1,12 @@
 '''The World in which units reside, the AMS
 
 '''
-from core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.agent_ms import AgentManagementSystem
 
-from core.instructor import Sensor, Actuator, MultiMutation, Compulsion
-from core.message import MessageOperator
-from core.scaffold_map import EssenceMap, ResourceMap, MapCollection, universal_map_maker
-from core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
+from fjarrsyn.core.instructor import Sensor, Actuator, MultiMutation, Compulsion
+from fjarrsyn.core.message import MessageOperator
+from fjarrsyn.core.scaffold_map import EssenceMap, ResourceMap, MapCollection, universal_map_maker
+from fjarrsyn.core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
 
 import numpy as np
 

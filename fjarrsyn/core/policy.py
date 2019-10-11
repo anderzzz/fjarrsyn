@@ -3,8 +3,9 @@ that its potential intentions can be turned into a specific sequence of
 intentional actions
 
 '''
-import networkx as nx
 from collections import Iterable
+
+import networkx as nx
 
 class _AutoCondition(object):
     '''Parent class for automatic condition evaluation of a persistent state of

@@ -3,12 +3,13 @@ digestion, analysis or writing to disk. The samplers include agent properties,
 environment properties and system topological properties.
 
 '''
-from pandas import DataFrame, Series, Index
 from collections import Iterable
-import networkx as nx
 import operator
 
-from core.constants import AGENT_IMPRINTS
+import networkx as nx
+from pandas import DataFrame, Series, Index
+
+from fjarrsyn.core.constants import AGENT_IMPRINTS
 
 class AgentSampler(object):
     '''Given an Agent Management System, the state of the agents are sampled in

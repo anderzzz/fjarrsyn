@@ -1,10 +1,10 @@
 '''Agents of the Tragedy of Commons
 
 '''
-from core.agent import Agent
-from core.instructor import Interpreter, Moulder
-from core.message import Belief, Direction, Resource, Essence
-from core.policy import Clause, Heartbeat, AutoBeliefCondition, \
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.instructor import Interpreter, Moulder
+from fjarrsyn.core.message import Belief, Direction, Resource, Essence
+from fjarrsyn.core.policy import Clause, Heartbeat, AutoBeliefCondition, \
                         AutoResourceCondition
 
 class Village(Agent):

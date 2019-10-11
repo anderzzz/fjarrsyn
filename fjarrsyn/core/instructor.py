@@ -3,14 +3,14 @@ in order to form organs and laws of the agents. Therefore instructors are
 central to the agent-based modelling.
 
 '''
-import copy
-import numpy as np
-import numpy.random
 from collections import OrderedDict, Iterable
 
-from core.scaffold_map import ResourceMap, EssenceMap, \
+import numpy as np
+import numpy.random
+
+from fjarrsyn.core.scaffold_map import ResourceMap, EssenceMap, \
                               MapCollection, _Map
-from core.message import Buzz, Direction, Feature, \
+from fjarrsyn.core.message import Buzz, Direction, Feature, \
                          Belief, Resource, Essence, \
                          MessageOperator
 

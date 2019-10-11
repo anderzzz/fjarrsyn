@@ -4,9 +4,9 @@
 import numpy as np
 import numpy.random
 
-from core.agent_ms import AgentManagementSystem
-from core.instructor import Actuator, Compulsion
-from core.scaffold_map import ResourceMap, MapCollection
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.instructor import Actuator, Compulsion
+from fjarrsyn.core.scaffold_map import ResourceMap, MapCollection
 
 BIRTH_PROB = 0.10
 BIRTH_PROB_CAUTION = BIRTH_PROB * 0.5

@@ -2,7 +2,7 @@
 the system. 
 
 '''
-from core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.agent_ms import AgentManagementSystem
 
 class _Simulator(object):
     '''Parent class to simulators

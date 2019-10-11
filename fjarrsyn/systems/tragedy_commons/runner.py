@@ -1,9 +1,10 @@
-from core.simulator import FiniteSystemRunner
-from core.sampler import AgentSampler, EnvSampler, SystemIO
+from fjarrsyn.core.simulator import FiniteSystemRunner
+from fjarrsyn.core.sampler import AgentSampler, EnvSampler, SystemIO
 
-from propagator import Propagator
-from ams import World, Lake
-from society import Village
+from .propagator import Propagator
+from .world import World
+from .envs import Lake
+from .society import Village
 
 N_VILLAGES = 2
 

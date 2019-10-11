@@ -2,7 +2,8 @@
 
 '''
 import numpy as np
-from core.constants import RAPID_SHIFT_STEEPNESS
+
+from fjarrsyn.core.constants import RAPID_SHIFT_STEEPNESS
 
 def sigmoid(max_height, steepness, midpoint, up_down, x_value):
     '''Basic sigmoidal function

@@ -1,18 +1,18 @@
 '''Agent Management System
 
 '''
-import numpy as np
-import numpy.random
-import networkx as nx
-import itertools
-
 from collections import OrderedDict, Iterable
 from uuid import uuid4
 
-from core.agent import Agent
-from core.graph import Node
-from core.instructor import Compulsion, Mutation
-from core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
+import numpy as np
+import numpy.random
+import itertools
+import networkx as nx
+
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.graph import Node
+from fjarrsyn.core.instructor import Compulsion, Mutation
+from fjarrsyn.core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
 
 class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or

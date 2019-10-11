@@ -1,16 +1,17 @@
 '''The Agent parent class.
 
 '''
+from collections import namedtuple
 import copy
+
 import numpy
 import numpy.random
-from collections import namedtuple
 
-from core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
-from core.policy import Plan, Clause, Heartbeat
-from core.message import Resource, Essence, Feature, Buzz, Belief, Direction
-from core.sampler import AgentSampler
-from core.constants import AGENT_IMPRINTS
+from fjarrsyn.core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
+from fjarrsyn.core.policy import Plan, Clause, Heartbeat
+from fjarrsyn.core.message import Resource, Essence, Feature, Buzz, Belief, Direction
+from fjarrsyn.core.sampler import AgentSampler
+from fjarrsyn.core.constants import AGENT_IMPRINTS
 
 class SocketConnectionError(Exception):
     pass

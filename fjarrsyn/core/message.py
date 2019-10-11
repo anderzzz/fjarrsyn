@@ -1,9 +1,7 @@
 '''Message classes
 
 '''
-from collections import Iterable
-
-from core.array import _Imprint, _Flash, _ArrayOperator
+from fjarrsyn.core.array import _Imprint, _Flash, _ArrayOperator
 
 class Buzz(_Flash):
     '''The Buzz class that is used to define the output of sensors and input to

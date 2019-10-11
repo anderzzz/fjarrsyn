@@ -2,18 +2,18 @@
 
 '''
 import sys
-from core.simulator import FiniteSystemRunner
-from core.sampler import AgentSampler, GraphSampler, EnvSampler, SystemIO
-from core.graph import Node
-
-from unit import Unit, AgentAuxEnv
-from world import World
-from propagation import UnitPolicy, system_propagator 
 
 import networkx as nx
 import numpy as np
 import pandas as pd
-import pickle
+
+from fjarrsyn.core.simulator import FiniteSystemRunner
+from fjarrsyn.core.sampler import AgentSampler, GraphSampler, EnvSampler, SystemIO
+from fjarrsyn.core.graph import Node
+
+from .unit import Unit, AgentAuxEnv
+from .world import World
+from .propagation import UnitPolicy, system_propagator
 
 '''Parameters for running simulation
 

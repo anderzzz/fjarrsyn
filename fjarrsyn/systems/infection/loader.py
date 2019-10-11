@@ -5,9 +5,9 @@ import sys
 import pandas as pd
 import networkx as nx
 
-from systems.infection.unit import Unit, AgentAuxEnv
-from systems.infection.world import World
-from core.graph import Node
+from fjarrsyn.systems.infection.unit import Unit, AgentAuxEnv
+from fjarrsyn.systems.infection.world import World
+from fjarrsyn.core.graph import Node
 
 load_dir = sys.argv[1]
 
