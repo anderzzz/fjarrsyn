@@ -966,6 +966,28 @@ class AgentManagementSystem(object):
 
             self.lawbook[agent.agent_id_system] = word
 
+    def percolate(self, code_name):
+        '''Percolate the system according to a Percolator
+
+        Parameters
+        ----------
+        code_name : str
+            Name of percolator to apply to system
+
+        Raises
+        ------
+        KeyError
+            If the agent system manager has no percolator of given code name
+
+        '''
+        if not code_name in self.percolator:
+            raise KeyError('AMS lacks percolator with code name %s' %(code_name))
+
+        else:
+            the_percolator = self.percolator[code_name]
+
+        the_percolator.enacted_by(self)
+
     def get_n_nodes(self):
         '''Return number of nodes in agent graph'''
 
@@ -1062,3 +1084,8 @@ class AgentManagementSystem(object):
         # Initialize system samplers
         #
         self.sampler = {}
+
+        #
+        # Initialize system dynamics
+        #
+        self.percolator = {}
