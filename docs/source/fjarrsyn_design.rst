@@ -547,7 +547,8 @@ in the table below.
 
 Non-Intentional Dynamics
 -------------------------
-STRUCTURE THIS SECTION BETTER
+HOW CAN THIS BE BAKED INTO AN EXECUTION THREAD OR
+IS THAT EVEN USEFUL?
 
 Any evolving aspect of the system, not part of the internal actions of 
 the Agent, are modelled as propagation of the AMS. As defined above, the AMS
