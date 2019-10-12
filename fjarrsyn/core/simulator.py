@@ -35,10 +35,10 @@ class _Simulator(object):
 
     def __init__(self, system_mover, system_io=None, step_offset=0):
 
-        if not isinstance(Mover, system_mover):
+        if not isinstance(system_mover, Mover):
             raise TypeError("The system mover is of wrong type:%s" %(str(type(system_mover))))
 
-        self.mover_ = system_mover
+        self.move_ = system_mover
         self.io = system_io
 
         self.step_count = step_offset

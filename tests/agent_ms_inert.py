@@ -3,6 +3,7 @@ from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.message import Essence, Belief, Direction
 from fjarrsyn.core.instructor import Moulder, Actuator
 from fjarrsyn.core.simulator import FiniteSystemRunner
+from fjarrsyn.core.mover import Mover
 
 import numpy as np
 import numpy.random
@@ -76,7 +77,8 @@ agent_4 = Killer('maximus 4', False, 0.2, 0.2)
 coluseum = Coluseum('That Place', [agent_1, agent_2, agent_3, agent_4])
 agents_start = set(coluseum.agents_in_scope.keys())
 
-runner = FiniteSystemRunner(20, propagator)
+mover = Mover('play the game', propagator)
+runner = FiniteSystemRunner(20, mover)
 runner(coluseum)
 
 alive = set([x.agent_content.agent_id_system for x in coluseum if not x.agent_content is None])

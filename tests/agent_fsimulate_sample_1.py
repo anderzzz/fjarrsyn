@@ -11,6 +11,7 @@ from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.message import Belief, Resource, Essence
 from fjarrsyn.core.instructor import Interpreter
 from fjarrsyn.core.scaffold_map import ResourceMap
+from fjarrsyn.core.mover import Mover
 
 REF_ENERGY = [20.0, 120.0]
 REF_BELIEF = [(11874.41406, 0.625), (11241.60156, 0.625)]
@@ -73,7 +74,8 @@ agent_sampler_2 = AgentSampler('sampler_2',
 io = SystemIO([('tmp_1', agent_sampler_1, 'to_csv'),
                ('tmp_2', agent_sampler_2, 'to_json')])
 
-runner = FiniteSystemRunner(4, propagator, system_io=io)
+mover = Mover('move_thinker', propagator)
+runner = FiniteSystemRunner(4, mover, system_io=io)
 runner(ams)
 
 exist_1 = os.path.isfile('tmp_10.csv')

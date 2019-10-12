@@ -8,6 +8,7 @@ from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.message import Belief, Resource, Essence
 from fjarrsyn.core.instructor import Interpreter
 from fjarrsyn.core.scaffold_map import ResourceMap
+from fjarrsyn.core.mover import Mover
 
 REF_ENERGY = [20.0, 120.0]
 REF_BELIEF = [(11874.41406, 0.625), (11241.60156, 0.625)]
@@ -56,7 +57,8 @@ agent_1 = Thinker('Alpha', 10000.0, 100.0, 2.0)
 agent_2 = Thinker('Beta', 8000.0, 200.0, 5.0)
 ams = AgentManagementSystem('Pair', [agent_1, agent_2])
 
-runner = FiniteSystemRunner(4, propagator)
+mover = Mover('move_thinker', propagator)
+runner = FiniteSystemRunner(4, mover)
 runner(ams)
 
 assert (isclose(agent_1.resource['value'], REF_ENERGY[0]))

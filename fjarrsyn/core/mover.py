@@ -9,7 +9,7 @@ class Mover(object):
     ----------
 
     '''
-    def moved_by(self, agent_ms):
+    def __call__(self, agent_ms):
         '''Move the mover of given AMS
 
         Parameters
@@ -18,7 +18,7 @@ class Mover(object):
             The agent system manager to which the mover is to be applied
 
         '''
-        if isinstance(agent_ms, AgentManagementSystem):
+        if not isinstance(agent_ms, AgentManagementSystem):
             raise TypeError('Invalid class encountered: %s' %(str(type(agent_ms))))
 
         self.engine(agent_ms, **self.kwargs)
