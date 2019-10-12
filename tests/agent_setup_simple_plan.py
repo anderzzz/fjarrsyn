@@ -17,7 +17,7 @@ REF = ['ear','mouth','ear','ear','ear','ear','ear','mouth',
 class Env(object):
     def ear(self):
         self.env_interactions.append('ear')
-        ret = [np.sin(np.sqrt(x))**2 for x in np.random.random_integers(0,50,19)]
+        ret = [np.sin(np.sqrt(x))**2 for x in np.random.randint(0,50+1,19)]
         return (ret,)
 
     def mouth(self, words):

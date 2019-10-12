@@ -8,13 +8,13 @@ from fjarrsyn.core.instructor import Sensor, Interpreter
 from fjarrsyn.core.message import Buzz, Belief
 
 import numpy as np
-from numpy.random import random_integers
+from numpy.random import randint
 np.random.seed(79)
 
 REF_OUTCOME = [0, -1, 0, 0, 2, 3, 3, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 3] 
 
 def dice_sensor():
-    return list(random_integers(1, 6, 5))
+    return list(randint(1, 6 + 1, 5))
 
 def roll_interpreter(d1, d2, d3, d4, d5, current_joy):
     dice_values = [d1, d2, d3, d4, d5]
