@@ -5,9 +5,9 @@ import numpy as np
 import numpy.random
 np.random.seed(79)
 
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.graph import Node
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.graph import Node
 
 import networkx as nx
 

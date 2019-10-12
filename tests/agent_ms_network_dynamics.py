@@ -4,10 +4,10 @@
 import math
 import networkx as nx
 
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.instructor import Sensor, Interpreter, Moulder, Actuator, Cortex
-from core.message import Direction, Belief, Buzz, Feature, Essence
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.instructor import Sensor, Interpreter, Moulder, Actuator, Cortex
+from fjarrsyn.core.message import Direction, Belief, Buzz, Feature, Essence
 
 REF_1 = [('Ant 1', 'Ant 4'), ('Ant 1', 'Ant 2'), ('Ant 4', 'Ant 2'), ('Ant 2', 'Ant 3')]
 REF_2 = [('Ant 1', 'Ant 4'), ('Ant 1', 'Ant 2'), ('Ant 4', 'Ant 2'), ('Ant 2', 'Ant 3'), ('Ant 1', 'Ant 3')]

@@ -3,10 +3,10 @@
 '''
 import copy
 
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.message import Buzz, Belief, Direction, Essence
-from core.instructor import Sensor, Interpreter, Moulder, Actuator
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.message import Buzz, Belief, Direction, Essence
+from fjarrsyn.core.instructor import Sensor, Interpreter, Moulder, Actuator
 
 REF = [['stupid_idea', 20180731],
        ['stupid_idea', 20180731],

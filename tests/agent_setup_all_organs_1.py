@@ -1,9 +1,9 @@
 '''Integration test of agent setup including all organs from start to finish
 
 '''
-from core.instructor import Sensor, Interpreter, Moulder, Actuator, Cortex
-from core.message import Buzz, Direction, Belief, Feature
-from core.agent import Agent
+from fjarrsyn.core.instructor import Sensor, Interpreter, Moulder, Actuator, Cortex
+from fjarrsyn.core.message import Buzz, Direction, Belief, Feature
+from fjarrsyn.core.agent import Agent
 
 import numpy as np
 import numpy.random

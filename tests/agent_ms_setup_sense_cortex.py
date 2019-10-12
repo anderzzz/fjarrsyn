@@ -5,11 +5,11 @@ import numpy as np
 import numpy.random
 np.random.seed(79)
 
-from core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.agent_ms import AgentManagementSystem
 
-from core.agent import Agent
-from core.instructor import Sensor, Cortex
-from core.message import Buzz, Feature, Essence
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.instructor import Sensor, Cortex
+from fjarrsyn.core.message import Buzz, Feature, Essence
 
 REF_VALUES = [[('type_sense', 0.50078), ('honesty_sense', 0.5)],
               [('type_sense', 0.50067), ('honesty_sense', 0.2)]]

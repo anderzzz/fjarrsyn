@@ -2,12 +2,12 @@
 output Directions and Resource Maps
 
 '''
-from core.agent import Agent
+from fjarrsyn.core.agent import Agent
 
-from core.instructor import Moulder, Actuator
-from core.message import Belief, Direction, Resource, MessageOperator
-from core.scaffold_map import ResourceMap, MapCollection 
-from core.array import EmptyFlashError
+from fjarrsyn.core.instructor import Moulder, Actuator
+from fjarrsyn.core.message import Belief, Direction, Resource, MessageOperator
+from fjarrsyn.core.scaffold_map import ResourceMap, MapCollection
+from fjarrsyn.core.array import EmptyFlashError
 
 REF_REPO = [('v', 0, 1.0), ('h', -1, 0.5), ('v', -1, 1.0), ('h', 1, 0.5)]
 REF_E = [15.0, 10.0]

@@ -1,9 +1,8 @@
-from core.agent import Agent
-from core.message import Buzz, Belief, Direction, Resource, MessageOperator
-from core.instructor import Sensor, Interpreter, Moulder, Actuator, Compulsion
-from core.policy import Plan, Clause, AutoBeliefCondition, AutoResourceCondition
-from core.scaffold_map import ResourceMap
-import networkx as nx
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.message import Buzz, Belief, Direction, Resource, MessageOperator
+from fjarrsyn.core.instructor import Sensor, Interpreter, Moulder, Actuator, Compulsion
+from fjarrsyn.core.policy import Plan, Clause, AutoBeliefCondition, AutoResourceCondition
+from fjarrsyn.core.scaffold_map import ResourceMap
 
 def listen():
     return 1.0, 2.0, 3.0, -0.1

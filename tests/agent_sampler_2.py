@@ -1,11 +1,11 @@
 '''Test of sampling as method of agent and AMS 
 
 '''
-from core.agent import Agent
-from core.message import Belief, Essence, Resource
-from core.agent_ms import AgentManagementSystem
-from core.graph import Node
-from core.sampler import AgentSampler, EnvSampler, GraphSampler
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.message import Belief, Essence, Resource
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.graph import Node
+from fjarrsyn.core.sampler import AgentSampler, EnvSampler, GraphSampler
 
 import networkx as nx
 import pandas as pd

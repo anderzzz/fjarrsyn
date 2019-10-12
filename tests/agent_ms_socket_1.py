@@ -1,8 +1,8 @@
-from core.agent import Agent, Socket, SocketConnectionError
-from core.agent_ms import AgentManagementSystem
-from core.instructor import Sensor
-from core.message import Buzz
-from core.array import EmptyFlashError
+from fjarrsyn.core.agent import Agent, Socket, SocketConnectionError
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.instructor import Sensor
+from fjarrsyn.core.message import Buzz
+from fjarrsyn.core.array import EmptyFlashError
 
 class ABC(AgentManagementSystem):
 

@@ -2,10 +2,10 @@
 belief updater
 
 '''
-from core.agent import Agent
+from fjarrsyn.core.agent import Agent
 
-from core.instructor import Sensor, Interpreter
-from core.message import Buzz, Belief
+from fjarrsyn.core.instructor import Sensor, Interpreter
+from fjarrsyn.core.message import Buzz, Belief
 
 import numpy as np
 from numpy.random import random_integers

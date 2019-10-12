@@ -2,10 +2,10 @@
 as input and creates belief as output
 
 '''
-from core.agent import Agent
+from fjarrsyn.core.agent import Agent
 
-from core.instructor import Interpreter
-from core.message import Belief, MessageOperator
+from fjarrsyn.core.instructor import Interpreter
+from fjarrsyn.core.message import Belief, MessageOperator
 
 REFVALUES = ['Yes', 'Doubt it', 'YES!']
 

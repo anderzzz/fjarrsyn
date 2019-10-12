@@ -1,6 +1,6 @@
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.graph import Node
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.graph import Node
 import numpy
 
 a1 = Agent('a1')

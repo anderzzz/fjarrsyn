@@ -2,11 +2,11 @@
 certain way
 
 '''
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.message import Resource
-from core.scaffold_map import ResourceMap
-from core.instructor import Compulsion
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.message import Resource
+from fjarrsyn.core.scaffold_map import ResourceMap
+from fjarrsyn.core.instructor import Compulsion
 
 REF = [(10.0, 4.0), (4.0, 2.0), (2.0, 1.0), (1.0, 0.5), (0.5, 0.25)]
 

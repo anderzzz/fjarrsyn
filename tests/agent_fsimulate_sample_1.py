@@ -3,14 +3,14 @@
 '''
 import os
 
-from core.simulator import FiniteSystemRunner
-from core.sampler import AgentSampler, SystemIO
+from fjarrsyn.core.simulator import FiniteSystemRunner
+from fjarrsyn.core.sampler import AgentSampler, SystemIO
 
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.message import Belief, Resource, Essence
-from core.instructor import Interpreter
-from core.scaffold_map import ResourceMap
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.message import Belief, Resource, Essence
+from fjarrsyn.core.instructor import Interpreter
+from fjarrsyn.core.scaffold_map import ResourceMap
 
 REF_ENERGY = [20.0, 120.0]
 REF_BELIEF = [(11874.41406, 0.625), (11241.60156, 0.625)]

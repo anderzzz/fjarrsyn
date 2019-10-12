@@ -6,12 +6,12 @@ import numpy as np
 import numpy.random
 np.random.seed(79)
 
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.graph import Node
-from core.message import Belief, Direction, Buzz, Resource, Essence
-from core.instructor import Sensor, Interpreter, Moulder, Actuator
-from core.scaffold_map import EssenceMap, ResourceMap, universal_map_maker, \
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.graph import Node
+from fjarrsyn.core.message import Belief, Direction, Buzz, Resource, Essence
+from fjarrsyn.core.instructor import Sensor, Interpreter, Moulder, Actuator
+from fjarrsyn.core.scaffold_map import EssenceMap, ResourceMap, universal_map_maker, \
                               MapCollection
 
 SELECT = {'rude' : 0, 'loud' : 0, 'big' : 1, 'foul' : 1}

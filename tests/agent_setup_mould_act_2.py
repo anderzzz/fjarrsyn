@@ -2,12 +2,12 @@
 multi-valued resource map functions
 
 '''
-from core.agent import Agent
+from fjarrsyn.core.agent import Agent
 
-from core.instructor import Moulder, Actuator
-from core.message import Belief, Direction, Resource
-from core.scaffold_map import ResourceMap, MapCollection 
-from core.array import EmptyFlashError
+from fjarrsyn.core.instructor import Moulder, Actuator
+from fjarrsyn.core.message import Belief, Direction, Resource
+from fjarrsyn.core.scaffold_map import ResourceMap, MapCollection
+from fjarrsyn.core.array import EmptyFlashError
 
 REF = {'A' : 1.01, 'B' : 0.75, 'C' : 0.63}
 

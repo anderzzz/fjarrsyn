@@ -1,7 +1,7 @@
-from core.agent import Agent
-from core.instructor import Sensor
-from core.message import Buzz
-from core.policy import Plan
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.instructor import Sensor
+from fjarrsyn.core.message import Buzz
+from fjarrsyn.core.policy import Plan
 
 REF_ORDER = ['s1', 's2']
 

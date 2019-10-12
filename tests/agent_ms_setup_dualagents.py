@@ -2,11 +2,11 @@
 are of different types and have different laws 
 
 '''
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.message import Resource
-from core.scaffold_map import ResourceMap, MapCollection
-from core.instructor import Compulsion
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.message import Resource
+from fjarrsyn.core.scaffold_map import ResourceMap, MapCollection
+from fjarrsyn.core.instructor import Compulsion
 
 REF1 = [30.8, 10.56, 7.04, 5.28]
 REF2 = [0.0, 0.0, 0.0, 0.0, 92.0]

@@ -5,11 +5,11 @@ import numpy as np
 import numpy.random
 np.random.seed(79)
 
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.message import Essence
-from core.instructor import MultiMutation
-from core.scaffold_map import EssenceMap, MapCollection
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.message import Essence
+from fjarrsyn.core.instructor import MultiMutation
+from fjarrsyn.core.scaffold_map import EssenceMap, MapCollection
 
 def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)

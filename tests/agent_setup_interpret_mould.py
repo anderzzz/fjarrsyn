@@ -1,11 +1,11 @@
 '''Integration test of agent setup where Interpreter passes message to moulder
 
 '''
-from core.agent import Agent
+from fjarrsyn.core.agent import Agent
 
-from core.instructor import Moulder, Interpreter 
-from core.message import Buzz, Belief, Direction, Resource, MessageOperator
-from core.scaffold_map import ResourceMap
+from fjarrsyn.core.instructor import Moulder, Interpreter
+from fjarrsyn.core.message import Buzz, Belief, Direction, Resource, MessageOperator
+from fjarrsyn.core.scaffold_map import ResourceMap
 
 REF = [[True, 'yellow'], [True, 'black'], [False, None]]
 REF_RESOURCE = [93.0, 88.0, 85.0]

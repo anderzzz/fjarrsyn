@@ -5,11 +5,11 @@ import numpy as np
 import numpy.random
 np.random.seed(79)
 
-from core.agent import Agent
-from core.instructor import Sensor, Interpreter, Moulder, Actuator
-from core.message import Buzz, Belief, Direction
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.instructor import Sensor, Interpreter, Moulder, Actuator
+from fjarrsyn.core.message import Buzz, Belief, Direction
 
-from core.policy import Clause, Heartbeat, AutoBeliefCondition
+from fjarrsyn.core.policy import Clause, Heartbeat, AutoBeliefCondition
 
 REF = ['ear','mouth','ear','ear','ear','ear','ear','mouth',
        'ear','mouth','ear','ear','mouth','ear']

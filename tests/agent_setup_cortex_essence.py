@@ -6,10 +6,10 @@ import numpy as np
 import numpy.random
 np.random.seed(79)
 
-from core.agent import Agent
+from fjarrsyn.core.agent import Agent
 
-from core.instructor import Cortex 
-from core.message import Feature, Essence, MessageOperator
+from fjarrsyn.core.instructor import Cortex
+from fjarrsyn.core.message import Feature, Essence, MessageOperator
 
 REF1 = [0.9000, 0.3984, 1.0000]
 REF2 = [0.8825, 0.4160, 0.9911]

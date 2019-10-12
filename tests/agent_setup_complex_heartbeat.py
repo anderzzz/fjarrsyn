@@ -1,8 +1,8 @@
-from core.agent import Agent
-from core.instructor import Interpreter
-from core.message import Belief, Resource
-from core.scaffold_map import ResourceMap
-from core.policy import AutoResourceCondition, Heartbeat
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.instructor import Interpreter
+from fjarrsyn.core.message import Belief, Resource
+from fjarrsyn.core.scaffold_map import ResourceMap
+from fjarrsyn.core.policy import AutoResourceCondition, Heartbeat
 
 REF_B1 = [1,2,3,3]
 REF_I1 = [False, False, False, True]

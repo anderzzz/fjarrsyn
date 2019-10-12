@@ -1,10 +1,10 @@
 '''Integration test of various agent and system sampling scenarios
 
 '''
-from core.agent import Agent
-from core.agent_ms import AgentManagementSystem
-from core.message import Belief, Essence, Resource
-from core.graph import Node
+from fjarrsyn.core.agent import Agent
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.message import Belief, Essence, Resource
+from fjarrsyn.core.graph import Node
 
 import networkx as nx
 
