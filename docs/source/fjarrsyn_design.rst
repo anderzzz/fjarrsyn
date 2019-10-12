@@ -552,13 +552,13 @@ non-intentional dynamics. The two types of dynamics can take place together,
 not necessarily one before the other. Therefore the entire system dynamics
 is designed such that it can be modelled as one unit.
 
-The system dynamics is encoded by a *Percolator* and it enacts Agent
+The system dynamics is encoded by a *Mover* and it enacts Agent
 Plans (or other Policy) in addition to non-intentional dynamics. This aspect
 of Fjarrsyn ABM contains few constraints in order to enable modelling
-of diverse systems. The general function of a Percolator is shown in the image
-below. For convenience, simple standard Percolators are available.
+of diverse systems. The general function of a Mover is shown in the image
+below. For convenience, simple standard Movers are available.
 
-.. image:: /_static/fjarrsyn_percolator.png
+.. image:: /_static/fjarrsyn_mover.png
 
 The image above is divided into three rows. In the top row the components that
 comprises an AMS are shown, and as described in an earlier section. The
@@ -566,10 +566,10 @@ Agent Network contains the Agents, their Environment as well as their
 relative position. The AMS also contains a Lawbook and IO Methods that
 are executables that can be applied to the Agent Network and its contents.
 
-In the second row the components of the Percolator are shown. The Engine is
+In the second row the components of the Mover are shown. The Engine is
 a function that takes at least the AMS as input, and hence has access to
 the components from the top row. In addition the Engine takes an optional
-set of arguments. Upon execution, the Engine of the Percolator executes
+set of arguments. Upon execution, the Engine of the Mover executes
 the intentional and non-intentional dynamics.
 
 The non-intentional dynamics can employ functionality in the Lawbook through
@@ -593,7 +593,7 @@ as implemented in the Heartbeat object, the Agent is not immediately removed
 from the system. The reason is that an Agent cannot delete itself from the
 AMS.
 The termination of an Agent is marked with an attribute. As part of the
-system percolation, terminated Agents can be deleted from the
+system movement, terminated Agents can be deleted from the
 system through a method of the AMS.
 
 In the third and final row of the image, the modified
@@ -601,8 +601,8 @@ Agent Network is shown. This encodes the
 Agents, their Environment and relative position after all intentional and
 non-intentional dynamics have been applied. The Agent Network in the AMS is
 updated and the system has propagated one step forward in time. The dynamic
-process is ready for another iteration of percolation.
+process is ready for another iteration of movement.
 
-From this description the Engine of the Percolator is designed to be
+From this description the Engine of the Mover is designed to be
 very general. For convenience a set of template or standard Engines are
 provided.

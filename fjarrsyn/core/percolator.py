@@ -1,35 +1,35 @@
-'''The Percolator Parent Class'''
+'''The Mover Parent Class'''
 
-class Percolator(object):
-    '''Base class for all Percolators to move an agent system forward
+class Mover(object):
+    '''Base class for all Movers to move an agent system forward
 
     Parameters
     ----------
 
     '''
     def enacted_by(self, agent_ms):
-        '''Enact percolator to given AMS
+        '''Enact mover to given AMS
 
         Parameters
         ----------
         agent_ms : AgentSystemManager
-            The agent system manager to which the percolator is to be applied
+            The agent system manager to which the mover is to be applied
 
         '''
         self.func(agent_ms, **self.func_kwargs)
 
-    def __init__(self, name, func, func_kwargs):
+    def __init__(self, name, engine, engine_kwargs={}):
 
         self.name = name
 
-        if not callable(func):
-            raise TypeError('Function to Percolator is not an executable')
-        self.func = func
-        self.func_kwargs = func_kwargs
+        if not callable(engine):
+            raise TypeError('Function to Mover is not an executable')
+        self.engine = engine
+        self.engine_kwargs = engine_kwargs
 
 
-class StandardPercolatorFunc(object):
-    '''Convenience class to create standard percolator functions
+class StandardMoverFunc(object):
+    '''Convenience class to create standard Mover functions
 
     '''
     def __call__(self, kwargs):
