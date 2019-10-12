@@ -3,17 +3,15 @@ the system.
 
 '''
 from fjarrsyn.core.agent_ms import AgentManagementSystem
+from fjarrsyn.core.mover import Mover
 
 class _Simulator(object):
     '''Parent class to simulators
 
     Parameters
     ----------
-    system_propagator : callable
-        A callable object, such as a function or class instance, that specifies
-        how the agent system is propagated
-    system_propagator_kwargs : dict, optional
-        Named argument dictionary to the `system_propagator`
+    system_mover : Mover
+        The callable Mover of the AMS that implements the system dynamics
     system_io : SystemIO, optional
         An instance of the SystemIO class that defines what system data to
         sample and how to write it to disk
@@ -21,7 +19,7 @@ class _Simulator(object):
     '''
     def step(self, system):
         '''Take on step forward of the system as defined by the system
-        propagator, and if appropriate, sample system data and write to disk
+        mover, and if appropriate, sample system data and write to disk
 
         Parameters
         ----------
@@ -29,26 +27,25 @@ class _Simulator(object):
             The system to simulate
 
         '''
-        self.propagate_(system, **self.propagate_kwargs)
+        self.move_(system)
         if not self.io is None:
             self.io.try_stamp(system, self.step_count)
 
         self.step_count += 1
 
-    def __init__(self, system_propagator, system_propagator_kwargs={},
-                 system_io=None, step_offset=0):
+    def __init__(self, system_mover, system_io=None, step_offset=0):
 
-        if not callable(system_propagator):
-            raise TypeError("The system_propagator is not defined as a callable")
-        self.propagate_ = system_propagator
-        self.propagate_kwargs = system_propagator_kwargs
+        if not isinstance(Mover, system_mover):
+            raise TypeError("The system mover is of wrong type:%s" %(str(type(system_mover))))
+
+        self.mover_ = system_mover
         self.io = system_io
 
         self.step_count = step_offset
 
 class FiniteSystemRunner(_Simulator):
     '''Class to create an object that runs a simulation of an agent system
-    using a system specific propagator. The class handles sampling of data at
+    using a system specific mover. The class handles sampling of data at
     a set interval, including agent state and agent graph relations. The
     simulation involves a finite number of steps
 
@@ -56,7 +53,7 @@ class FiniteSystemRunner(_Simulator):
     ----------
     n_iter : int
         Total number of iterations to simulate. Each iteration implies one
-        propagation, which means if the propagator includes multiple agent
+        propagation, which means if the mover includes multiple agent
         operations, more than `n_iter` agent operations are executed
     system_propagator : callable
         A callable object, such as a function or class instance, that specifies
@@ -74,7 +71,7 @@ class FiniteSystemRunner(_Simulator):
     '''
     def __call__(self, system):
         '''The outer loop for a finite step simulation of a system, each step a
-        system propagator is applied
+        system mover is applied
 
         Parameters
         ----------
@@ -98,10 +95,9 @@ class FiniteSystemRunner(_Simulator):
                 if k_iter % self.progress_report_step == 0:
                     print (self.print_progress(k_iter))
 
-    def __init__(self, n_iter, system_propagator, 
+    def __init__(self, n_iter, system_mover,
                  n_iter_init_offset=0,
-                 system_io=None, progress_report_step=None,
-                 system_propagator_kwargs={}):
+                 system_io=None, progress_report_step=None):
 
         self.n_iter = n_iter
 
@@ -109,8 +105,7 @@ class FiniteSystemRunner(_Simulator):
         self.print_progress = lambda x: '---> ' + str(x) + 'steps of total ' + \
                               str(self.n_iter) + ' have been executed'
 
-        super().__init__(system_propagator, system_propagator_kwargs,
-                         system_io, n_iter_init_offset)
+        super().__init__(system_mover, system_io, n_iter_init_offset)
 
 class ConditionalSystemRunner(_Simulator):
     '''A simulator of an Agent Management System where the termination criteria

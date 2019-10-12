@@ -966,27 +966,27 @@ class AgentManagementSystem(object):
 
             self.lawbook[agent.agent_id_system] = word
 
-    def percolate(self, code_name):
-        '''Percolate the system according to a Percolator
+    def move(self, code_name):
+        '''Move the system according to a Mover
 
         Parameters
         ----------
         code_name : str
-            Name of percolator to apply to system
+            Name of mover to apply to system
 
         Raises
         ------
         KeyError
-            If the agent system manager has no percolator of given code name
+            If the agent system manager has no mover of given code name
 
         '''
-        if not code_name in self.percolator:
-            raise KeyError('AMS lacks percolator with code name %s' %(code_name))
+        if not code_name in self.mover:
+            raise KeyError('AMS lacks mover with code name %s' %(code_name))
 
         else:
-            the_percolator = self.percolator[code_name]
+            the_mover = self.mover[code_name]
 
-        the_percolator.enacted_by(self)
+        the_mover.move_by(self)
 
     def get_n_nodes(self):
         '''Return number of nodes in agent graph'''
@@ -1088,4 +1088,4 @@ class AgentManagementSystem(object):
         #
         # Initialize system dynamics
         #
-        self.percolator = {}
+        self.mover = {}

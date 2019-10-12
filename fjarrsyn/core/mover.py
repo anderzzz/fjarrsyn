@@ -1,5 +1,7 @@
 '''The Mover Parent Class'''
 
+from fjarrsyn.core.agent_ms import AgentManagementSystem
+
 class Mover(object):
     '''Base class for all Movers to move an agent system forward
 
@@ -7,8 +9,8 @@ class Mover(object):
     ----------
 
     '''
-    def enacted_by(self, agent_ms):
-        '''Enact mover to given AMS
+    def moved_by(self, agent_ms):
+        '''Move the mover of given AMS
 
         Parameters
         ----------
@@ -16,16 +18,19 @@ class Mover(object):
             The agent system manager to which the mover is to be applied
 
         '''
-        self.func(agent_ms, **self.func_kwargs)
+        if isinstance(agent_ms, AgentManagementSystem):
+            raise TypeError('Invalid class encountered: %s' %(str(type(agent_ms))))
 
-    def __init__(self, name, engine, engine_kwargs={}):
+        self.engine(agent_ms, **self.kwargs)
+
+    def __init__(self, name, engine, kwargs={}):
 
         self.name = name
 
         if not callable(engine):
             raise TypeError('Function to Mover is not an executable')
         self.engine = engine
-        self.engine_kwargs = engine_kwargs
+        self.kwargs = kwargs
 
 
 class StandardMoverFunc(object):
