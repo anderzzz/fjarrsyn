@@ -1,2 +1,1 @@
-'''Init for package import'''
-pass
+# __init__ for core
