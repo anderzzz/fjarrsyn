@@ -6,7 +6,7 @@ from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.message import Belief, Essence, Resource, Buzz
 from fjarrsyn.core.instructor import Interpreter, Sensor
 from fjarrsyn.core.graph import Node
-from fjarrsyn.core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
+from fjarrsyn.simulation.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
 
 import networkx as nx
 import numpy as np

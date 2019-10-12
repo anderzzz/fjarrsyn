@@ -3,8 +3,8 @@
 '''
 import os
 
-from fjarrsyn.core.simulator import FiniteSystemRunner
-from fjarrsyn.core.sampler import AgentSampler, SystemIO
+from fjarrsyn.simulation.simulator import FiniteSystemRunner
+from fjarrsyn.simulation.sampler import AgentSampler, SystemIO
 
 from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.agent_ms import AgentManagementSystem

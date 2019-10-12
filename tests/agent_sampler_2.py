@@ -5,7 +5,7 @@ from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.message import Belief, Essence, Resource
 from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.graph import Node
-from fjarrsyn.core.sampler import AgentSampler, EnvSampler, GraphSampler
+from fjarrsyn.simulation.sampler import AgentSampler, EnvSampler, GraphSampler
 
 import networkx as nx
 import pandas as pd

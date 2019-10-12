@@ -10,8 +10,9 @@ import numpy.random
 from fjarrsyn.core.instructor import Sensor, Actuator, Interpreter, Moulder, Cortex
 from fjarrsyn.core.policy import Plan, Clause, Heartbeat
 from fjarrsyn.core.message import Resource, Essence, Feature, Buzz, Belief, Direction
-from fjarrsyn.core.sampler import AgentSampler
 from fjarrsyn.core.constants import AGENT_IMPRINTS
+
+from fjarrsyn.simulation.sampler import AgentSampler
 
 class SocketConnectionError(Exception):
     pass

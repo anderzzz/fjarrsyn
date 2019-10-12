@@ -1,7 +1,7 @@
 '''Integration test of finite simulation of a system
 
 '''
-from fjarrsyn.core.simulator import FiniteSystemRunner
+from fjarrsyn.simulation.simulator import FiniteSystemRunner
 
 from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.agent_ms import AgentManagementSystem

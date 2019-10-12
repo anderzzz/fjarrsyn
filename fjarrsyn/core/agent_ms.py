@@ -12,7 +12,8 @@ import networkx as nx
 from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.graph import Node
 from fjarrsyn.core.instructor import Compulsion, Mutation
-from fjarrsyn.core.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
+
+from fjarrsyn.simulation.sampler import AgentSampler, EnvSampler, GraphSampler, SystemIO
 
 class AgentManagementSystem(object):
     '''Base class for the medium in which agents interacts with other agents or

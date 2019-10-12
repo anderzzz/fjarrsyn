@@ -2,8 +2,9 @@ from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.message import Essence, Belief, Direction
 from fjarrsyn.core.instructor import Moulder, Actuator
-from fjarrsyn.core.simulator import FiniteSystemRunner
 from fjarrsyn.core.mover import Mover
+
+from fjarrsyn.simulation.simulator import FiniteSystemRunner
 
 import numpy as np
 import numpy.random
