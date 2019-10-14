@@ -1,7 +1,8 @@
 '''Agent Management System
 
 '''
-from collections import OrderedDict, Iterable
+from collections.abc import Iterable
+from collections import OrderedDict
 from uuid import uuid4
 
 import numpy as np

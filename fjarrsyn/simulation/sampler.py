@@ -3,7 +3,7 @@ digestion, analysis or writing to disk. The samplers include agent properties,
 environment properties and system topological properties.
 
 '''
-from collections import Iterable
+from collections.abc import Iterable
 import operator
 
 import networkx as nx

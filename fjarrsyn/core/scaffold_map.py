@@ -2,7 +2,7 @@
 of an agent or other scaffolded object
 
 '''
-from collections import Iterable
+from collections.abc import Iterable
 
 import numpy as np
 import numpy.random

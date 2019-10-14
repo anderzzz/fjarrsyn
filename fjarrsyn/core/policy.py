@@ -3,7 +3,7 @@ that its potential intentions can be turned into a specific sequence of
 intentional actions
 
 '''
-from collections import Iterable
+from collections.abc import Iterable
 
 import networkx as nx
 

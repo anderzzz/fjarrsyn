@@ -3,7 +3,8 @@ in order to form organs and laws of the agents. Therefore instructors are
 central to the agent-based modelling.
 
 '''
-from collections import OrderedDict, Iterable
+from collections.abc import Iterable
+from collections import OrderedDict
 
 import numpy as np
 import numpy.random

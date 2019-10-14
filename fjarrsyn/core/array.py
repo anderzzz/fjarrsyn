@@ -2,7 +2,7 @@
 applications but through child classes 
 
 '''
-from collections import Iterable, Hashable
+from collections.abc import Iterable, Hashable
 from collections import OrderedDict
 
 class EmptyFlashError(Exception):
