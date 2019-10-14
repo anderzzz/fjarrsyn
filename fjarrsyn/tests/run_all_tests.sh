@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export PYTHONPATH=${PWD/tests/}:$PYTHONPATH
+export PYTHONPATH=${PWD/fjarrsyn\/tests/}:$PYTHONPATH
+echo $PYTHONPATH
 
 file_array=($(ls *.py))
 for item in ${file_array[*]}
