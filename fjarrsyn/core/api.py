@@ -32,11 +32,10 @@ from fjarrsyn.core.mover import Mover
 from fjarrsyn.core.policy import (
     Plan,
     Clause,
-    Heartbeat
-)
+    Heartbeat)
 
 from fjarrsyn.core.scaffold_map import (
     EssenceMap,
     ResourceMap,
-    MapCollection
-)
+    MapCollection,
+    universal_map_maker)

@@ -29,6 +29,7 @@ from fjarrsyn.core.api import (
     MessageOperator,
     ResourceMap,
     EssenceMap,
+    universal_map_maker,
     Agent,
     Socket,
     AgentManagementSystem,
