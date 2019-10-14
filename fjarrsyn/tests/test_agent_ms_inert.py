@@ -1,3 +1,9 @@
+'''Integration test of manipulating and using the inert attribute of Agents
+in simulations
+
+'''
+import pytest
+
 from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.message import Essence, Belief, Direction
@@ -70,20 +76,25 @@ def propagator(system):
     system.cleanse_inert()
     
 
-agent_1 = Killer('maximus 1', True, 0.9, 0.7)
-agent_2 = Killer('maximus 2', True, 0.6, 1.0)
-agent_3 = Killer('maximus 3', True, 1.0, 0.3)
-agent_4 = Killer('maximus 4', False, 0.2, 0.2)
+def test_main():
+    '''Four agents battle to death in a Coluseum, which means agents will go from
+    alive to dead, and only one will end up alive after it is done
 
-coluseum = Coluseum('That Place', [agent_1, agent_2, agent_3, agent_4])
-agents_start = set(coluseum.agents_in_scope.keys())
+    '''
+    agent_1 = Killer('maximus 1', True, 0.9, 0.7)
+    agent_2 = Killer('maximus 2', True, 0.6, 1.0)
+    agent_3 = Killer('maximus 3', True, 1.0, 0.3)
+    agent_4 = Killer('maximus 4', False, 0.2, 0.2)
 
-mover = Mover('play the game', propagator)
-runner = FiniteSystemRunner(20, mover)
-runner(coluseum)
+    coluseum = Coluseum('That Place', [agent_1, agent_2, agent_3, agent_4])
+    agents_start = set(coluseum.agents_in_scope.keys())
 
-alive = set([x.agent_content.agent_id_system for x in coluseum if not x.agent_content is None])
+    mover = Mover('play the game', propagator)
+    runner = FiniteSystemRunner(20, mover)
+    runner(coluseum)
 
-assert (KILLED & alive == set([]))
-assert (KILLED | alive == agents_start)
-assert (len(alive) == 1)
+    alive = set([x.agent_content.agent_id_system for x in coluseum if not x.agent_content is None])
+
+    assert (KILLED & alive == set([]))
+    assert (KILLED | alive == agents_start)
+    assert (len(alive) == 1)

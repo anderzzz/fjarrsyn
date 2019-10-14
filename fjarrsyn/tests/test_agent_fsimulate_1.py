@@ -1,6 +1,8 @@
-'''Integration test of finite simulation of a system
+'''Integration test of finite simulation of a system of two agents
 
 '''
+import pytest
+
 from fjarrsyn.simulation.simulator import FiniteSystemRunner
 
 from fjarrsyn.core.agent import Agent
@@ -53,17 +55,22 @@ class Thinker(Agent):
                           metabolism)
         self.set_organ(interpreter)
 
-agent_1 = Thinker('Alpha', 10000.0, 100.0, 2.0)
-agent_2 = Thinker('Beta', 8000.0, 200.0, 5.0)
-ams = AgentManagementSystem('Pair', [agent_1, agent_2])
 
-mover = Mover('move_thinker', propagator)
-runner = FiniteSystemRunner(4, mover)
-runner(ams)
+def test_main():
+    '''Integration test: finite system simulation, two agents.
 
-assert (isclose(agent_1.resource['value'], REF_ENERGY[0]))
-assert (isclose(agent_2.resource['value'], REF_ENERGY[1]))
-assert (isclose(agent_1.belief['The diameter of the world']['value'], REF_BELIEF[0][0]))
-assert (isclose(agent_1.belief['The diameter of the world']['precision'], REF_BELIEF[0][1]))
-assert (isclose(agent_2.belief['The diameter of the world']['value'], REF_BELIEF[1][0]))
-assert (isclose(agent_2.belief['The diameter of the world']['precision'], REF_BELIEF[1][1]))
+    '''
+    agent_1 = Thinker('Alpha', 10000.0, 100.0, 2.0)
+    agent_2 = Thinker('Beta', 8000.0, 200.0, 5.0)
+    ams = AgentManagementSystem('Pair', [agent_1, agent_2])
+
+    mover = Mover('move_thinker', propagator)
+    runner = FiniteSystemRunner(4, mover)
+    runner(ams)
+
+    assert (isclose(agent_1.resource['value'], REF_ENERGY[0]))
+    assert (isclose(agent_2.resource['value'], REF_ENERGY[1]))
+    assert (isclose(agent_1.belief['The diameter of the world']['value'], REF_BELIEF[0][0]))
+    assert (isclose(agent_1.belief['The diameter of the world']['precision'], REF_BELIEF[0][1]))
+    assert (isclose(agent_2.belief['The diameter of the world']['value'], REF_BELIEF[1][0]))
+    assert (isclose(agent_2.belief['The diameter of the world']['precision'], REF_BELIEF[1][1]))
