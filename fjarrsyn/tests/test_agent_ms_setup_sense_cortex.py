@@ -1,9 +1,7 @@
 '''Integration test of AMS where the two agents can sense each others cortices
 
 '''
-import numpy as np
-import numpy.random
-np.random.seed(79)
+import pytest
 
 from fjarrsyn.core.agent_ms import AgentManagementSystem
 
@@ -14,10 +12,9 @@ from fjarrsyn.core.message import Buzz, Feature, Essence
 REF_VALUES = [[('type_sense', 0.50078), ('honesty_sense', 0.5)],
               [('type_sense', 0.50067), ('honesty_sense', 0.2)]]
 
-def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
-    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+FLOATPOOL = [0.5006681263403812,0.4680674259481151,0.5007825256422324,0.14917816545210816]
 
-class TestAgentMS(AgentManagementSystem):
+class XTestAgentMS(AgentManagementSystem):
 
     def type_query(self, agent_index):
 
@@ -51,28 +48,29 @@ class TestAgentMS(AgentManagementSystem):
             cortex = Cortex('my_type', agent.reveal_type, essence, feature)
             agent.set_organs(sensor, cortex)
 
-            essence.set_values([np.random.random(), np.random.random()])
+            essence.set_values([FLOATPOOL.pop(0), FLOATPOOL.pop(0)])
             agent.set_scaffold(essence)
+            print (agent.essence.values())
 
-class TestAgent(Agent):
+class XTestAgent(Agent):
 
     def reveal_type(self, the_type, parameter):
         return the_type 
 
+def test_main():
+    agents_init = [XTestAgent('LEFT', strict_engine=True), XTestAgent('RIGHT', strict_engine=True)]
+    agent_ms = XTestAgentMS('pair_of_agents', agents_init)
 
-agents_init = [TestAgent('LEFT', strict_engine=True), TestAgent('RIGHT', strict_engine=True)]
-agent_ms = TestAgentMS('pair_of_agents', agents_init)
+    cnt = 0
+    for node in agent_ms:
+        agent = node.agent_content
+        agent.sense('discover_neighbour_type')
+        the_buzz = agent.buzz['type_discovery']
 
-cnt = 0
-for node in agent_ms:
-    agent = node.agent_content
-    agent.sense('discover_neighbour_type')
-    the_buzz = agent.buzz['type_discovery']
+        xx = the_buzz['type_sense']
+        yy = the_buzz['honesty_sense']
 
-    xx = the_buzz['type_sense']
-    yy = the_buzz['honesty_sense']
+        assert (xx == pytest.approx(REF_VALUES[cnt][0][1], abs=1e-5))
+        assert (yy == pytest.approx(REF_VALUES[cnt][1][1], abs=1e-5))
 
-    assert (isclose(xx, REF_VALUES[cnt][0][1], abs_tol=0.00001))
-    assert (isclose(yy, REF_VALUES[cnt][1][1], abs_tol=0.00001))
-
-    cnt += 1
+        cnt += 1
