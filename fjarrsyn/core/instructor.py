@@ -4,7 +4,6 @@ central to the agent-based modelling.
 
 '''
 from collections.abc import Iterable
-from collections import OrderedDict
 
 import numpy as np
 import numpy.random
@@ -871,7 +870,7 @@ class Mutation(_Instructor):
     and only, any data to populate the output essence map
 
     '''
-    def __call__(self, agent_index):
+    def __call__(self, agent_id):
         '''Execute the mutation attempt and populate the output if attempt
         successful
 
@@ -982,7 +981,7 @@ class MultiMutation(Mutation):
     mutation attemtps are distributed on the essence arguments, see `__call__`
 
     '''
-    def __call__(self, agent_index):
+    def __call__(self, agent_id):
         '''Execute the mutation attempt and populate the output if attempt
         successful
 
