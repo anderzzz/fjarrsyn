@@ -1,12 +1,13 @@
+'''Integration test: move agent and agent environment around in a graph
+
+'''
+import pytest
+
 from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.agent_ms import AgentManagementSystem
 from fjarrsyn.core.graph import Node
 
 import networkx as nx
-
-import numpy as np
-import numpy.random
-np.random.seed(79)
 
 class LocalEnv(object):
     def __init__(self, value):

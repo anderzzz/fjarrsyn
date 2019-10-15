@@ -1,7 +1,7 @@
 '''Integration test of belief sharing between agents
 
 '''
-import copy
+import pytest
 
 from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.agent_ms import AgentManagementSystem
@@ -114,28 +114,28 @@ class Student(Agent):
         self.set_scaffold(essence)
         self.set_message(buzz)
 
+def test_main():
+    agent_1 = Teacher('Teacher')
+    agent_2 = Student('Student')
+    school = School('Knowledge Abound', [agent_1, agent_2])
 
-agent_1 = Teacher('Teacher')
-agent_2 = Student('Student')
-school = School('Knowledge Abound', [agent_1, agent_2])
+    assert (agent_2.belief['Knowledge'].values() == REF[0])
+    agent_1.mould('What to share')
+    agent_1.act('Share')
+    agent_2.sense('Listen for knowledge')
+    agent_2.interpret('Should I accept teaching')
+    assert (agent_2.belief['Knowledge'].values() == REF[1])
 
-assert (agent_2.belief['Knowledge'].values() == REF[0])
-agent_1.mould('What to share')
-agent_1.act('Share')
-agent_2.sense('Listen for knowledge')
-agent_2.interpret('Should I accept teaching')
-assert (agent_2.belief['Knowledge'].values() == REF[1])
+    agent_2.essence['degree'] = 75.0
+    agent_1.mould('What to share')
+    agent_1.act('Share')
+    agent_2.sense('Listen for knowledge')
+    agent_2.interpret('Should I accept teaching')
+    assert (agent_2.belief['Knowledge'].values() == REF[2])
 
-agent_2.essence['degree'] = 75.0
-agent_1.mould('What to share')
-agent_1.act('Share')
-agent_2.sense('Listen for knowledge')
-agent_2.interpret('Should I accept teaching')
-assert (agent_2.belief['Knowledge'].values() == REF[2])
-
-agent_1.essence['degree'] = 80.0 
-agent_1.mould('What to share')
-agent_1.act('Share')
-agent_2.sense('Listen for knowledge')
-agent_2.interpret('Should I accept teaching')
-assert (agent_2.belief['Knowledge'].values() == REF[3])
+    agent_1.essence['degree'] = 80.0
+    agent_1.mould('What to share')
+    agent_1.act('Share')
+    agent_2.sense('Listen for knowledge')
+    agent_2.interpret('Should I accept teaching')
+    assert (agent_2.belief['Knowledge'].values() == REF[3])

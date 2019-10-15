@@ -2,9 +2,7 @@
 a third new agent
 
 '''
-import numpy as np
-import numpy.random
-np.random.seed(79)
+import pytest
 
 from fjarrsyn.core.agent import Agent
 from fjarrsyn.core.agent_ms import AgentManagementSystem
@@ -149,51 +147,52 @@ class Arena(AgentManagementSystem):
             agent.set_organs(sensor, actuator_r, actuator_e, actuator_b)
 
 
-person_1 = Person('A', True, True, True, True)
-person_2 = Person('B', False, False, False, False)
-ams = Arena('A Place', [person_1, person_2], SimpleEnv(None))
+def test_main():
+    person_1 = Person('A', True, True, True, True)
+    person_2 = Person('B', False, False, False, False)
+    ams = Arena('A Place', [person_1, person_2], SimpleEnv(None))
 
-person_1.mould('Eject gene')
-person_1.act('Eject gene')
+    person_1.mould('Eject gene')
+    person_1.act('Eject gene')
 
-agent_2 = ams.neighbours_to(person_1.agent_id_system).pop()
-agent_2.sense('Feel for gene in Env')
-agent_2.interpret('Is gene in env?')
-agent_2.mould('Receive gene')
-agent_2.act('Suck up gene')
-agent_2.mould('Make cross-over baby')
-agent_2.act('Birth baby')
+    agent_2 = ams.neighbours_to(person_1.agent_id_system).pop()
+    agent_2.sense('Feel for gene in Env')
+    agent_2.interpret('Is gene in env?')
+    agent_2.mould('Receive gene')
+    agent_2.act('Suck up gene')
+    agent_2.mould('Make cross-over baby')
+    agent_2.act('Birth baby')
 
-for a in ams.cycle_nodes(True, 3):
-    if a.name == 'A':
-        assert (a.essence['rude'] == True)
-        assert (a.essence['loud'] == True)
-        assert (a.essence['big'] == True)
-        assert (a.essence['foul'] == True)
-        assert (int(a.resource['item_1']) == 1) 
-        assert (int(a.resource['item_2']) == 2) 
-        assert (a.resource['External gene'] == 0) 
-    if a.name == 'B':
-        assert (a.essence['rude'] == False)
-        assert (a.essence['loud'] == False)
-        assert (a.essence['big'] == False)
-        assert (a.essence['foul'] == False)
-        assert (int(a.resource['item_1']) == 2) 
-        assert (int(a.resource['item_2']) == 4) 
-        assert (a.resource['External gene'] == 0) 
-    if a.name == 'arnold':
-        agent_child = a
-        assert (a.essence['rude'] == True)
-        assert (a.essence['loud'] == True)
-        assert (a.essence['big'] == False)
-        assert (a.essence['foul'] == False)
-        assert (int(a.resource['item_1']) == 3) 
-        assert (int(a.resource['item_2']) == 6) 
-        assert (a.resource['External gene'] == 0) 
+    for a in ams.cycle_nodes(True, 3):
+        if a.name == 'A':
+            assert (a.essence['rude'] == True)
+            assert (a.essence['loud'] == True)
+            assert (a.essence['big'] == True)
+            assert (a.essence['foul'] == True)
+            assert (int(a.resource['item_1']) == 1)
+            assert (int(a.resource['item_2']) == 2)
+            assert (a.resource['External gene'] == 0)
+        if a.name == 'B':
+            assert (a.essence['rude'] == False)
+            assert (a.essence['loud'] == False)
+            assert (a.essence['big'] == False)
+            assert (a.essence['foul'] == False)
+            assert (int(a.resource['item_1']) == 2)
+            assert (int(a.resource['item_2']) == 4)
+            assert (a.resource['External gene'] == 0)
+        if a.name == 'arnold':
+            agent_child = a
+            assert (a.essence['rude'] == True)
+            assert (a.essence['loud'] == True)
+            assert (a.essence['big'] == False)
+            assert (a.essence['foul'] == False)
+            assert (int(a.resource['item_1']) == 3)
+            assert (int(a.resource['item_2']) == 6)
+            assert (a.resource['External gene'] == 0)
 
-node_1 = ams.get(person_1.agent_id_system, get_node=True)
-node_2 = ams.get(agent_2.agent_id_system, get_node=True)
-node_child = ams.get(agent_child.agent_id_system, get_node=True)
-assert ((node_1, node_2) in ams.agents_graph.edges)
-assert ((node_child, node_2) in ams.agents_graph.edges)
-assert (not (node_child, node_1) in ams.agents_graph.edges)
+    node_1 = ams.get(person_1.agent_id_system, get_node=True)
+    node_2 = ams.get(agent_2.agent_id_system, get_node=True)
+    node_child = ams.get(agent_child.agent_id_system, get_node=True)
+    assert ((node_1, node_2) in ams.agents_graph.edges)
+    assert ((node_child, node_2) in ams.agents_graph.edges)
+    assert (not (node_child, node_1) in ams.agents_graph.edges)
