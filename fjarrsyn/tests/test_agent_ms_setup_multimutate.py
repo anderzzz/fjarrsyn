@@ -12,14 +12,21 @@ from fjarrsyn.core.instructor import MultiMutation
 from fjarrsyn.core.scaffold_map import EssenceMap, MapCollection
 
 REF = [[0.0, 0.0, 0.0, 0.0, 0.0],
-       [0.0, 1.080244, 0.0, -0.691219, 0.0],
-       [0.0, 1.056428, 1.460206, -0.691219, 0.0],
-       [0.0, 1.056428, 0.628979, -1.344839, 0.578392],
-       [-2.513790, 1.056428, 0.628979, -1.344839, 0.578392]]
+       [0.0, 0.0, 0.0, 0.0, -0.8427240538292873],
+       [0.0, 0.0, 1.9699244478698945, 0.0, -0.8427240538292873],
+       [0.0, 0.0, 2.4542366019905595, 0.5791404787067285, -1.0243066265604832],
+       [0.0, 1.4102046311312142, 2.4542366019905595, -1.9738493371273502, -1.0243066265604832]]
 
-def test_main():
-    # HOW TO DEAL WITH RANDOM NUMBERS AND PYTEST??
-    assert 1==2
+@pytest.fixture
+def set_random():
+    '''Function to set random seed, which must be decorated
+    in order to be called at the right place with pytest
+
+    '''
+    np.random.seed(0)
+
+def test_main(set_random):
+
     essence = Essence('inclinations', ['t_1', 't_2', 't_3', 't_4', 't_5'])
     essence.set_values([0.0, 0.0, 0.0, 0.0, 0.0])
 
@@ -39,22 +46,16 @@ def test_main():
     ams.set_law(mutate)
 
     vals = agent.essence.values()
-    print (vals)
-#    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[0])]))
+    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[0])]))
     ams.mutate(agent, 'jumps')
     vals = agent.essence.values()
-    print (vals)
-#    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[1])]))
+    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[1])]))
     ams.mutate(agent, 'jumps')
     vals = agent.essence.values()
-    print (vals)
-#    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[2])]))
+    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[2])]))
     ams.mutate(agent, 'jumps')
     vals = agent.essence.values()
-    print (vals)
-#    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[3])]))
+    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[3])]))
     ams.mutate(agent, 'jumps')
     vals = agent.essence.values()
-    print (vals)
-#    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[4])]))
-    assert 1==2
+    assert (all([x == pytest.approx(y) for x, y in zip(vals, REF[4])]))
