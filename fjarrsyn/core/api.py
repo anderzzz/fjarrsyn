@@ -16,7 +16,9 @@ from fjarrsyn.core.agent import Agent, Socket
 
 from fjarrsyn.core.agent_ms import AgentManagementSystem
 
-from fjarrsyn.core.graph import Node
+from fjarrsyn.core.graph import (
+    Node,
+    node_maker)
 
 from fjarrsyn.core.message import (
     Buzz,

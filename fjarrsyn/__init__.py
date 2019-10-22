@@ -34,6 +34,7 @@ from fjarrsyn.core.api import (
     Socket,
     AgentManagementSystem,
     Node,
+    node_maker,
     Mover,
     Plan,
     Clause,

@@ -44,3 +44,46 @@ class Node(object):
         for key, item in other_attributes:
             setattr(self, key, item)
 
+def node_maker(agents, envs=None, node_names=None, node_attributes=None):
+    '''Convenience function to place a collection of agents and environments in nodes
+
+    Parameters
+    ----------
+    TBD
+
+    Returns
+    -------
+    TBD
+
+    '''
+    n_nodes = len(agents)
+
+    if not envs is None:
+        if len(envs) != n_nodes:
+            raise ValueError('Environment container not of same size as agent container')
+        envs_iter = envs
+
+    else:
+        envs_iter = [None] * n_nodes
+
+    if not node_names is None:
+        if len(node_names) != n_nodes:
+            raise ValueError('Node names container no of same size as agent container')
+        node_names_iter = node_names
+
+    else:
+        node_names_iter = ['ID {}'.format(k) for k in range(n_nodes)]
+
+    if not node_attributes is None:
+        if len(node_attributes) != n_nodes:
+            raise ValueError('Node attributes container not of same size as agent container')
+        node_attributes_iter = node_attributes
+
+    else:
+        node_attributes_iter = [{}] * n_nodes
+
+    ret = []
+    for agent, env, name, attributes in zip(agents, envs_iter, node_names_iter, node_attributes_iter):
+        ret.append(Node(name, agent, env, attributes))
+
+    return ret
