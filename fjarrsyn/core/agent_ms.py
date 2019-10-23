@@ -920,7 +920,8 @@ class AgentManagementSystem(object):
                     ret_tmp = self.mutate(agent, phrase, validate_lawbook)
                     ret = ret and ret_tmp
 
-    def make_lawbook_entry(self, law_phrases, agent_name_selector=None, agent_ids=None):
+    def make_lawbook_entry(self, law_phrases, agent_name_selector=None,
+                           agent_type_selector=None, agent_ids=None):
         '''Enter a connection between agents as certain law phrases, such that
         the agent management system can enforce certain laws being applied to
         certain agents only
@@ -934,6 +935,9 @@ class AgentManagementSystem(object):
             Function that receives an agent name and returns either True or
             False, where the former is interpreted as that the given law
             phrases apply to the corresponding set of agents of the system
+        agent_type_selector : set of Classes, optional
+            Child Agent Classes so that only agents of one of these child
+            classes is associated with the give law phrase
         agent_ids : iterable, optional
             Collection of agent IDs, strings, for which the given law phrases
             apply. 
@@ -957,6 +961,10 @@ class AgentManagementSystem(object):
 
             if not agent_name_selector is None:
                 if agent_name_selector(agent.name):
+                    word = law_phrases
+
+            elif not agent_type_selector is None:
+                if type(agent, agent_type_selector):
                     word = law_phrases
 
             elif not agent_ids is None:
